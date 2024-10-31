@@ -4,6 +4,7 @@
 package werc20
 
 import (
+	"fmt"
 	"math/big"
 
 	"cosmossdk.io/math"
@@ -27,26 +28,26 @@ const (
 // deposited funds is necessary to make the handling of this method in the
 // contract a no-op.
 func (p Precompile) Deposit(ctx sdk.Context, contract *vm.Contract, stateDB vm.StateDB) ([]byte, error) {
-	// Get the deposited amount from the contract value
+	caller := contract.Caller()
 	depositedAmount := contract.Value()
 
 	// Get the sender's address
 	// TODO: what if we have a user calling a contract that calls into this one?
-	sender := common.BytesToAddress(contract.Caller().Bytes())
-	senderAccAddress := sdk.AccAddress(sender.Bytes())
+	callerAddr := common.BytesToAddress(caller.Bytes())
+	callerAccAddress := sdk.AccAddress(callerAddr.Bytes())
 	precompileAccAddr := sdk.AccAddress(p.Address().Bytes())
 
 	// Send the coins back to the sender
-	err := p.bankKeeper.SendCoins(
-		ctx, precompileAccAddr,
-		senderAccAddress,
+	if err := p.BankKeeper.SendCoins(
+		ctx,
+		precompileAccAddr,
+		callerAccAddress,
 		sdk.NewCoins(sdk.NewCoin(types.GetEVMCoinDenom(), math.NewIntFromBigInt(depositedAmount))),
-	)
-	if err != nil {
+	); err != nil {
 		return nil, err
 	}
 
-	if err := p.EmitDepositEvent(ctx, stateDB, contract.Caller(), big.NewInt(0)); err != nil {
+	if err := p.EmitDepositEvent(ctx, stateDB, caller, depositedAmount); err != nil {
 		return nil, err
 	}
 
@@ -56,8 +57,12 @@ func (p Precompile) Deposit(ctx sdk.Context, contract *vm.Contract, stateDB vm.S
 // Withdraw is a no-op and mock function that provides the same interface as the
 // WETH contract to support equality between the native coin and its wrapped
 // ERC-20 (e.g. EVMOS and WEVMOS).
-func (p Precompile) Withdraw(ctx sdk.Context, contract *vm.Contract, stateDB vm.StateDB) ([]byte, error) {
-	if err := p.EmitWithdrawalEvent(ctx, stateDB, contract.Caller(), big.NewInt(0)); err != nil {
+func (p Precompile) Withdraw(ctx sdk.Context, contract *vm.Contract, stateDB vm.StateDB, args []interface{}) ([]byte, error) {
+	amount, ok := args[0].(*big.Int)
+	if !ok {
+		return nil, fmt.Errorf("invalid argument type: %T", args[0])
+	}
+	if err := p.EmitWithdrawalEvent(ctx, stateDB, contract.Caller(), amount); err != nil {
 		return nil, err
 	}
 	return nil, nil

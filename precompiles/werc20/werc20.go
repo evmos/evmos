@@ -33,7 +33,6 @@ var _ vm.PrecompiledContract = &Precompile{}
 // Precompile defines the precompiled contract for WERC20.
 type Precompile struct {
 	*erc20.Precompile
-	bankKeeper bankkeeper.Keeper
 }
 
 const (
@@ -49,7 +48,7 @@ func LoadABI() (abi.ABI, error) {
 	return cmn.LoadABI(f, abiPath)
 }
 
-// NewPrecompile creates a new WERC20 Precompile instance as a
+// NewPrecompile creates a new WERC20 Precompile instance implementing the
 // PrecompiledContract interface.
 func NewPrecompile(
 	tokenPair erc20types.TokenPair,
@@ -59,12 +58,12 @@ func NewPrecompile(
 ) (*Precompile, error) {
 	newABI, err := LoadABI()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error loading the ABI: %w", err)
 	}
 
 	erc20Precompile, err := erc20.NewPrecompile(tokenPair, bankKeeper, authzKeeper, transferKeeper)
 	if err != nil {
-		return nil, fmt.Errorf("ERC20 precompile is nil")
+		return nil, fmt.Errorf("error during instantiation of the ERC20 precompile: %w", err)
 	}
 
 	// use the IWERC20 ABI
@@ -72,11 +71,10 @@ func NewPrecompile(
 
 	return &Precompile{
 		Precompile: erc20Precompile,
-		bankKeeper: bankKeeper,
 	}, nil
 }
 
-// Address returns the address of the WERC20 precompile contract.
+// Address returns the address of the WERC20 precompiled contract.
 func (p Precompile) Address() common.Address {
 	return p.Precompile.Address()
 }
@@ -126,7 +124,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		method.Name == DepositMethod:
 		bz, err = p.Deposit(ctx, contract, stateDB)
 	case method.Name == WithdrawMethod:
-		bz, err = p.Withdraw(ctx, contract, stateDB)
+		bz, err = p.Withdraw(ctx, contract, stateDB, args)
 	default:
 		// ERC20 transactions and queries
 		bz, err = p.Precompile.HandleMethod(ctx, contract, stateDB, method, args)

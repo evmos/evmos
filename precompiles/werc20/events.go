@@ -26,11 +26,11 @@ const (
 func (p Precompile) EmitDepositEvent(
 	ctx sdk.Context,
 	stateDB vm.StateDB,
-	dst common.Address,
+	caller common.Address,
 	amount *big.Int,
 ) error {
 	event := p.ABI.Events[EventTypeDeposit]
-	return p.createWERC20Event(ctx, stateDB, event, dst, amount)
+	return p.createWERC20Event(ctx, stateDB, event, caller, amount)
 }
 
 // EmitWithdrawalEvent creates a new Withdrawal event emitted after a Withdraw transaction.
