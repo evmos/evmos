@@ -4,6 +4,13 @@ import (
 	"testing"
 	"time"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
@@ -12,6 +19,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	evmostypes "github.com/evmos/evmos/v20/types"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -38,6 +46,12 @@ func (s *PrecompileTestSuite) SetupTest() {
 	customGen := network.CustomGenesisState{}
 	now := time.Now().UTC()
 	inOneHour := now.Add(time.Hour)
+
+	var err error
+	anyMessage, err := types.NewAnyWithValue(TestProposalMsgs[0])
+	if err != nil {
+		panic(err)
+	}
 	prop := &govv1.Proposal{
 		Id:              1,
 		Status:          govv1.ProposalStatus_PROPOSAL_STATUS_VOTING_PERIOD,
@@ -49,10 +63,24 @@ func (s *PrecompileTestSuite) SetupTest() {
 		Title:           "test prop",
 		Summary:         "test prop",
 		Proposer:        keyring.GetAccAddr(0).String(),
+		Messages:        []*types.Any{anyMessage},
 	}
+
+	bankGen := banktypes.DefaultGenesisState()
+	bankGen.Balances = []banktypes.Balance{{
+		Address: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		Coins:   sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(100))),
+	}}
 	govGen := govv1.DefaultGenesisState()
+	govGen.Deposits = []*govv1.Deposit{{
+		ProposalId: 1,
+		Depositor:  keyring.GetAccAddr(0).String(),
+		Amount:     sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(100))),
+	}}
+	govGen.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(100)))
 	govGen.Proposals = append(govGen.Proposals, prop)
 	customGen[govtypes.ModuleName] = govGen
+	customGen[banktypes.ModuleName] = bankGen
 
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
@@ -66,7 +94,6 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.keyring = keyring
 	s.network = nw
 
-	var err error
 	if s.precompile, err = gov.NewPrecompile(
 		s.network.App.GovKeeper,
 		s.network.App.AuthzKeeper,

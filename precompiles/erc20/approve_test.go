@@ -420,7 +420,6 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
@@ -719,7 +718,6 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 

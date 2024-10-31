@@ -45,7 +45,6 @@ func TestAddressFormats(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			hex, err := accountToHex(tc.addrString)
 			require.Equal(t, tc.expectErr, err != nil, err)
