@@ -41,6 +41,7 @@ var (
 	ErrTransferAmountExceedsBalance = errors.New("ERC20: transfer amount exceeds balance")
 	ErrOwnableInvalidOwner          = errors.New("ERC20: invalid new owner")
 	ErrOwnableUnauthorizedAccount   = errors.New("ERC20: unauthorized account")
+	ErrContractOwnerNotFound        = errors.New("contract owner not found")
 )
 
 // BuildExecRevertedErr returns a mocked error that should align with the
@@ -78,6 +79,8 @@ func ConvertErrToERC20Error(err error) error {
 		return ErrTransferAmountExceedsBalance
 	case strings.Contains(err.Error(), "minter is not the owner") || strings.Contains(err.Error(), "burner is not the owner"):
 		return vm.ErrExecutionReverted
+	case strings.Contains(err.Error(), "contract owner not found"):
+		return ErrContractOwnerNotFound
 	case strings.Contains(err.Error(), "requested amount is more than spend limit"):
 		return ErrInsufficientAllowance
 	case strings.Contains(err.Error(), authz.ErrNoAuthorizationFound.Error()):

@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -224,7 +225,7 @@ func (p Precompile) Owner(
 
 	ownerAddr, err := p.erc20Keeper.GetTokenPairOwnerAddress(ctx, p.tokenPair.GetERC20Contract().Hex())
 	if err != nil {
-		return nil, err
+		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(err, "contract owner not found"))
 	}
 
 	p.tokenPair.SetOwnerAddress(ownerAddr.String())
