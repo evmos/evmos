@@ -124,7 +124,7 @@ contract InterchainSender {
     ) public {
         if (_before) {
             counter++;
-            (bool sent, ) = _source.call{value: 15}("");
+            (bool sent, ) = _source.call{value: 15000000000000}("");
             require(sent, "Failed to send Ether to delegator");
         }
         Height memory timeoutHeight = Height(100, 100);
@@ -141,7 +141,7 @@ contract InterchainSender {
         );
         if (_between) {
             counter++;
-            (bool sent, ) = _source.call{value: 15}("");
+            (bool sent, ) = _source.call{value: 15000000000000}("");
             require(sent, "Failed to send Ether to delegator");
         }
         ICS20_CONTRACT.transfer(
@@ -157,7 +157,7 @@ contract InterchainSender {
         );
         if (_after) {
             counter++;
-            (bool sent, ) = _source.call{value: 15}("");
+            (bool sent, ) = _source.call{value: 15000000000000}("");
             require(sent, "Failed to send Ether to delegator");
         }
     }
@@ -176,7 +176,7 @@ contract InterchainSender {
     ) public {
         if (_before) {
             counter++;
-            (bool sent, ) = _otherAcc.call{value: 15}("");
+            (bool sent, ) = _otherAcc.call{value: 15000000000000}("");
             require(sent, "Failed to send Ether to delegator");
         }
         Height memory timeoutHeight = Height(100, 100);
@@ -193,7 +193,7 @@ contract InterchainSender {
         );
         if (_after) {
             counter++;
-            (bool sent, ) = _otherAcc.call{value: 15}("");
+            (bool sent, ) = _otherAcc.call{value: 15000000000000}("");
             require(sent, "Failed to send Ether to delegator");
         }
     }
