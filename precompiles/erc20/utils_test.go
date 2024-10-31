@@ -161,6 +161,7 @@ func (s *PrecompileTestSuite) requireOut(
 
 		// Unpack the name into a string
 		out, err := method.Outputs.Unpack(bz)
+		fmt.Println("out", out)
 		s.Require().NoError(err, "expected no error unpacking")
 
 		// Check if expValue is a big.Int. Because of a difference in uninitialized/empty values for big.Ints,
@@ -208,8 +209,8 @@ func (s *PrecompileTestSuite) requireSendAuthz(grantee, granter sdk.AccAddress, 
 // setupERC20Precompile is a helper function to set up an instance of the ERC20 precompile for
 // a given token denomination, set the token pair in the ERC20 keeper and adds the precompile
 // to the available and active precompiles.
-func (s *PrecompileTestSuite) setupERC20Precompile(denom string, contractOwnerAddr string) *erc20.Precompile {
-	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE, contractOwnerAddr)
+func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompile {
+	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE)
 	s.network.App.Erc20Keeper.SetTokenPair(s.network.GetContext(), tokenPair)
 
 	precompile, err := setupERC20PrecompileForTokenPair(*s.network, tokenPair)
@@ -223,8 +224,8 @@ func (s *PrecompileTestSuite) setupERC20Precompile(denom string, contractOwnerAd
 // to the available and active precompiles.
 //
 // TODO: refactor
-func (is *IntegrationTestSuite) setupERC20Precompile(denom string, contractOwnerAddr string) *erc20.Precompile {
-	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE, contractOwnerAddr)
+func (is *IntegrationTestSuite) setupERC20Precompile(denom string) *erc20.Precompile {
+	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE)
 	is.network.App.Erc20Keeper.SetToken(is.network.GetContext(), tokenPair)
 
 	precompile, err := setupERC20PrecompileForTokenPair(*is.network, tokenPair)
@@ -239,7 +240,7 @@ func setupERC20PrecompileForTokenPair(
 	unitNetwork network.UnitTestNetwork, tokenPair erc20types.TokenPair,
 ) (*erc20.Precompile, error) {
 	precompile, err := erc20.NewPrecompile(
-		unitNetwork.App.GetKey(erc20types.ModuleName),
+		unitNetwork.App.Erc20Keeper,
 		tokenPair,
 		unitNetwork.App.BankKeeper,
 		unitNetwork.App.AuthzKeeper,

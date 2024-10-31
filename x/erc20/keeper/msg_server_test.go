@@ -414,3 +414,4 @@ func (suite *KeeperTestSuite) TestUpdateParams() {
 		})
 	}
 }
+

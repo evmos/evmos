@@ -32,7 +32,7 @@ func (k Keeper) RegisterERC20(
 		)
 	}
 
-	pair := types.NewTokenPair(contract, metadata.Name, types.OWNER_EXTERNAL, "")
+	pair := types.NewTokenPair(contract, metadata.Name, types.OWNER_EXTERNAL)
 	k.SetToken(ctx, pair)
 	return &pair, nil
 }
