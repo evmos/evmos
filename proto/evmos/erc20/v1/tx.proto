@@ -22,6 +22,15 @@ service Msg {
   // UpdateParams defined a governance operation for updating the x/erc20 module parameters.
   // The authority is hard-coded to the Cosmos SDK x/gov module account
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  // Mint mints ERC20 tokens
+  rpc Mint(MsgMint) returns (MsgMintResponse) {
+    option (google.api.http).post = "/evmos/erc20/v1/tx/mint";
+  }
+  // Burn burns ERC20 tokens
+  rpc Burn(MsgBurn) returns (MsgBurnResponse) {
+    option (google.api.http).post = "/evmos/erc20/v1/tx/burn";
+  }
 }
 
 // MsgConvertERC20 defines a Msg to convert a ERC20 token to a native Cosmos

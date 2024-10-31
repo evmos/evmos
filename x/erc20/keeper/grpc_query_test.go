@@ -178,3 +178,56 @@ func (suite *KeeperTestSuite) TestQueryParams() {
 	suite.Require().NoError(err)
 	suite.Require().Equal(expParams, res.Params)
 }
+
+func (suite *KeeperTestSuite) TestOwnerAddress() {
+	contractAddr := utiltx.GenerateAddress()
+	ownerAddr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+
+	expPair := types.NewTokenPair(contractAddr, "coin", types.OWNER_MODULE)
+	expPair.SetOwnerAddress(ownerAddr.String())
+	id := expPair.GetID()
+
+	testcases := []struct{
+		name string
+		malleate func()
+		expOwner string
+	}{
+		{
+			"returns empty string if contract does not exists",
+			func() {
+				expPair = types.NewTokenPair(utiltx.GenerateAddress(), "coin", types.OWNER_MODULE)
+				expPair.SetOwnerAddress(ownerAddr.String())
+				s.app.Erc20Keeper.SetTokenPair(s.ctx, expPair)
+				s.app.Erc20Keeper.SetDenomMap(s.ctx, expPair.Denom, id)
+				s.app.Erc20Keeper.SetERC20Map(s.ctx, expPair.GetERC20Contract(), id)
+			},
+			"",
+		},{
+			"returns contract owner address",
+			func() {
+				expPair = types.NewTokenPair(contractAddr, "coin", types.OWNER_MODULE)
+				expPair.SetOwnerAddress(ownerAddr.String())
+				s.app.Erc20Keeper.SetTokenPair(s.ctx, expPair)
+				s.app.Erc20Keeper.SetDenomMap(s.ctx, expPair.Denom, id)
+				s.app.Erc20Keeper.SetERC20Map(s.ctx, expPair.GetERC20Contract(), id)
+
+			},
+			ownerAddr.String(),
+		},
+	}
+	
+	for _, tc := range testcases {
+		suite.Run(tc.name, func() {
+			suite.SetupTest() // reset
+
+			ctx := sdk.WrapSDKContext(suite.ctx)
+			tc.malleate()
+
+			res, err := suite.queryClient.OwnerAddress(ctx, &types.QueryOwnerAddressRequest{
+				ContractAddress: contractAddr.Hex(),
+			})
+			suite.Require().NoError(err)
+			suite.Require().Equal(tc.expOwner, res.OwnerAddress)
+		})
+	}
+}

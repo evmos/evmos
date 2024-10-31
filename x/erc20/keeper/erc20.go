@@ -81,7 +81,11 @@ func (k Keeper) MintCoins(ctx sdk.Context, sender, to sdk.AccAddress, amount mat
 		return errorsmod.Wrapf(types.ErrERC20TokenPairDisabled, "minting token '%s' is not enabled by governance", token)
 	}
 
-	contractOwnerAddr := sdk.MustAccAddressFromBech32(pair.OwnerAddress)
+	contractOwnerAddr, err := sdk.AccAddressFromBech32(pair.OwnerAddress)
+	if err != nil {
+		return errorsmod.Wrapf(err, "invalid owner address")
+	}
+
 	if !sender.Equals(contractOwnerAddr) {
 		return errorsmod.Wrapf(authz.ErrNoAuthorizationFound, "minter is not the owner")
 	}
@@ -166,7 +170,10 @@ func (k Keeper) TransferOwnership(ctx sdk.Context, sender, newOwner sdk.AccAddre
 		return errorsmod.Wrapf(types.ErrERC20TokenPairDisabled, "transferring ownership of token '%s' is not enabled by governance", token)
 	}
 
-	contractOwnerAccount := sdk.MustAccAddressFromBech32(pair.OwnerAddress)
+	contractOwnerAccount, err := sdk.AccAddressFromBech32(pair.OwnerAddress)
+	if err != nil {
+		return errorsmod.Wrapf(err, "invalid owner address")
+	}
 
 	if !contractOwnerAccount.Equals(sender) {
 		return errorsmod.Wrapf(authz.ErrNoAuthorizationFound, "sender is not the owner")
@@ -186,3 +193,11 @@ func (k Keeper) TransferOwnership(ctx sdk.Context, sender, newOwner sdk.AccAddre
 	return nil
 }
 
+func (k Keeper) GetOwnerAddress(ctx sdk.Context, contractAddress string) string {
+	pair, found := k.GetTokenPair(ctx, k.GetTokenPairID(ctx, contractAddress))
+	if !found {
+		return ""
+	}
+
+	return pair.OwnerAddress
+}
