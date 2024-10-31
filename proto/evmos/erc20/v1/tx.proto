@@ -71,3 +71,29 @@ message MsgUpdateParams {
 // MsgUpdateParams message.
 // Since: cosmos-sdk 0.47
 message MsgUpdateParamsResponse {}
+
+// MsgMint defines a Msg to mint ERC20 tokens
+message MsgMint {
+  // contract_address of an ERC20 token contract, that is registered in a token pair
+  string contract_address = 1;
+  // amount of ERC20 tokens to mint
+  string amount = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
+  // to is the address to mint the tokens to
+  string to = 3;
+  // sender is the address of the sender
+  string sender = 4;
+}
+
+message MsgMintResponse {}
+
+// MsgBurn defines a Msg to burn ERC20 tokens
+message MsgBurn {
+  // contract_address of an ERC20 token contract, that is registered in a token pair
+  string contract_address = 1;
+  // amount of ERC20 tokens to burn
+  string amount = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
+  // sender is the address of the sender
+  string sender = 3;
+}
+
+message MsgBurnResponse {}
