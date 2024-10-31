@@ -48,8 +48,8 @@ var _ vm.PrecompiledContract = &Precompile{}
 type Precompile struct {
 	cmn.Precompile
 	tokenPair      erc20types.TokenPair
-	bankKeeper     bankkeeper.Keeper
 	transferKeeper transferkeeper.Keeper
+	BankKeeper     bankkeeper.Keeper
 }
 
 // NewPrecompile creates a new ERC-20 Precompile instance as a
@@ -74,7 +74,7 @@ func NewPrecompile(
 			TransientKVGasConfig: storetypes.GasConfig{},
 		},
 		tokenPair:      tokenPair,
-		bankKeeper:     bankKeeper,
+		BankKeeper:     bankKeeper,
 		transferKeeper: transferKeeper,
 	}
 	// Address defines the address of the ERC-20 precompile contract.
