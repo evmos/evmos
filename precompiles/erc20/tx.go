@@ -166,7 +166,7 @@ func (p *Precompile) Mint(
 
 	coins := sdk.Coins{{Denom: p.tokenPair.Denom, Amount: math.NewIntFromBigInt(amount)}}
 
-	err = p.erc20Keeper.MintCoins(ctx, minter, toAddr, coins, p.tokenPair.GetERC20Contract().Hex())
+	err = p.erc20Keeper.MintCoins(ctx, minter, toAddr, math.NewIntFromBigInt(amount), p.tokenPair.GetERC20Contract().Hex())
 	if err != nil {
 		return nil, ConvertErrToERC20Error(err)
 	}
@@ -203,7 +203,7 @@ func (p *Precompile) Burn(
 
 	coins := sdk.Coins{{Denom: p.tokenPair.Denom, Amount: math.NewIntFromBigInt(amount)}}
 
-	err = p.erc20Keeper.BurnCoins(ctx, burner, coins, p.tokenPair.GetERC20Contract().Hex())
+	err = p.erc20Keeper.BurnCoins(ctx, burner, math.NewIntFromBigInt(amount), p.tokenPair.GetERC20Contract().Hex())
 	if err != nil {
 		return nil, ConvertErrToERC20Error(err)
 	}

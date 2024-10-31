@@ -5,6 +5,7 @@ package keeper
 
 import (
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -70,7 +71,7 @@ func (k Keeper) MintingEnabled(
 }
 
 // MintCoins mints the provided amount of coins to the given address.
-func (k Keeper) MintCoins(ctx sdk.Context, sender, to sdk.AccAddress, coins sdk.Coins, token string) error {
+func (k Keeper) MintCoins(ctx sdk.Context, sender, to sdk.AccAddress, amount math.Int, token string) error {
 	pair, err := k.MintingEnabled(ctx, sender, to, token)
 	if err != nil {
 		return err
@@ -85,6 +86,7 @@ func (k Keeper) MintCoins(ctx sdk.Context, sender, to sdk.AccAddress, coins sdk.
 		return errorsmod.Wrapf(authz.ErrNoAuthorizationFound, "minter is not the owner")
 	}
 
+	coins := sdk.Coins{{Denom: pair.Denom, Amount: amount}}
 	err = k.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
 	if err != nil {
 		return err
@@ -106,7 +108,7 @@ func (k Keeper) MintCoins(ctx sdk.Context, sender, to sdk.AccAddress, coins sdk.
 			sdk.NewAttribute(sdk.AttributeKeyAction, types.TypeMsgMint),
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
 			sdk.NewAttribute(sdk.AttributeKeySender, sender.String()),
-			sdk.NewAttribute(sdk.AttributeKeyAmount, coins.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()),
 		),
 	)
 
@@ -114,7 +116,7 @@ func (k Keeper) MintCoins(ctx sdk.Context, sender, to sdk.AccAddress, coins sdk.
 }
 
 // BurnCoins burns the provided amount of coins from the given address.
-func (k Keeper) BurnCoins(ctx sdk.Context, sender sdk.AccAddress, coins sdk.Coins, token string) error {
+func (k Keeper) BurnCoins(ctx sdk.Context, sender sdk.AccAddress, amount math.Int, token string) error {
 	pair, found := k.GetTokenPair(ctx, k.GetTokenPairID(ctx, token))
 	if !found {
 		return errorsmod.Wrapf(types.ErrTokenPairNotFound, "token '%s' not registered", token)
@@ -124,7 +126,7 @@ func (k Keeper) BurnCoins(ctx sdk.Context, sender sdk.AccAddress, coins sdk.Coin
 		return errorsmod.Wrapf(types.ErrERC20TokenPairDisabled, "burning token '%s' is not enabled by governance", token)
 	}
 
-	
+	coins := sdk.Coins{{Denom: pair.Denom, Amount: amount}}
 
 	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, coins)
 	if err != nil {
@@ -147,7 +149,7 @@ func (k Keeper) BurnCoins(ctx sdk.Context, sender sdk.AccAddress, coins sdk.Coin
 			sdk.NewAttribute(sdk.AttributeKeyAction, types.TypeMsgBurn),
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
 			sdk.NewAttribute(sdk.AttributeKeySender, sender.String()),
-			sdk.NewAttribute(sdk.AttributeKeyAmount, coins.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()),
 		),
 	)
 	return nil
