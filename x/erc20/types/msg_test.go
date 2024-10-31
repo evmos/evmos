@@ -170,9 +170,9 @@ func (suite *MsgsTestSuite) TestMsgUpdateValidateBasic() {
 
 func (suite *MsgsTestSuite) TestMsgMintValidateBasic() {
 	testcases := []struct {
-		name      string
-		msgMint   *types.MsgMint
-		expPass   bool
+		name    string
+		msgMint *types.MsgMint
+		expPass bool
 	}{
 		{
 			"fail - invalid contract address",
@@ -199,12 +199,12 @@ func (suite *MsgsTestSuite) TestMsgMintValidateBasic() {
 			false,
 		},
 		{
-			"fail - invalid receiver address",	
+			"fail - invalid receiver address",
 			&types.MsgMint{
 				ContractAddress: utiltx.GenerateAddress().String(),
 				Amount:          math.NewInt(100),
 				Sender:          sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
-				To:        "invalid",
+				To:              "invalid",
 			},
 			false,
 		},
@@ -234,9 +234,9 @@ func (suite *MsgsTestSuite) TestMsgMintValidateBasic() {
 
 func (suite *MsgsTestSuite) TestMsgBurnValidateBasic() {
 	testcases := []struct {
-		name      string
-		msgBurn   *types.MsgBurn
-		expPass   bool
+		name    string
+		msgBurn *types.MsgBurn
+		expPass bool
 	}{
 		{
 			"fail - invalid contract address",
@@ -287,9 +287,9 @@ func (suite *MsgsTestSuite) TestMsgBurnValidateBasic() {
 
 func (suite *MsgsTestSuite) TestMsgTransferOwnershipValidateBasic() {
 	testcases := []struct {
-		name      string
-		msg       *types.MsgTransferOwnership
-		expPass   bool
+		name    string
+		msg     *types.MsgTransferOwnership
+		expPass bool
 	}{
 		{
 			"fail - invalid authority address",

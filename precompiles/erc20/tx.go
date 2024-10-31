@@ -247,7 +247,7 @@ func (p *Precompile) TransferOwnership(
 	}
 
 	p.tokenPair.OwnerAddress = newOwner.String()
-	
+
 	if err = p.EmitTransferOwnershipEvent(ctx, stateDB, contract.CallerAddress, newOwner); err != nil {
 		return nil, err
 	}

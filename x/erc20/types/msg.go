@@ -21,11 +21,10 @@ var (
 )
 
 const (
-	TypeMsgConvertERC20 = "convert_ERC20"
-	TypeMsgMint         = "mint"
-	TypeMsgBurn         = "burn"
+	TypeMsgConvertERC20      = "convert_ERC20"
+	TypeMsgMint              = "mint"
+	TypeMsgBurn              = "burn"
 	TypeMsgTransferOwnership = "transfer_ownership"
-
 
 	AttributeKeyNewOwner = "new_owner"
 )
@@ -161,7 +160,7 @@ func (m MsgBurn) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{addr}
 }
 
-// ValidateBasic does a sanity check of the provided data	
+// ValidateBasic does a sanity check of the provided data
 func (m MsgBurn) ValidateBasic() error {
 	if !common.IsHexAddress(m.ContractAddress) {
 		return errorsmod.Wrapf(errortypes.ErrInvalidAddress, "invalid contract hex address '%s'", m.ContractAddress)
@@ -183,4 +182,3 @@ func (m MsgBurn) Route() string { return RouterKey }
 
 // Type returns the message type for a MsgBurn
 func (m MsgBurn) Type() string { return TypeMsgBurn }
-

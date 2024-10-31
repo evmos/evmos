@@ -184,4 +184,3 @@ func (k Keeper) TransferOwnership(ctx sdk.Context, newOwner sdk.AccAddress, toke
 
 	return nil
 }
-

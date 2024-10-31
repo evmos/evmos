@@ -291,11 +291,11 @@ func (suite *KeeperTestSuite) TestGetTokenPairOwnerAddress() {
 	ownerAddress := utiltx.GenerateAddress()
 	tokenDenom := "token"
 	testCases := []struct {
-		name        string
+		name         string
 		ownerAddress sdk.AccAddress
-		malleate    func()
-		expError    bool
-		errContains string
+		malleate     func()
+		expError     bool
+		errContains  string
 	}{
 		{
 			"owner address found",
@@ -347,12 +347,12 @@ func (suite *KeeperTestSuite) TestSetTokenPairOwnerAddress() {
 	tokenDenom := "token"
 
 	testCases := []struct {
-		name        string
-		newOwnerAddress sdk.AccAddress	
-		malleate    func() types.TokenPair
-		postCheck   func(*types.TokenPair, string) error
-		expError    bool
-		errContains string
+		name            string
+		newOwnerAddress sdk.AccAddress
+		malleate        func() types.TokenPair
+		postCheck       func(*types.TokenPair, string) error
+		expError        bool
+		errContains     string
 	}{
 		{
 			"owner address set",

@@ -234,6 +234,9 @@ func NewTransferOwnershipCmd() *cobra.Command {
 			}
 
 			proposal, err := cli.ReadGovPropFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
 
 			token, newOwner := args[0], args[1]
 
@@ -256,7 +259,6 @@ func NewTransferOwnershipCmd() *cobra.Command {
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
-
 
 // NewMintCmd implements the command to mint an ERC20 token
 func NewMintCmd() *cobra.Command {
