@@ -72,8 +72,10 @@ func (k Keeper) MintingEnabled(
 
 // MintCoins mints the provided amount of coins to the given address.
 func (k Keeper) MintCoins(ctx sdk.Context, sender, to sdk.AccAddress, amount math.Int, token string) error {
+	ctx.Logger().Error("MintCoins", "token", token, "sender", sender.String(), "to", to.String(), "amount", amount.String())
 	pair, err := k.MintingEnabled(ctx, sender, to, token)
 	if err != nil {
+		ctx.Logger().Error("MintingEnabled", "error", err)
 		return err
 	}
 
@@ -81,7 +83,10 @@ func (k Keeper) MintCoins(ctx sdk.Context, sender, to sdk.AccAddress, amount mat
 		return errorsmod.Wrapf(types.ErrERC20TokenPairDisabled, "minting token '%s' is not enabled by governance", token)
 	}
 
-	contractOwnerAddr := sdk.MustAccAddressFromBech32(pair.OwnerAddress)
+	contractOwnerAddr, err := sdk.AccAddressFromBech32(pair.OwnerAddress)
+	if err != nil {
+		return errorsmod.Wrapf(err, "invalid owner address")
+	}
 	if !sender.Equals(contractOwnerAddr) {
 		return errorsmod.Wrapf(authz.ErrNoAuthorizationFound, "minter is not the owner")
 	}
@@ -156,7 +161,7 @@ func (k Keeper) BurnCoins(ctx sdk.Context, sender sdk.AccAddress, amount math.In
 }
 
 // TransferOwnership transfers ownership of the token to the new owner
-func (k Keeper) TransferOwnership(ctx sdk.Context, sender, newOwner sdk.AccAddress, token string) error {
+func (k Keeper) TransferOwnership(ctx sdk.Context, newOwner sdk.AccAddress, token string) error {
 	pair, found := k.GetTokenPair(ctx, k.GetTokenPairID(ctx, token))
 	if !found {
 		return errorsmod.Wrapf(types.ErrTokenPairNotFound, "token '%s' not registered", token)
@@ -166,12 +171,6 @@ func (k Keeper) TransferOwnership(ctx sdk.Context, sender, newOwner sdk.AccAddre
 		return errorsmod.Wrapf(types.ErrERC20TokenPairDisabled, "transferring ownership of token '%s' is not enabled by governance", token)
 	}
 
-	contractOwnerAccount := sdk.MustAccAddressFromBech32(pair.OwnerAddress)
-
-	if !contractOwnerAccount.Equals(sender) {
-		return errorsmod.Wrapf(authz.ErrNoAuthorizationFound, "sender is not the owner")
-	}
-
 	k.SetTokenPairOwnerAddress(ctx, pair, newOwner.String())
 
 	ctx.EventManager().EmitEvent(
@@ -179,7 +178,7 @@ func (k Keeper) TransferOwnership(ctx sdk.Context, sender, newOwner sdk.AccAddre
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyAction, types.TypeMsgTransferOwnership),
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			sdk.NewAttribute(sdk.AttributeKeySender, sender.String()),
+			sdk.NewAttribute(types.AttributeKeyNewOwner, newOwner.String()),
 		),
 	)
 

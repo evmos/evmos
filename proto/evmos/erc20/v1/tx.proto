@@ -24,7 +24,7 @@ service Msg {
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
   // TransferOwnership defines a Msg to transfer the ownership of the ERC20 token pair to the new owner
-  rpc TransferOwnership(MsgTransferOwnership) returns (MsgTransferOwnershipResponse);
+  rpc TransferContractOwnership(MsgTransferOwnership) returns (MsgTransferOwnershipResponse);
 
 }
 

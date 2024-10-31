@@ -15,6 +15,7 @@ var DefaultTokenPairs = []TokenPair{
 		Denom:                utils.BaseDenom,
 		Enabled:              true,
 		ContractOwner:        OWNER_MODULE,
+		// OwnerAddress:        "ethm1emq5xcncu3g52d3hx7rmsk6yf6jpnjrsp0wnka",
 	},
 }
 

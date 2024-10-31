@@ -25,6 +25,9 @@ const (
 	TypeMsgMint         = "mint"
 	TypeMsgBurn         = "burn"
 	TypeMsgTransferOwnership = "transfer_ownership"
+
+
+	AttributeKeyNewOwner = "new_owner"
 )
 
 // NewMsgConvertERC20 creates a new instance of MsgConvertERC20

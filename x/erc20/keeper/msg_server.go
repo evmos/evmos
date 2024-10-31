@@ -285,7 +285,12 @@ func (k Keeper) TransferContractOwnership(goCtx context.Context, msg *types.MsgT
 	}
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	err := k.TransferOwnership(ctx, sender, receiver, msg.Token)
+	newOwner, err := sdk.AccAddressFromBech32(msg.NewOwner)
+	if err != nil {
+		return nil, err
+	}
+
+	err = k.TransferOwnership(ctx, newOwner, msg.Token)
 	if err != nil {
 		return nil, err
 	}

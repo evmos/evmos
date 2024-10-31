@@ -388,21 +388,9 @@ func (s *KeeperTestSuite) TestTransferOwnership() {
 			types.ErrERC20TokenPairDisabled.Error(),
 		},
 		{
-			"fail - sender is not the owner",
-			func() {
-				expPair.ContractOwner = types.OWNER_MODULE
-				expPair.SetOwnerAddress(sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String())
-				s.app.Erc20Keeper.SetTokenPair(s.ctx, expPair)
-				s.app.Erc20Keeper.SetDenomMap(s.ctx, expPair.Denom, id)
-				s.app.Erc20Keeper.SetERC20Map(s.ctx, expPair.GetERC20Contract(), id)
-			},
-			func() {},
-			true,
-			authz.ErrNoAuthorizationFound.Error(),
-		},
-		{
 			"pass",
 			func() {
+				expPair.ContractOwner = types.OWNER_MODULE
 				expPair.SetOwnerAddress(sender.String())
 				s.app.Erc20Keeper.SetTokenPair(s.ctx, expPair)
 				s.app.Erc20Keeper.SetDenomMap(s.ctx, expPair.Denom, id)
@@ -421,7 +409,7 @@ func (s *KeeperTestSuite) TestTransferOwnership() {
 
 			tc.malleate()
 
-			err := s.app.Erc20Keeper.TransferOwnership(s.ctx, sender, newOwner, expPair.Denom)
+			err := s.app.Erc20Keeper.TransferOwnership(s.ctx, newOwner, expPair.Denom)
 			if tc.expErr {
 				s.Require().Error(err, "expected transfer transaction to fail")
 				s.Require().Contains(err.Error(), tc.errContains, "expected transfer transaction to fail with specific error")

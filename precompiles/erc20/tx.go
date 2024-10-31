@@ -237,10 +237,16 @@ func (p *Precompile) TransferOwnership(
 
 	sender := sdk.AccAddress(contract.CallerAddress.Bytes())
 
-	err = p.erc20Keeper.TransferOwnership(ctx, sender, sdk.AccAddress(newOwner.Bytes()), p.tokenPair.GetERC20Contract().Hex())
-	if err != nil {
-		return nil, err
+	if p.tokenPair.OwnerAddress != sender.String() {
+		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(authz.ErrNoAuthorizationFound, "sender is not the owner"))
 	}
+
+	err = p.erc20Keeper.TransferOwnership(ctx, sdk.AccAddress(newOwner.Bytes()), p.tokenPair.GetERC20Contract().Hex())
+	if err != nil {
+		return nil, ConvertErrToERC20Error(err)
+	}
+
+	p.tokenPair.OwnerAddress = newOwner.String()
 	
 	if err = p.EmitTransferOwnershipEvent(ctx, stateDB, contract.CallerAddress, newOwner); err != nil {
 		return nil, err
