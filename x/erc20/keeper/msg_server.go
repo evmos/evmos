@@ -278,26 +278,56 @@ func (k *Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams)
 }
 
 // TransferOwnership implements the MsgServer interface for the ERC20 module.
-func (k Keeper) TransferOwnership(goCtx context.Context, msg *types.MsgTransferOwnership) (*types.MsgTransferOwnershipResponse, error) {
+func (k Keeper) TransferContractOwnership(goCtx context.Context, msg *types.MsgTransferOwnership) (*types.MsgTransferOwnershipResponse, error) {
 	// Validate authority
 	if k.authority.String() != msg.Authority {
 		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", k.authority, msg.Authority)
 	}
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// Validate token pair
-	id := k.GetTokenPairID(ctx, msg.Token)
-	if len(id) == 0 {
-		return nil, errorsmod.Wrapf(types.ErrTokenPairNotFound, "token '%s' not registered by id", msg.Token)
+	err := k.TransferOwnership(ctx, sender, receiver, msg.Token)
+	if err != nil {
+		return nil, err
 	}
-
-	pair, found := k.GetTokenPair(ctx, id)
-	if !found {
-		return nil, errorsmod.Wrapf(types.ErrTokenPairNotFound, "token '%s' not registered", msg.Token)
-	}
-
-	pair.ContractOwnerAddress = msg.NewOwner
-	k.SetTokenPair(ctx, pair)
 
 	return &types.MsgTransferOwnershipResponse{}, nil
+}
+
+// Mint implements the MsgServer interface for the ERC20 module. It mints ERC20 tokens to a given address.
+func (k Keeper) Mint(goCtx context.Context, msg *types.MsgMint) (*types.MsgMintResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return nil, err
+	}
+
+	receiver, err := sdk.AccAddressFromBech32(msg.To)
+	if err != nil {
+		return nil, err
+	}
+
+	err = k.MintCoins(ctx, sender, receiver, math.NewIntFromBigInt(msg.Amount.BigInt()), msg.ContractAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgMintResponse{}, nil
+}
+
+// Burn implements the MsgServer interface for the ERC20 module. It burns ERC20 tokens from a given address.
+func (k Keeper) Burn(goCtx context.Context, msg *types.MsgBurn) (*types.MsgBurnResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return nil, err
+	}
+
+	err = k.BurnCoins(ctx, sender, math.NewIntFromBigInt(msg.Amount.BigInt()), msg.ContractAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgBurnResponse{}, nil
 }

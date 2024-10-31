@@ -60,5 +60,5 @@ func (s *PrecompileTestSuite) SetupTest() {
 	// NOTE: This has to be done AFTER assigning the suite fields.
 	s.tokenDenom = "xmpl"
 	s.contractOwnerAddr = s.keyring.GetAccAddr(0).String()
-	s.precompile = s.setupERC20Precompile(s.tokenDenom, s.contractOwnerAddr)
+	s.precompile = s.setupERC20Precompile(s.tokenDenom) 
 }

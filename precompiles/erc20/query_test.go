@@ -16,6 +16,8 @@ import (
 	auth "github.com/evmos/evmos/v19/precompiles/authorization"
 	"github.com/evmos/evmos/v19/precompiles/erc20"
 	"github.com/evmos/evmos/v19/testutil"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
 )
@@ -194,7 +196,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 				tc.malleate(s.network.GetContext(), s.network.App)
 			}
 
-			precompile := s.setupERC20Precompile(tc.denom, tc.contractOwnerAddr)
+			precompile := s.setupERC20Precompile(tc.denom)
 
 			s.Run("name", func() {
 				bz, err := precompile.Name(
@@ -344,7 +346,7 @@ func (s *PrecompileTestSuite) TestDecimals() {
 				tc.malleate(s.network.GetContext(), s.network.App)
 			}
 
-			precompile := s.setupERC20Precompile(tc.denom, tc.contractOwnerAddr)
+			precompile := s.setupERC20Precompile(tc.denom)
 
 			bz, err := precompile.Decimals(
 				s.network.GetContext(),
@@ -397,7 +399,7 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 				tc.malleate(s.network.GetContext(), s.network.App, tc.expTotal)
 			}
 
-			precompile := s.setupERC20Precompile(validMetadataDenom, s.contractOwnerAddr)
+			precompile := s.setupERC20Precompile(validMetadataDenom)
 
 			bz, err := precompile.TotalSupply(
 				s.network.GetContext(),
@@ -478,7 +480,7 @@ func (s *PrecompileTestSuite) TestBalanceOf() {
 				balanceOfArgs = tc.malleate(s.network.GetContext(), s.network.App, tc.expBalance)
 			}
 
-			precompile := s.setupERC20Precompile(s.tokenDenom, s.contractOwnerAddr)
+			precompile := s.setupERC20Precompile(s.tokenDenom)
 
 			bz, err := precompile.BalanceOf(
 				s.network.GetContext(),
@@ -580,7 +582,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 				allowanceArgs = tc.malleate(s.network.GetContext(), s.network.App, tc.expAllow)
 			}
 
-			precompile := s.setupERC20Precompile(s.tokenDenom, s.contractOwnerAddr)
+			precompile := s.setupERC20Precompile(s.tokenDenom)
 
 			bz, err := precompile.Allowance(
 				s.network.GetContext(),
@@ -616,10 +618,6 @@ func (s *PrecompileTestSuite) TestOwner() {
 		{
 			name: "pass - owner is the contract owner address",
 			malleate: func(ctx sdk.Context, _ *app.Evmos, owner common.Address) []interface{} {
-				if err := s.precompile.SetContractOwnerAddress(ctx, sdk.AccAddress(owner.Bytes())); err != nil {
-					s.Require().NoError(err)
-				}
-
 				return []interface{}{}
 			},
 			expPass:  true,
@@ -640,7 +638,15 @@ func (s *PrecompileTestSuite) TestOwner() {
 				ownerArgs = tc.malleate(ctx, s.network.App, tc.expOwner)
 			}
 
-			precompile := s.setupERC20Precompile(s.tokenDenom, sdk.AccAddress(tc.expOwner.Bytes()).String())
+			ownerAddr := tc.expOwner
+			tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), s.tokenDenom, erc20types.OWNER_MODULE)
+			tokenPair.SetOwnerAddress(sdk.AccAddress(ownerAddr.Bytes()).String())
+			s.network.App.Erc20Keeper.SetTokenPair(s.network.GetContext(), tokenPair)
+			s.network.App.Erc20Keeper.SetDenomMap(s.network.GetContext(), tokenPair.Denom, tokenPair.GetID())
+			s.network.App.Erc20Keeper.SetERC20Map(s.network.GetContext(), tokenPair.GetERC20Contract(), tokenPair.GetID())
+
+			precompile, err := setupERC20PrecompileForTokenPair(*s.network, tokenPair)
+			s.Require().NoError(err, "failed to set up %q erc20 precompile", tokenPair.Denom)
 
 			bz, err := precompile.Owner(
 				ctx,

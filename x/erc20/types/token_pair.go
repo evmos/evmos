@@ -11,6 +11,10 @@ import (
 	"github.com/evmos/evmos/v19/utils"
 )
 
+const (
+	EmptyContractOwnerAddress string = ""
+)
+
 // NewTokenPairSTRv2 creates a new TokenPair instance in the context of the
 // Single Token Representation v2.
 //
@@ -30,13 +34,13 @@ func NewTokenPairSTRv2(denom string) (TokenPair, error) {
 }
 
 // NewTokenPair returns an instance of TokenPair
-func NewTokenPair(erc20Address common.Address, denom string, contractOwner Owner, contractOwnerAddr string) TokenPair {
+func NewTokenPair(erc20Address common.Address, denom string, contractOwner Owner) TokenPair {
 	return TokenPair{
 		Erc20Address:         erc20Address.String(),
 		Denom:                denom,
 		Enabled:              true,
 		ContractOwner:        contractOwner,
-		ContractOwnerAddress: contractOwnerAddr,
+		OwnerAddress:         EmptyContractOwnerAddress,
 	}
 }
 
@@ -49,6 +53,11 @@ func (tp TokenPair) GetID() []byte {
 // GetErc20Contract casts the hex string address of the ERC20 to common.Address
 func (tp TokenPair) GetERC20Contract() common.Address {
 	return common.HexToAddress(tp.Erc20Address)
+}
+
+// SetOwnerAddress sets the address of the owner of the ERC20 contract
+func (tp *TokenPair) SetOwnerAddress(address string) {
+	tp.OwnerAddress = address
 }
 
 // Validate performs a stateless validation of a TokenPair

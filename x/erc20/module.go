@@ -137,10 +137,6 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	if err := cfg.RegisterMigration(types.ModuleName, 3, migrator.Migrate3to4); err != nil {
 		panic(fmt.Errorf("failed to migrate %s to v4: %w", types.ModuleName, err))
 	}
-
-	if err := cfg.RegisterMigration(types.ModuleName, 4, migrator.Migrate4to5); err != nil {
-		panic(fmt.Errorf("failed to migrate %s to v5: %w", types.ModuleName, err))
-	}
 }
 
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {

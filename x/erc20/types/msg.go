@@ -15,10 +15,16 @@ import (
 var (
 	_ sdk.Msg = &MsgConvertERC20{}
 	_ sdk.Msg = &MsgUpdateParams{}
+	_ sdk.Msg = &MsgMint{}
+	_ sdk.Msg = &MsgBurn{}
+	_ sdk.Msg = &MsgTransferOwnership{}
 )
 
 const (
 	TypeMsgConvertERC20 = "convert_ERC20"
+	TypeMsgMint         = "mint"
+	TypeMsgBurn         = "burn"
+	TypeMsgTransferOwnership = "transfer_ownership"
 )
 
 // NewMsgConvertERC20 creates a new instance of MsgConvertERC20
@@ -92,6 +98,12 @@ func (m *MsgTransferOwnership) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{addr}
 }
 
+// GetSigners returns the expected signers for a MsgMint message.
+func (m MsgMint) GetSigners() []sdk.AccAddress {
+	addr := sdk.MustAccAddressFromBech32(m.Sender)
+	return []sdk.AccAddress{addr}
+}
+
 // ValidateBasic does a sanity check of the provided data
 func (m *MsgTransferOwnership) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
@@ -112,3 +124,60 @@ func (m *MsgTransferOwnership) ValidateBasic() error {
 func (m MsgTransferOwnership) GetSignBytes() []byte {
 	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
+
+// ValidateBasic does a sanity check of the provided data
+func (m MsgMint) ValidateBasic() error {
+	if !common.IsHexAddress(m.ContractAddress) {
+		return errorsmod.Wrapf(errortypes.ErrInvalidAddress, "invalid contract hex address '%s'", m.ContractAddress)
+	}
+
+	if !m.Amount.IsPositive() {
+		return errorsmod.Wrapf(errortypes.ErrInvalidCoins, "cannot mint a non-positive amount")
+	}
+
+	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
+		return errorsmod.Wrap(err, "invalid sender address")
+	}
+
+	if _, err := sdk.AccAddressFromBech32(m.To); err != nil {
+		return errorsmod.Wrap(err, "invalid receiver address")
+	}
+
+	return nil
+}
+
+// Route returns the message route for a MsgMint
+func (m MsgMint) Route() string { return RouterKey }
+
+// Type returns the message type for a MsgMint
+func (m MsgMint) Type() string { return TypeMsgMint }
+
+// GetSigners returns the expected signers for a MsgBurn message.
+func (m MsgBurn) GetSigners() []sdk.AccAddress {
+	addr := sdk.MustAccAddressFromBech32(m.Sender)
+	return []sdk.AccAddress{addr}
+}
+
+// ValidateBasic does a sanity check of the provided data	
+func (m MsgBurn) ValidateBasic() error {
+	if !common.IsHexAddress(m.ContractAddress) {
+		return errorsmod.Wrapf(errortypes.ErrInvalidAddress, "invalid contract hex address '%s'", m.ContractAddress)
+	}
+
+	if !m.Amount.IsPositive() {
+		return errorsmod.Wrapf(errortypes.ErrInvalidCoins, "cannot burn a non-positive amount")
+	}
+
+	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
+		return errorsmod.Wrap(err, "invalid sender address")
+	}
+
+	return nil
+}
+
+// Route returns the message route for a MsgBurn
+func (m MsgBurn) Route() string { return RouterKey }
+
+// Type returns the message type for a MsgBurn
+func (m MsgBurn) Type() string { return TypeMsgBurn }
+

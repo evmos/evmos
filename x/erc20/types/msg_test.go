@@ -167,3 +167,120 @@ func (suite *MsgsTestSuite) TestMsgUpdateValidateBasic() {
 		})
 	}
 }
+
+func (suite *MsgsTestSuite) TestMsgMintValidateBasic() {
+	testcases := []struct {
+		name      string
+		msgMint   *types.MsgMint
+		expPass   bool
+	}{
+		{
+			"fail - invalid contract address",
+			&types.MsgMint{
+				ContractAddress: "invalid",
+			},
+			false,
+		},
+		{
+			"fail - non-positive amount",
+			&types.MsgMint{
+				ContractAddress: utiltx.GenerateAddress().String(),
+				Amount:          math.NewInt(-1),
+			},
+			false,
+		},
+		{
+			"fail - invalid sender address",
+			&types.MsgMint{
+				ContractAddress: utiltx.GenerateAddress().String(),
+				Amount:          math.NewInt(100),
+				Sender:          "invalid",
+			},
+			false,
+		},
+		{
+			"fail - invalid receiver address",	
+			&types.MsgMint{
+				ContractAddress: utiltx.GenerateAddress().String(),
+				Amount:          math.NewInt(100),
+				Sender:          sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+				To:        "invalid",
+			},
+			false,
+		},
+		{
+			"pass - valid msg",
+			&types.MsgMint{
+				ContractAddress: utiltx.GenerateAddress().String(),
+				Amount:          math.NewInt(100),
+				Sender:          sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+				To:              sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+			},
+			true,
+		},
+	}
+
+	for _, tc := range testcases {
+		suite.Run(tc.name, func() {
+			err := tc.msgMint.ValidateBasic()
+			if tc.expPass {
+				suite.NoError(err)
+			} else {
+				suite.Error(err)
+			}
+		})
+	}
+}
+
+func (suite *MsgsTestSuite) TestMsgBurnValidateBasic() {
+	testcases := []struct {
+		name      string
+		msgBurn   *types.MsgBurn
+		expPass   bool
+	}{
+		{
+			"fail - invalid contract address",
+			&types.MsgBurn{
+				ContractAddress: "invalid",
+			},
+			false,
+		},
+		{
+			"fail - non-positive amount",
+			&types.MsgBurn{
+				ContractAddress: utiltx.GenerateAddress().String(),
+				Amount:          math.NewInt(-1),
+			},
+			false,
+		},
+		{
+			"fail - invalid sender address",
+			&types.MsgBurn{
+				ContractAddress: utiltx.GenerateAddress().String(),
+				Amount:          math.NewInt(100),
+				Sender:          "invalid",
+			},
+			false,
+		},
+		{
+			"pass - valid msg",
+			&types.MsgBurn{
+				ContractAddress: utiltx.GenerateAddress().String(),
+				Amount:          math.NewInt(100),
+				Sender:          sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+			},
+			true,
+		},
+	}
+
+	for _, tc := range testcases {
+		suite.Run(tc.name, func() {
+			err := tc.msgBurn.ValidateBasic()
+			if tc.expPass {
+				suite.NoError(err)
+			} else {
+				suite.Error(err)
+			}
+		})
+	}
+}
