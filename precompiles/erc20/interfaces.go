@@ -5,8 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-
-type ERC20Keeper interface {
+type Keeper interface {
 	// Mint mints new tokens to the given address
 	MintCoins(ctx sdk.Context, sender, to sdk.AccAddress, amount math.Int, token string) error
 	// Burn burns tokens from the given address

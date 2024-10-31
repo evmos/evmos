@@ -11,7 +11,6 @@ import (
 	"github.com/evmos/evmos/v19/precompiles/erc20"
 	"github.com/evmos/evmos/v19/precompiles/testutil"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/x/erc20/types"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
@@ -267,7 +266,7 @@ func (s *PrecompileTestSuite) TestMint() {
 
 	testcases := []struct {
 		name        string
-		malleate    func() ([]interface{}, types.TokenPair)
+		malleate    func() ([]interface{}, erc20types.TokenPair)
 		postCheck   func()
 		expErr      bool
 		errContains string

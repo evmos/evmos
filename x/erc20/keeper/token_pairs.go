@@ -222,7 +222,7 @@ func (k Keeper) GetTokenPairOwnerAddress(ctx sdk.Context, token string) (sdk.Acc
 // SetTokenPairOwnerAddress sets the owner address for the token pair
 func (k Keeper) SetTokenPairOwnerAddress(ctx sdk.Context, pair types.TokenPair, newOwner string) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPair)
-	
+
 	pair.SetOwnerAddress(newOwner)
 
 	key := pair.GetID()

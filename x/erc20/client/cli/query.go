@@ -164,5 +164,5 @@ func GetOwnerAddressCmd() *cobra.Command {
 	}
 
 	flags.AddQueryFlagsToCmd(cmd)
-	return cmd 
+	return cmd
 }

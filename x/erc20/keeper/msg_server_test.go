@@ -422,10 +422,10 @@ func (suite *KeeperTestSuite) TestMint() {
 	sender := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	testcases := []struct {
-		name      string
-		msgMint   *types.MsgMint
-		malleate  func()
-		expPass   bool
+		name     string
+		msgMint  *types.MsgMint
+		malleate func()
+		expPass  bool
 	}{
 		{
 			"fail - invalid sender address",
@@ -493,10 +493,10 @@ func (suite *KeeperTestSuite) TestBurn() {
 	sender := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	testcases := []struct {
-		name      string
-		msgBurn   *types.MsgBurn
-		malleate  func()
-		expPass   bool
+		name     string
+		msgBurn  *types.MsgBurn
+		malleate func()
+		expPass  bool
 	}{
 		{
 			"fail - invalid sender address",
@@ -538,7 +538,6 @@ func (suite *KeeperTestSuite) TestBurn() {
 
 			err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, sdk.Coins{sdk.NewCoin(denom, math.NewInt(100))})
 			suite.Require().NoError(err)
-
 
 			tc.malleate()
 			res, err := suite.app.Erc20Keeper.Burn(ctx, tc.msgBurn)

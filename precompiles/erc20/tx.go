@@ -241,7 +241,7 @@ func (p *Precompile) TransferOwnership(
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if err = p.EmitTransferOwnershipEvent(ctx, stateDB, contract.CallerAddress, newOwner); err != nil {
 		return nil, err
 	}

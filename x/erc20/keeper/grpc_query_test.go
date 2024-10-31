@@ -187,8 +187,8 @@ func (suite *KeeperTestSuite) TestOwnerAddress() {
 	expPair.SetOwnerAddress(ownerAddr.String())
 	id := expPair.GetID()
 
-	testcases := []struct{
-		name string
+	testcases := []struct {
+		name     string
 		malleate func()
 		expOwner string
 	}{
@@ -202,7 +202,7 @@ func (suite *KeeperTestSuite) TestOwnerAddress() {
 				s.app.Erc20Keeper.SetERC20Map(s.ctx, expPair.GetERC20Contract(), id)
 			},
 			"",
-		},{
+		}, {
 			"returns contract owner address",
 			func() {
 				expPair = types.NewTokenPair(contractAddr, "coin", types.OWNER_MODULE)
@@ -210,12 +210,11 @@ func (suite *KeeperTestSuite) TestOwnerAddress() {
 				s.app.Erc20Keeper.SetTokenPair(s.ctx, expPair)
 				s.app.Erc20Keeper.SetDenomMap(s.ctx, expPair.Denom, id)
 				s.app.Erc20Keeper.SetERC20Map(s.ctx, expPair.GetERC20Contract(), id)
-
 			},
 			ownerAddr.String(),
 		},
 	}
-	
+
 	for _, tc := range testcases {
 		suite.Run(tc.name, func() {
 			suite.SetupTest() // reset
