@@ -35,10 +35,9 @@ const (
 	GasTotalSupply       = 2_477
 	GasBalanceOf         = 2_851
 	GasAllowance         = 3_246
-	// TODO: Set gas for MintMethod, BurnMethod, and Ownable methods
-	GasMint              = 3_000_000
-	GasBurn              = 3_000_000
-	GasTransferOwnership = 3_000_000
+	GasMint              = 50_000
+	GasBurn              = 50_000
+	GasTransferOwnership = 25_000
 )
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.
