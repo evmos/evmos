@@ -22,9 +22,7 @@ import (
 	"github.com/evmos/evmos/v20/precompiles/p256"
 	stakingprecompile "github.com/evmos/evmos/v20/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v20/precompiles/vesting"
-	"github.com/evmos/evmos/v20/precompiles/werc20"
 	erc20Keeper "github.com/evmos/evmos/v20/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	"github.com/evmos/evmos/v20/x/evm/types"
 	transferkeeper "github.com/evmos/evmos/v20/x/ibc/transfer/keeper"
@@ -37,7 +35,6 @@ const bech32PrecompileBaseGas = 6_000
 // AvailableStaticPrecompiles returns the list of all available static precompiled contracts.
 // NOTE: this should only be used during initialization of the Keeper.
 func NewAvailableStaticPrecompiles(
-	chainID string,
 	stakingKeeper stakingkeeper.Keeper,
 	distributionKeeper distributionkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
@@ -98,23 +95,6 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate gov precompile: %w", err))
 	}
 
-	// TODO: find a way to use also testnet
-	wevmosHex := erc20types.GetWEVMOSContractHex(chainID)
-	tokenPair := erc20types.NewTokenPair(
-		common.HexToAddress(wevmosHex),
-		types.GetEVMCoinDenom(),
-		erc20types.OWNER_MODULE,
-	)
-	wevmosPrecompile, err := werc20.NewPrecompile(
-		tokenPair,
-		bankKeeper,
-		authzKeeper,
-		transferKeeper,
-	)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate wevmos precompile: %w", err))
-	}
-
 	// Stateless precompiles
 	precompiles[bech32Precompile.Address()] = bech32Precompile
 	precompiles[p256Precompile.Address()] = p256Precompile
@@ -126,7 +106,6 @@ func NewAvailableStaticPrecompiles(
 	precompiles[vestingPrecompile.Address()] = vestingPrecompile
 	precompiles[bankPrecompile.Address()] = bankPrecompile
 	precompiles[govPrecompile.Address()] = govPrecompile
-	precompiles[wevmosPrecompile.Address()] = wevmosPrecompile
 	return precompiles
 }
 
@@ -147,6 +126,7 @@ func (k *Keeper) WithStaticPrecompiles(precompiles map[common.Address]vm.Precomp
 // GetStaticPrecompileInstance returns the instance of the given static precompile address.
 func (k *Keeper) GetStaticPrecompileInstance(params *types.Params, address common.Address) (vm.PrecompiledContract, bool, error) {
 	if k.IsAvailableStaticPrecompile(params, address) {
+		// TODO: when ethereum precompiles are added in the precompiles field?
 		precompile, found := k.precompiles[address]
 		// If the precompile is within params but not found in the precompiles map it means we have memory
 		// corruption.
@@ -162,6 +142,8 @@ func (k *Keeper) GetStaticPrecompileInstance(params *types.Params, address commo
 // EVM keeper's available precompiles map.
 // This function assumes that the Berlin precompiles cannot be disabled.
 func (k Keeper) IsAvailableStaticPrecompile(params *types.Params, address common.Address) bool {
+	// TODO: here we always consider berlin precompiles but it should depend on the
+	// chainID and block.
 	return slices.Contains(params.ActiveStaticPrecompiles, address.String()) ||
 		slices.Contains(vm.PrecompiledAddressesBerlin, address)
 }
