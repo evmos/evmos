@@ -46,7 +46,7 @@ def test_send_funds_to_distr_mod(evmos_cluster):
         sender,
         receiver,
         f"{amt}{fee_denom}",
-        gas_prices=f"{round(cli.query_base_fee() + 100000/scaling_factor, 12)}{fee_denom}",
+        gas_prices=f"{cli.query_base_fee() + 100000/scaling_factor:.12f}{fee_denom}",
         generate_only=True,
     )
 
@@ -106,13 +106,13 @@ def test_send_funds_to_distr_mod_eth_tx(evmos_cluster):
     wait_for_new_blocks(cli, 2)
     # only fees should be deducted from sender balance
     fees = receipt["gasUsed"] * receipt["effectiveGasPrice"]
+    assert fees > 0
 
     # check if evm has 6 dec,
     # actual fees will have 6 dec
     # instead of 18
-    if cli.evm_decimals() == 6:
-        fees = int(fees / SCALE_FACTOR_6DEC)
-    assert fees > 0
+    scaling_factor = get_scaling_factor(cli)
+    fees = int(fees / scaling_factor)
 
     new_src_balance = cli.balance(eth_to_bech32(sender), evm_denom)
     assert old_src_balance - fees == new_src_balance
@@ -301,7 +301,7 @@ def test_unvested_token_delegation(evmos_cluster):
         funder,
         address,
         f"{int(7000000000000000/scaling_factor)}{fee_denom}",
-        gas_prices=f"{round(cli.query_base_fee() + 100000/scaling_factor, 12)}{fee_denom}",
+        gas_prices=f"{cli.query_base_fee() + 100000/scaling_factor:.12f}{fee_denom}",
         generate_only=True,
     )
 
