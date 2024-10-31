@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.8.18;
 
+import "./../erc20/IERC20MetadataAllowance.sol";
+
 /**
  * @author Evmos Team
  * @title Wrapped ERC20 Interface
- * @dev Interface for representing the native EVM token as ERC20 standard.
+ * @dev Interface for representing the native EVM token as a wrapped ERC20 standard.
  */
-interface IWERC20 {
+interface IWERC20 is IERC20MetadataAllowance {
     /// @dev Emitted when the native tokens are deposited in exchange for the wrapped ERC20.
     /// @param dst The account for which the deposit is made.
     /// @param wad The amount of native tokens deposited.
@@ -36,3 +38,4 @@ interface IWERC20 {
     /// @param wad The amount of native tokens to be withdrawn.
     function withdraw(uint256 wad) external;
 }
+
