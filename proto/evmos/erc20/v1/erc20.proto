@@ -32,7 +32,7 @@ message TokenPair {
   Owner contract_owner = 4;
   // contract_owner_address is the address of the current owner of the token
   // Only set if contract_owner is OWNER_MODULE
-  string contract_owner_address = 5;
+  string owner_address = 5;
 }
 
 // protolint:disable MESSAGES_HAVE_COMMENT
