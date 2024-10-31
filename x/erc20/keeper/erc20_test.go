@@ -115,7 +115,7 @@ func (suite *KeeperTestSuite) TestMintingEnabled() {
 	}
 }
 
-func (s *KeeperTestSuite) TestMint() {
+func (s *KeeperTestSuite) TestMintCoins() {
 	sender := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	to := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	expPair := types.NewTokenPair(utiltx.GenerateAddress(), "coin", types.OWNER_MODULE)
@@ -270,7 +270,7 @@ func (s *KeeperTestSuite) TestMint() {
 	}
 }
 
-func (s *KeeperTestSuite) TestBurn() {
+func (s *KeeperTestSuite) TestBurnCoins() {
 	sender := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	expPair := types.NewTokenPair(utiltx.GenerateAddress(), "coin", types.OWNER_MODULE)
 	expPair.SetOwnerAddress(sender.String())
