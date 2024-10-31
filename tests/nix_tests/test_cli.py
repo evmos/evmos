@@ -1,9 +1,4 @@
-from .utils import (
-    get_current_height,
-    get_scaling_factor,
-    supervisorctl,
-    wait_for_block,
-)
+from .utils import get_current_height, get_scaling_factor, supervisorctl, wait_for_block
 
 
 def test_block_cmd(evmos_cluster):
