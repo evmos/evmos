@@ -9,7 +9,7 @@ from .ibc_utils import (
     hermes_transfer,
     prepare_network,
 )
-from .utils import SCALE_FACTOR_6DEC, parse_events_rpc, wait_for_fn
+from .utils import get_scaling_factor, parse_events_rpc, wait_for_fn
 
 
 @pytest.fixture(scope="module", params=["evmos", "evmos-6dec", "evmos-rocksdb"])
@@ -60,9 +60,7 @@ def test_ibc_transfer_with_hermes(ibc):
     fee = int(events["tx"]["fee"].removesuffix(fee_denom))
     gas = int(tx["gas_wanted"])
 
-    scale_factor = 1
-    if cli.evm_decimals() == 6:
-        scale_factor = SCALE_FACTOR_6DEC
+    scale_factor = get_scaling_factor(cli)
     # the effective fee is decided by the max_priority_fee (base fee is zero)
     # rather than the normal gas price
     assert fee == int(math.ceil(gas * 1000000 / scale_factor))

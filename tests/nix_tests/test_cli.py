@@ -1,5 +1,4 @@
 from .utils import (
-    SCALE_FACTOR_6DEC,
     get_current_height,
     get_scaling_factor,
     supervisorctl,

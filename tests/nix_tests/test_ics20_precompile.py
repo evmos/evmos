@@ -1,5 +1,4 @@
 import json
-from math import e
 
 import pytest
 
@@ -1365,7 +1364,6 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
             if item["denom"] == evm_denom:
                 item["amount"] += exp_amt_tranferred_internally
     elif other_addr == decode_bech32(escrow_bech32):
-        other_addr_final_balances = get_balances(ibc.chains["evmos"], escrow_bech32)
         # check the escrow account escrowed the coins successfully
         # and received the transferred tokens during the contract call
         for item in exp_escrow_final_balances:
@@ -1582,7 +1580,6 @@ def test_ibc_multi_transfer_from_eoa_with_internal_transfer(
 
     def check_dest_balance():
         nonlocal final_dest_balance
-        # TODO update ibc denom
         final_dest_balance = get_balance(
             ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
         )

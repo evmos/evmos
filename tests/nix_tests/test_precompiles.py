@@ -284,7 +284,6 @@ def test_staking_via_sc(ibc):
     src_denom = "aevmos"
     validator_addr = cli.validators()[0]["operator_address"]
 
-    decimals = cli.evm_decimals()
     fee_denom = cli.evm_denom()
     scaling_factor = get_scaling_factor(cli)
 
