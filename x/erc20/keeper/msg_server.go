@@ -276,3 +276,44 @@ func (k *Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams)
 
 	return &types.MsgUpdateParamsResponse{}, nil
 }
+
+// Mint implements the MsgServer interface for the ERC20 module. It mints ERC20 tokens to a given address.
+func (k Keeper) Mint(goCtx context.Context, msg *types.MsgMint) (*types.MsgMintResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return nil, err
+	}
+
+	receiver, err := sdk.AccAddressFromBech32(msg.To)
+	if err != nil {
+		return nil, err
+	}
+
+	err = k.MintCoins(ctx, sender, receiver, math.NewIntFromBigInt(msg.Amount.BigInt()), msg.ContractAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgMintResponse{}, nil
+}
+
+// Burn implements the MsgServer interface for the ERC20 module. It burns ERC20 tokens from a given address.
+func (k Keeper) Burn(goCtx context.Context, msg *types.MsgBurn) (*types.MsgBurnResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return nil, err
+	}
+
+	err = k.BurnCoins(ctx, sender, math.NewIntFromBigInt(msg.Amount.BigInt()), msg.ContractAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgBurnResponse{}, nil
+}
+
+// TODO: Add TransferOwnership handler

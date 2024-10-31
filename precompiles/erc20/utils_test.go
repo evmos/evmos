@@ -161,7 +161,6 @@ func (s *PrecompileTestSuite) requireOut(
 
 		// Unpack the name into a string
 		out, err := method.Outputs.Unpack(bz)
-		fmt.Println("out", out)
 		s.Require().NoError(err, "expected no error unpacking")
 
 		// Check if expValue is a big.Int. Because of a difference in uninitialized/empty values for big.Ints,

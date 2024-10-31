@@ -51,7 +51,7 @@ var _ vm.PrecompiledContract = &Precompile{}
 // Precompile defines the precompiled contract for ERC-20.
 type Precompile struct {
 	cmn.Precompile
-	storeKey       storetypes.StoreKey
+	erc20Keeper 	ERC20Keeper
 	tokenPair      erc20types.TokenPair
 	bankKeeper     bankkeeper.Keeper
 	transferKeeper transferkeeper.Keeper
@@ -61,7 +61,7 @@ type Precompile struct {
 // NewPrecompile creates a new ERC-20 Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
-	storeKey storetypes.StoreKey,
+	erc20Keeper ERC20Keeper,
 	tokenPair erc20types.TokenPair,
 	bankKeeper bankkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
@@ -74,7 +74,7 @@ func NewPrecompile(
 	}
 
 	p := &Precompile{
-		storeKey: storeKey,
+		erc20Keeper: erc20Keeper,
 		Precompile: cmn.Precompile{
 			ABI:                  newABI,
 			AuthzKeeper:          authzKeeper,

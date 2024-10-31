@@ -3,7 +3,6 @@
 package erc20
 
 import (
-	"errors"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
@@ -161,30 +160,15 @@ func (p *Precompile) Mint(
 		return nil, err
 	}
 
-	if !p.tokenPair.IsNativeCoin() {
-		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(errors.New("ERC20: cannot mint a non-native coin"), "ERC20: cannot mint a non-native coin"))
-	}
-
 	minterAddr := contract.CallerAddress
 	minter := sdk.AccAddress(minterAddr.Bytes())
-	contractOwnerAddr, err := p.GetContractOwnerAddress(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if !minter.Equals(contractOwnerAddr) {
-		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(authz.ErrNoAuthorizationFound, "minter is not the owner"))
-	}
+	toAddr := sdk.AccAddress(to.Bytes())
 
 	coins := sdk.Coins{{Denom: p.tokenPair.Denom, Amount: math.NewIntFromBigInt(amount)}}
-	err = p.bankKeeper.MintCoins(ctx, erc20types.ModuleName, coins)
-	if err != nil {
-		return nil, err
-	}
 
-	err = p.bankKeeper.SendCoinsFromModuleToAccount(ctx, erc20types.ModuleName, sdk.AccAddress(to.Bytes()), coins)
+	err = p.erc20Keeper.MintCoins(ctx, minter, toAddr, coins, p.tokenPair.GetERC20Contract().Hex())
 	if err != nil {
-		return nil, err
+		return nil, ConvertErrToERC20Error(err)
 	}
 
 	if p.tokenPair.Denom == utils.BaseDenom {
@@ -214,40 +198,22 @@ func (p *Precompile) Burn(
 		return nil, err
 	}
 
-	if !p.tokenPair.IsNativeCoin() {
-		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(errors.New("ERC20: cannot burn a non-native coin"), "ERC20: cannot burn a non-native coin"))
-	}
-
-	contractOwnerAddr, err := p.GetContractOwnerAddress(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	burnerAddr := contract.CallerAddress
 	burner := sdk.AccAddress(burnerAddr.Bytes())
-	burnerIsOwner := burner.Equals(contractOwnerAddr)
 
-	if !burnerIsOwner {
-		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(authz.ErrNoAuthorizationFound, "burner is not the owner"))
-	}
 	coins := sdk.Coins{{Denom: p.tokenPair.Denom, Amount: math.NewIntFromBigInt(amount)}}
 
-	err = p.bankKeeper.SendCoinsFromAccountToModule(ctx, burner, erc20types.ModuleName, coins)
+	err = p.erc20Keeper.BurnCoins(ctx, burner, coins, p.tokenPair.GetERC20Contract().Hex())
 	if err != nil {
-		return nil, err
-	}
-
-	moduleAccount := p.accountKeeper.GetModuleAccount(ctx, erc20types.ModuleName)
-
-	err = p.bankKeeper.BurnCoins(ctx, erc20types.ModuleName, coins)
-	if err != nil {
-		return nil, err
+		return nil, ConvertErrToERC20Error(err)
 	}
 
 	if p.tokenPair.Denom == utils.BaseDenom {
 		p.SetBalanceChangeEntries(
 			cmn.NewBalanceChangeEntry(burnerAddr, coins.AmountOf(utils.BaseDenom).BigInt(), cmn.Sub))
 	}
+
+	moduleAccount := p.accountKeeper.GetModuleAccount(ctx, erc20types.ModuleName)
 
 	if err = p.EmitTransferEvent(ctx, stateDB, burnerAddr, common.Address(moduleAccount.GetAddress().Bytes()), amount); err != nil {
 		return nil, err
@@ -269,32 +235,14 @@ func (p *Precompile) TransferOwnership(
 		return nil, err
 	}
 
-	sender := contract.CallerAddress
-	contractOwnerAccount, err := sdk.AccAddressFromBech32(p.tokenPair.ContractOwnerAddress)
+	sender := sdk.AccAddress(contract.CallerAddress.Bytes())
+
+	err = p.erc20Keeper.TransferOwnership(ctx, sender, sdk.AccAddress(newOwner.Bytes()), p.tokenPair.GetERC20Contract().Hex())
 	if err != nil {
 		return nil, err
 	}
-
-	if !contractOwnerAccount.Equals(sdk.AccAddress(sender.Bytes())) {
-		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(errors.New("ERC20: unauthorized"), "ERC20: unauthorized"))
-	}
-
-	if !p.tokenPair.IsNativeCoin() {
-		// TODO: Update error message
-		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(errors.New("ERC20: cannot transfer ownership of a non-native coin"), "ERC20: cannot transfer ownership of a non-native coin"))
-	}
-
-	// TODO: Check invariant
-	if contractOwnerAccount.Equals(sdk.AccAddress(newOwner.Bytes())) || contractOwnerAccount.Equals(sdk.AccAddress(common.Address{}.Bytes())) {
-		// TODO: Add InvalidOwner error
-		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(errors.New("ERC20: invalid owner"), "ERC20: invalid owner"))
-	}
-
-	if err := p.SetContractOwnerAddress(ctx, sdk.AccAddress(newOwner.Bytes())); err != nil {
-		return nil, err
-	}
-
-	if err = p.EmitTransferOwnershipEvent(ctx, stateDB, sender, newOwner); err != nil {
+	
+	if err = p.EmitTransferOwnershipEvent(ctx, stateDB, contract.CallerAddress, newOwner); err != nil {
 		return nil, err
 	}
 

@@ -19,6 +19,9 @@ var (
 
 const (
 	TypeMsgConvertERC20 = "convert_ERC20"
+	TypeMsgMint         = "mint"
+	TypeMsgBurn         = "burn"
+	TypeMsgTransferOwnership = "transfer_ownership"
 )
 
 // NewMsgConvertERC20 creates a new instance of MsgConvertERC20
