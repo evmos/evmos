@@ -184,3 +184,12 @@ func (k Keeper) TransferOwnership(ctx sdk.Context, newOwner sdk.AccAddress, toke
 
 	return nil
 }
+
+func (k Keeper) GetOwnerAddress(ctx sdk.Context, contractAddress string) string {
+	pair, found := k.GetTokenPair(ctx, k.GetTokenPairID(ctx, contractAddress))
+	if !found {
+		return ""
+	}
+
+	return pair.OwnerAddress
+}

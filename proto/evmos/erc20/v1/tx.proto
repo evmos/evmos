@@ -26,6 +26,14 @@ service Msg {
   // TransferOwnership defines a Msg to transfer the ownership of the ERC20 token pair to the new owner
   rpc TransferContractOwnership(MsgTransferOwnership) returns (MsgTransferOwnershipResponse);
 
+  // Mint mints ERC20 tokens
+  rpc Mint(MsgMint) returns (MsgMintResponse) {
+    option (google.api.http).post = "/evmos/erc20/v1/tx/mint";
+  }
+  // Burn burns ERC20 tokens
+  rpc Burn(MsgBurn) returns (MsgBurnResponse) {
+    option (google.api.http).post = "/evmos/erc20/v1/tx/burn";
+  }
 }
 
 // MsgConvertERC20 defines a Msg to convert a ERC20 token to a native Cosmos

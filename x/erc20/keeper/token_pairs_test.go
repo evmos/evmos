@@ -10,6 +10,10 @@ import (
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 )
 
+const (
+	tokenDenom = "token"
+)
+
 func (suite *KeeperTestSuite) TestGetTokenPairs() {
 	var expRes []types.TokenPair
 
@@ -235,7 +239,6 @@ func (suite *KeeperTestSuite) TestIsDenomRegistered() {
 
 func (suite *KeeperTestSuite) TestGetTokenDenom() {
 	tokenAddress := utiltx.GenerateAddress()
-	tokenDenom := "token"
 
 	testCases := []struct {
 		name        string
@@ -289,7 +292,6 @@ func (suite *KeeperTestSuite) TestGetTokenDenom() {
 func (suite *KeeperTestSuite) TestGetTokenPairOwnerAddress() {
 	tokenAddress := utiltx.GenerateAddress()
 	ownerAddress := utiltx.GenerateAddress()
-	tokenDenom := "token"
 	testCases := []struct {
 		name         string
 		ownerAddress sdk.AccAddress
@@ -344,7 +346,6 @@ func (suite *KeeperTestSuite) TestGetTokenPairOwnerAddress() {
 func (suite *KeeperTestSuite) TestSetTokenPairOwnerAddress() {
 	tokenAddress := utiltx.GenerateAddress()
 	newOwnerAddress := utiltx.GenerateAddress()
-	tokenDenom := "token"
 
 	testCases := []struct {
 		name            string
