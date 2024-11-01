@@ -25,6 +25,7 @@ from .utils import (
     decode_bech32,
     deploy_contract,
     eth_to_bech32,
+    get_fee,
     get_precompile_contract,
     get_scaling_factor,
     send_transaction,
@@ -995,14 +996,8 @@ def test_ibc_transfer_with_authorization(
     assert receipt.status == 1, debug_trace_tx(
         ibc.chains["evmos"], receipt.transactionHash.hex()
     )
-    fees = receipt.gasUsed * evmos_gas_price
-
-    # check if evm has 6 dec,
-    # actual fees and amt will have 6 dec
-    # instead of 18
     cli = ibc.chains["evmos"].cosmos_cli()
-    scaling_factor = get_scaling_factor(cli)
-    fees = int(round(fees / scaling_factor))
+    fees = get_fee(cli, evmos_gas_price, gas_limit, receipt.gasUsed)
 
     # check ibc-transfer event was emitted
     transfer_event = pc.events.IBCTransfer().processReceipt(receipt)[0]
@@ -1134,13 +1129,8 @@ def test_ibc_transfer_from_eoa_through_contract(ibc):
     )
     receipt = send_transaction(ibc.chains["evmos"].w3, send_tx, KEYS["signer2"])
     assert receipt.status == 1
-    fees = receipt.gasUsed * evmos_gas_price
 
-    # check if evm has 6 dec,
-    # actual fees and amt will have 6 dec
-    # instead of 18
-    scaling_factor = get_scaling_factor(evmos.cosmos_cli())
-    fees = int(round(fees / scaling_factor))
+    fees = get_fee(evmos.cosmos_cli(), evmos_gas_price, gas_limit, receipt.gasUsed)
 
     final_dest_balance = dest_starting_balance
 
@@ -1291,11 +1281,8 @@ def test_ibc_transfer_from_eoa_with_internal_transfer(
     )
     receipt = send_transaction(ibc.chains["evmos"].w3, send_tx, KEYS["signer2"])
     assert receipt.status == 1, debug_trace_tx(evmos, receipt.transactionHash.hex())
-    fees = receipt.gasUsed * evmos_gas_price
 
-    # Get scaling factor for cases where
-    # having a precision different than 18 dec
-    fees = int(round(fees / scaling_factor))
+    fees = get_fee(evmos.cosmos_cli(), evmos_gas_price, gas_limit, receipt.gasUsed)
 
     final_dest_balance = dest_starting_balance
 
@@ -1528,11 +1515,7 @@ def test_ibc_multi_transfer_from_eoa_with_internal_transfer(
 
     escrow_final_balances = get_balances(ibc.chains["evmos"], escrow_bech32)
 
-    fees = receipt.gasUsed * evmos_gas_price
-
-    # Get scaling factor for cases where
-    # having a precision different than 18 dec
-    fees = int(round(fees / scaling_factor))
+    fees = get_fee(evmos.cosmos_cli(), evmos_gas_price, gas_limit, receipt.gasUsed)
 
     if err_contains is not None:
         assert receipt.status == 0
@@ -1721,10 +1704,8 @@ def test_multi_ibc_transfers_with_revert(ibc):
     assert receipt.status == 1, debug_trace_tx(
         ibc.chains["evmos"], receipt.transactionHash.hex()
     )
-    fees = receipt.gasUsed * evmos_gas_price
-    # Get scaling factor for cases where
-    # having a precision different than 18 dec
-    fees = int(round(fees / scaling_factor))
+
+    fees = get_fee(evmos.cosmos_cli(), evmos_gas_price, gas_limit, receipt.gasUsed)
 
     final_dest_balance = dest_starting_balance
 
@@ -1875,10 +1856,8 @@ def test_multi_ibc_transfers_with_nested_revert(ibc):
     assert receipt.status == 1, debug_trace_tx(
         ibc.chains["evmos"], receipt.transactionHash.hex()
     )
-    fees = receipt.gasUsed * evmos_gas_price
-    # Get scaling factor for cases where
-    # having a precision different than 18 dec
-    fees = int(round(fees / scaling_factor))
+
+    fees = get_fee(evmos.cosmos_cli(), evmos_gas_price, gas_limit, receipt.gasUsed)
 
     final_dest_balance = dest_starting_balance
 

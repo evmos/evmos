@@ -7,12 +7,12 @@ from .utils import (
     ADDRS,
     CONTRACTS,
     KEYS,
-    SCALE_FACTOR_6DEC,
     amount_of,
     amount_of_dec_coin,
     debug_trace_tx,
     deploy_contract,
     eth_to_bech32,
+    get_fee,
     send_transaction,
     wait_for_fn,
     wait_for_new_blocks,
@@ -146,7 +146,6 @@ def test_fund_community_pool(evmos_cluster, name, deposit_amt, args, err_contain
     assert receipt.status == 1, debug_trace_tx(
         evmos_cluster, receipt.transactionHash.hex()
     )
-    fees = receipt.gasUsed * gas_price
 
     # check that contract's balance is 0
     final_contract_balance = evmos_cluster.w3.eth.get_balance(eth_contract.address)
@@ -165,8 +164,7 @@ def test_fund_community_pool(evmos_cluster, name, deposit_amt, args, err_contain
     # Check if evm has 6 dec,
     # actual fees will have 6 dec
     # instead of 18
-    if evmos_cluster.cosmos_cli().evm_decimals() == 6:
-        fees = int(round(fees / SCALE_FACTOR_6DEC))
+    fees = get_fee(evmos_cluster.cosmos_cli(), gas_price, gas_limit, receipt.gasUsed)
 
     final_pool_balances = evmos_cluster.cosmos_cli().distribution_community()
     community_final_balance = amount_of_dec_coin(final_pool_balances, comm_pool_denom)
