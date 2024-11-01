@@ -20,16 +20,17 @@ func (k Keeper) GetERC20PrecompileInstance(
 	ctx sdk.Context,
 	address common.Address,
 ) (contract vm.PrecompiledContract, found bool, err error) {
+	// TODO: pass down from before
 	params := k.GetParams(ctx)
-	if k.IsAvailableERC20Precompile(&params, address) {
-		isNative := params.IsNativePrecompile(address)
-		precompile, err := k.InstantiateERC20Precompile(ctx, address, isNative)
-		if err != nil {
-			return nil, false, errorsmod.Wrapf(err, "precompiled contract not initialized: %s", address.String())
-		}
-		return precompile, true, nil
+	if !k.IsAvailableERC20Precompile(&params, address) {
+		return nil, false, nil
 	}
-	return nil, false, nil
+	isNative := params.IsNativePrecompile(address)
+	precompile, err := k.InstantiateERC20Precompile(ctx, address, isNative)
+	if err != nil {
+		return nil, false, errorsmod.Wrapf(err, "precompiled contract not initialized: %s", address.String())
+	}
+	return precompile, true, nil
 }
 
 // InstantiateERC20Precompile returns an ERC20 precompile instance for the given

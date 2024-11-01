@@ -1,17 +1,22 @@
 package werc20_test
 
 import (
+	"fmt"
 	"math/big"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
+
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
 	"github.com/evmos/evmos/v20/precompiles/werc20"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v20/utils"
 	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
@@ -36,21 +41,28 @@ func TestPrecompileUnitTestSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-func (s *PrecompileUnitTestSuite) SetupTest() {
+// SetupTest allows to configure the testing suite embedding a network with a
+// custom chainID. This is important to check that the correct address is used
+// for the precompile.
+func (s *PrecompileUnitTestSuite) SetupTest(chainID string) {
 	keyring := keyring.New(2)
 
 	integrationNetwork := network.NewUnitTestNetwork(
+		network.WithChainID(chainID),
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
 	txFactory := factory.New(integrationNetwork, grpcHandler)
+
+	println("------------------------------------------------")
+	fmt.Printf("ChainID %s\n", integrationNetwork.GetChainID())
+	println("------------------------------------------------")
 
 	s.network = integrationNetwork
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
 
-	chainID := s.network.GetChainID()
 	s.precompileAddrHex = erc20types.GetWEVMOSContractHex(chainID)
 
 	ctx := integrationNetwork.GetContext()
@@ -58,7 +70,7 @@ func (s *PrecompileUnitTestSuite) SetupTest() {
 	tokenPairID := s.network.App.Erc20Keeper.GetTokenPairID(ctx, evmtypes.GetEVMCoinDenom())
 	tokenPair, found := s.network.App.Erc20Keeper.GetTokenPair(ctx, tokenPairID)
 	s.Require().True(found, "expected wevmos precompile to be registered in the tokens map")
-	s.Require().Equal(tokenPair.Erc20Address, s.precompileAddrHex)
+	s.Require().Equal(s.precompileAddrHex, tokenPair.Erc20Address, "expected a different address of the contract")
 
 	precompile, err := werc20.NewPrecompile(
 		tokenPair,
@@ -71,19 +83,33 @@ func (s *PrecompileUnitTestSuite) SetupTest() {
 	s.precompile = precompile
 }
 
+type DepositEvent struct {
+	Dst common.Address
+	Wad *big.Int
+}
+
+type WithdrawalEvent struct {
+	Src common.Address
+	Wad *big.Int
+}
+
 func (s *PrecompileUnitTestSuite) TestEmitDepositEvent() {
-	testCasees := []struct {
-		name string
+	testCases := []struct {
+		name    string
+		chainID string
 	}{
 		{
-			name: "pass",
+			name:    "mainnet",
+			chainID: utils.MainnetChainID + "-1",
+		}, {
+			name:    "testnet",
+			chainID: utils.TestnetChainID + "-1",
 		},
 	}
 
-	for _, tc := range testCasees {
-
-		s.SetupTest()
+	for _, tc := range testCases {
 		s.Run(tc.name, func() {
+			s.SetupTest(tc.chainID)
 			caller := s.keyring.GetAddr(0)
 			amount := new(big.Int).SetInt64(1_000)
 
@@ -95,32 +121,92 @@ func (s *PrecompileUnitTestSuite) TestEmitDepositEvent() {
 				caller,
 				amount,
 			)
-			s.Require().NoError(err, "expected transfer event to be emitted successfully")
+			s.Require().NoError(err, "expected deposit event to be emitted successfully")
 
-			// log := stateDB.Logs()[0]
-			// s.Require().Equal(log.Address, s.precompile.Address())
-			//
-			// event := s.precompile.ABI.Events[werc20.EventTypeDeposit]
-			//
-			// // First topic should match the event signature.
-			// s.Require().Equal(
-			// 	crypto.Keccak256Hash([]byte(event.Sig)),
-			// 	common.HexToHash(string(log.Topics[0].Hex())),
-			// )
-			// s.Require().Equal(
-			// 	crypto.Keccak256Hash([]byte(caller.String())),
-			// 	common.HexToHash(string(log.Topics[1].Hex())),
-			// )
-			// s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
+			log := stateDB.Logs()[0]
 
-			// // Verify data
-			// var transferEvent werc20.EventTypeDeposit
-			// err = cmn.UnpackLog(s.precompile.ABI, &transferEvent, erc20precompile.EventTypeTransfer, *log)
-			// s.Require().NoError(err, "unable to unpack log into transfer event")
-			//
-			// s.Require().Equal(tc.from, transferEvent.From, "expected different from address")
-			// s.Require().Equal(tc.to, transferEvent.To, "expected different to address")
-			// s.Require().Equal(tc.amount, transferEvent.Value, "expected different amount")
+			// Check on the address
+			s.Require().Equal(log.Address, s.precompile.Address())
+
+			// Check on the topics
+			event := s.precompile.ABI.Events[werc20.EventTypeDeposit]
+			s.Require().Equal(
+				crypto.Keccak256Hash([]byte(event.Sig)),
+				common.HexToHash(log.Topics[0].Hex()),
+			)
+			var adddressTopic common.Hash
+			copy(adddressTopic[common.HashLength-common.AddressLength:], caller[:])
+			s.Require().Equal(adddressTopic, log.Topics[1])
+
+			// Check on the block number
+			s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
+
+			// Verify data
+			var depositEvent DepositEvent
+			err = cmn.UnpackLog(s.precompile.ABI, &depositEvent, werc20.EventTypeDeposit, *log)
+			s.Require().NoError(err, "unable to unpack log into deposit event")
+
+			s.Require().Equal(caller, depositEvent.Dst, "expected different destination address")
+			s.Require().Equal(amount, depositEvent.Wad, "expected different amount")
+		})
+	}
+}
+
+func (s *PrecompileUnitTestSuite) TestEmitWithdrawalEvent() {
+	testCases := []struct {
+		name    string
+		chainID string
+	}{
+		{
+			name:    "mainnet",
+			chainID: utils.MainnetChainID + "-1",
+		}, {
+			name:    "testnet",
+			chainID: utils.TestnetChainID + "-1",
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(tc.name, func() {
+			s.SetupTest(tc.chainID)
+			caller := s.keyring.GetAddr(0)
+			amount := new(big.Int).SetInt64(1_000)
+
+			stateDB := s.network.GetStateDB()
+
+			err := s.precompile.EmitWithdrawalEvent(
+				s.network.GetContext(),
+				stateDB,
+				caller,
+				amount,
+			)
+			s.Require().NoError(err, "expected withdrawal event to be emitted successfully")
+
+			log := stateDB.Logs()[0]
+
+			// Check on the address
+			s.Require().Equal(log.Address, s.precompile.Address())
+
+			// Check on the topics
+			event := s.precompile.ABI.Events[werc20.EventTypeWithdrawal]
+			s.Require().Equal(
+				crypto.Keccak256Hash([]byte(event.Sig)),
+				common.HexToHash(log.Topics[0].Hex()),
+			)
+			var adddressTopic common.Hash
+			copy(adddressTopic[common.HashLength-common.AddressLength:], caller[:])
+			s.Require().Equal(adddressTopic, log.Topics[1])
+
+			// Check on the block number
+			s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
+
+			// Verify data
+			var withdrawalEvent WithdrawalEvent
+			err = cmn.UnpackLog(s.precompile.ABI, &withdrawalEvent, werc20.EventTypeWithdrawal, *log)
+			s.Require().NoError(err, "unable to unpack log into withdrawal event")
+
+			s.Require().Equal(caller, withdrawalEvent.Src, "expected different source address")
+			s.Require().Equal(amount, withdrawalEvent.Wad, "expected different amount")
 		})
 	}
 }

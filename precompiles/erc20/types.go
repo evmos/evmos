@@ -13,6 +13,7 @@ import (
 )
 
 const (
+	// TODO: duplicated
 	// WEVMOSContractMainnet is the WEVMOS contract address for mainnet
 	WEVMOSContractMainnet = "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
 	// WEVMOSContractTestnet is the WEVMOS contract address for testnet
