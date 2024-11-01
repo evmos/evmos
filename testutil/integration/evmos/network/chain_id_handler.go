@@ -30,11 +30,15 @@ func updateErc20Params(chainID string, params erc20types.Params) erc20types.Para
 	mainnetAddress := erc20types.GetWEVMOSContractHex(utils.MainnetChainID)
 	testnetAddress := erc20types.GetWEVMOSContractHex(chainID)
 
+	nativePrecompiles := make([]string, len(params.NativePrecompiles))
 	for i, nativePrecompile := range params.NativePrecompiles {
 		if nativePrecompile == mainnetAddress {
-			params.NativePrecompiles[i] = testnetAddress
+			nativePrecompiles[i] = testnetAddress
+		} else {
+			nativePrecompiles[i] = nativePrecompile
 		}
 	}
+	params.NativePrecompiles = nativePrecompiles
 	return params
 }
 
@@ -43,13 +47,16 @@ func updateErc20TokenPairs(chainID string, tokenPairs []erc20types.TokenPair) []
 	testnetAddress := erc20types.GetWEVMOSContractHex(chainID)
 
 	updatedTokenPairs := make([]erc20types.TokenPair, len(tokenPairs))
-	for i, tokerPair := range tokenPairs {
-		if tokerPair.Erc20Address == mainnetAddress {
-			tp := tokerPair
-			tp.Erc20Address = testnetAddress
-			updatedTokenPairs[i] = tp
+	for i, tokenPair := range tokenPairs {
+		if tokenPair.Erc20Address == mainnetAddress {
+			updatedTokenPairs[i] = erc20types.TokenPair{
+				Erc20Address:  testnetAddress,
+				Denom:         tokenPair.Denom,
+				Enabled:       tokenPair.Enabled,
+				ContractOwner: tokenPair.ContractOwner,
+			}
 		} else {
-			updatedTokenPairs[i] = tokerPair
+			updatedTokenPairs[i] = tokenPair
 		}
 	}
 	return updatedTokenPairs
