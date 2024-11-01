@@ -24,7 +24,9 @@ service Msg {
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
   // TransferOwnership defines a Msg to transfer the ownership of the ERC20 token pair to the new owner
-  rpc TransferContractOwnership(MsgTransferOwnership) returns (MsgTransferOwnershipResponse);
+  rpc TransferContractOwnership(MsgTransferOwnership) returns (MsgTransferOwnershipResponse) {
+    option (google.api.http).post = "/evmos/erc20/v1/tx/transfer_contract_ownership";
+  };
 
   // Mint mints ERC20 tokens
   rpc Mint(MsgMint) returns (MsgMintResponse) {
