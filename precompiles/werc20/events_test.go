@@ -1,7 +1,6 @@
 package werc20_test
 
 import (
-	"fmt"
 	"math/big"
 	"testing"
 
@@ -53,10 +52,6 @@ func (s *PrecompileUnitTestSuite) SetupTest(chainID string) {
 	)
 	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
 	txFactory := factory.New(integrationNetwork, grpcHandler)
-
-	println("------------------------------------------------")
-	fmt.Printf("ChainID %s\n", integrationNetwork.GetChainID())
-	println("------------------------------------------------")
 
 	s.network = integrationNetwork
 	s.factory = txFactory
