@@ -451,7 +451,8 @@ func setDefaultGovGenesisState(evmosApp *app.Evmos, genesisState evmostypes.Gene
 
 func setDefaultErc20GenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState) evmostypes.GenesisState {
 	erc20Gen := erc20types.DefaultGenesisState()
-	genesisState[erc20types.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(erc20Gen)
+	handledErc20Gen := handleDefaultErc20GenesisState(evmosApp, *erc20Gen)
+	genesisState[erc20types.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(&handledErc20Gen)
 	return genesisState
 }
 
