@@ -403,7 +403,6 @@ func TestMsgCreateClawbackVestingAccount(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// reset
 			nw = network.NewUnitTestNetwork(network.WithPreFundedAccounts(funderAddr))
@@ -851,7 +850,6 @@ func TestConvertVestingAccount(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			nw = network.NewUnitTestNetwork()
 			ctx = nw.GetContext()
