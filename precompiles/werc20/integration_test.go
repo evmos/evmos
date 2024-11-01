@@ -11,12 +11,14 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	auth "github.com/evmos/evmos/v20/precompiles/authorization"
 	"github.com/evmos/evmos/v20/precompiles/erc20"
 	"github.com/evmos/evmos/v20/precompiles/testutil"
 	"github.com/evmos/evmos/v20/precompiles/werc20"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	evmosutiltx "github.com/evmos/evmos/v20/testutil/tx"
 	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
@@ -135,16 +137,16 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 		// callArgs factory.CallArgs
 		// txArgs   evmtypes.EvmTxArgs
 
-		passCheck, failCheck, depositCheck, withdrawCheck testutil.LogCheckArgs
+		passCheck, failCheck, transferCheck, depositCheck, withdrawCheck testutil.LogCheckArgs
 
 		callsData CallsData
 
-		txSender keyring.Key
-		user     keyring.Key
+		txSender, user keyring.Key
 	)
 
 	depositAmount := big.NewInt(1e18)
 	withdrawAmount := depositAmount
+	transferAmount := depositAmount
 
 	BeforeEach(func() {
 		is.SetupTest()
@@ -170,9 +172,10 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 
 		withdrawCheck = passCheck.WithExpEvents(werc20.EventTypeWithdrawal)
 		depositCheck = passCheck.WithExpEvents(werc20.EventTypeDeposit)
+		transferCheck = passCheck.WithExpEvents(erc20.EventTypeTransfer)
 
 		txSender = is.keyring.GetKey(0)
-		// user = s.keyring.GetKey(1)
+		user = is.keyring.GetKey(1)
 
 		callsData = CallsData{
 			sender: txSender,
@@ -181,238 +184,330 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 			precompileABI:  precompile.ABI,
 		}
 	})
+	Context("calling a specific wrapped coin method", func() {
+		Context("and funds are part of the transaction", func() {
+			When("the method is deposit", func() {
+				It("it should return funds to sender and emit the event", func() {
+					// Store initial balance to verify that sender
+					// balance remains the same after the contract call.
+					initBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
-	Context("and funds are part of the transaction", func() {
-		When("the method is deposit", func() {
-			It("it should return funds to sender and emit the event", func() {
-				// Store initial balance to verify that sender
-				// balance remains the same after the contract call.
-				initBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+					txArgs, callArgs := callsData.getTxAndCallArgs(directCall, werc20.DepositMethod)
+					txArgs.Amount = depositAmount
 
-				txArgs, callArgs := callsData.getTxAndCallArgs(directCall, werc20.DepositMethod)
-				txArgs.Amount = depositAmount
+					_, _, err := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
-				_, _, err := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
-				Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+					finalBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
+					Expect(finalBalance).To(Equal(initBalance))
+				})
+				It("it should consume at least the deposit requested gas", func() {
+					txArgs, callArgs := callsData.getTxAndCallArgs(directCall, werc20.DepositMethod)
+					txArgs.Amount = depositAmount
 
-				finalBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
-				Expect(finalBalance).To(Equal(initBalance))
+					_, ethRes, _ := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+
+					Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used for deposit")
+				})
 			})
-			It("it should consume at least the deposit requested gas", func() {
-				txArgs, callArgs := callsData.getTxAndCallArgs(directCall, werc20.DepositMethod)
-				txArgs.Amount = depositAmount
+			When("no calldata is provided", func() {
+				It("it should call the receive which behave like deposit", func() {
+					// Store initial balance to verify withdraw is a no-op and sender
+					// balance remains the same after the contract call.
+					initBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
-				_, ethRes, _ := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+					txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
+					txArgs.Amount = depositAmount
 
-				Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used for deposit")
+					_, _, err := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+
+					finalBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
+					Expect(finalBalance).To(Equal(initBalance))
+				})
+				It("it should consume at least the deposit requested gas", func() {
+					txArgs, callArgs := callsData.getTxAndCallArgs(directCall, werc20.DepositMethod)
+					txArgs.Amount = depositAmount
+
+					_, ethRes, _ := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+
+					Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used for receive")
+				})
+			})
+			When("the specified method is too short", func() {
+				It("it should call the fallback which behave like deposit", func() {
+					// Store initial balance to verify withdraw is a no-op and sender
+					// balance remains the same after the contract call.
+					initBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+
+					txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
+					txArgs.Amount = depositAmount
+					// Short method is directly set in the input to skip ABI validation
+					txArgs.Input = []byte{1, 2, 3}
+
+					_, _, err := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+
+					finalBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
+					Expect(finalBalance).To(Equal(initBalance))
+				})
+				It("it should consume at least the deposit requested gas", func() {
+					txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
+					txArgs.Amount = depositAmount
+					// Short method is directly set in the input to skip ABI validation
+					txArgs.Input = []byte{1, 2, 3}
+
+					_, ethRes, _ := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+
+					Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used for fallback")
+				})
+			})
+			When("the specified method does not exist", func() {
+				It("it should call the fallback which behave like deposit", func() {
+					// Store initial balance to verify withdraw is a no-op and sender
+					// balance remains the same after the contract call.
+					initBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+
+					txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
+					txArgs.Amount = depositAmount
+					// Wrong method is directly set in the input to skip ABI validation
+					txArgs.Input = []byte("nonExistingMethod")
+
+					_, _, err := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+
+					finalBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
+					Expect(finalBalance).To(Equal(initBalance))
+				})
+				It("it should consume at least the deposit requested gas", func() {
+					txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
+					txArgs.Amount = depositAmount
+					// Wrong method is directly set in the input to skip ABI validation
+					txArgs.Input = []byte("nonExistingMethod")
+
+					_, ethRes, _ := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+
+					Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used for fallback")
+				})
 			})
 		})
-		When("no calldata is provided", func() {
-			It("it should call the receive which behave like deposit", func() {
-				// Store initial balance to verify withdraw is a no-op and sender
-				// balance remains the same after the contract call.
-				initBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+		Context("and funds are NOT part of the transaction", func() {
+			When("the method is withdraw", func() {
+				It("it should be a no-op and emit the event", func() {
+					// Store initial balance to verify withdraw is a no-op and sender
+					// balance remains the same after the contract call.
+					initBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
-				txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
-				txArgs.Amount = depositAmount
+					txArgs, callArgs := callsData.getTxAndCallArgs(directCall, werc20.WithdrawMethod, withdrawAmount)
 
-				_, _, err := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
-				Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+					_, _, err := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, withdrawCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
-				finalBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
-				Expect(finalBalance).To(Equal(initBalance))
+					finalBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
+					Expect(finalBalance).To(Equal(initBalance))
+				})
+				It("it should consume at least the withdraw requested gas", func() {
+					txArgs, callArgs := callsData.getTxAndCallArgs(directCall, werc20.WithdrawMethod, withdrawAmount)
+
+					_, ethRes, _ := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, withdrawCheck)
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+
+					Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.WithdrawRequiredGas), "expected different gas used for withdraw")
+				})
 			})
-			It("it should consume at least the deposit requested gas", func() {
-				txArgs, callArgs := callsData.getTxAndCallArgs(directCall, werc20.DepositMethod)
-				txArgs.Amount = depositAmount
+			When("no calldata is provided", func() {
+				It("it should call the fallback which behave like deposit", func() {
+					// Store initial balance to verify withdraw is a no-op and sender
+					// balance remains the same after the contract call.
+					initBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
-				_, ethRes, _ := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+					txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
+					txArgs.Amount = depositAmount
 
-				Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used for receive")
+					_, _, err := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+
+					finalBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
+					Expect(finalBalance).To(Equal(initBalance))
+				})
+				It("it should consume at least the deposit requested gas", func() {
+					txArgs, callArgs := callsData.getTxAndCallArgs(directCall, werc20.DepositMethod)
+					txArgs.Amount = depositAmount
+
+					_, ethRes, _ := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+
+					Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used for receive")
+				})
 			})
-		})
-		When("the specified method is too short", func() {
-			It("it should call the fallback which behave like deposit", func() {
-				// Store initial balance to verify withdraw is a no-op and sender
-				// balance remains the same after the contract call.
-				initBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+			When("the specified method is too short", func() {
+				It("it should call the fallback which behave like deposit", func() {
+					// Store initial balance to verify withdraw is a no-op and sender
+					// balance remains the same after the contract call.
+					initBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
-				txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
-				txArgs.Amount = depositAmount
-				// Short method is directly set in the input to skip ABI validation
-				txArgs.Input = []byte{1, 2, 3}
+					txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
+					txArgs.Amount = depositAmount
+					// Short method is directly set in the input to skip ABI validation
+					txArgs.Input = []byte{1, 2, 3}
 
-				_, _, err := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
-				Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+					_, _, err := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
-				finalBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
-				Expect(finalBalance).To(Equal(initBalance))
+					finalBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
+					Expect(finalBalance).To(Equal(initBalance))
+				})
+				It("it should consume at least the deposit requested gas", func() {
+					txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
+					txArgs.Amount = depositAmount
+					// Short method is directly set in the input to skip ABI validation
+					txArgs.Input = []byte{1, 2, 3}
+
+					_, ethRes, _ := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+
+					Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used for fallback")
+				})
 			})
-			It("it should consume at least the deposit requested gas", func() {
-				txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
-				txArgs.Amount = depositAmount
-				// Short method is directly set in the input to skip ABI validation
-				txArgs.Input = []byte{1, 2, 3}
+			When("the specified method does not exist", func() {
+				It("it should call the fallback which behave like deposit", func() {
+					// Store initial balance to verify withdraw is a no-op and sender
+					// balance remains the same after the contract call.
+					initBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
-				_, ethRes, _ := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+					txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
+					txArgs.Amount = depositAmount
+					// Wrong method is directly set in the input to skip ABI validation
+					txArgs.Input = []byte("nonExistingMethod")
 
-				Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used for fallback")
-			})
-		})
-		When("the specified method does not exist", func() {
-			It("it should call the fallback which behave like deposit", func() {
-				// Store initial balance to verify withdraw is a no-op and sender
-				// balance remains the same after the contract call.
-				initBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+					_, _, err := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
-				txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
-				txArgs.Amount = depositAmount
-				// Wrong method is directly set in the input to skip ABI validation
-				txArgs.Input = []byte("nonExistingMethod")
+					finalBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
+					Expect(finalBalance).To(Equal(initBalance))
+				})
+				It("it should consume at least the deposit requested gas", func() {
+					txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
+					txArgs.Amount = depositAmount
+					// Wrong method is directly set in the input to skip ABI validation
+					txArgs.Input = []byte("nonExistingMethod")
 
-				_, _, err := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
-				Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+					_, ethRes, _ := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
-				finalBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
-				Expect(finalBalance).To(Equal(initBalance))
-			})
-			It("it should consume at least the deposit requested gas", func() {
-				txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
-				txArgs.Amount = depositAmount
-				// Wrong method is directly set in the input to skip ABI validation
-				txArgs.Input = []byte("nonExistingMethod")
-
-				_, ethRes, _ := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
-
-				Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used for fallback")
+					Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used for fallback")
+				})
 			})
 		})
 	})
-	Context("and funds are NOT part of the transaction", func() {
-		When("the method is withdraw", func() {
-			It("it should be a no-op and emit the event", func() {
-				// Store initial balance to verify withdraw is a no-op and sender
-				// balance remains the same after the contract call.
-				initBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+	Context("calling an erc20 method", func() {
+		When("transferring tokens", func() {
+			It("it should transfer tokens to a receiver using `transfer`", func() {
+				ctx := is.network.GetContext()
 
-				txArgs, callArgs := callsData.getTxAndCallArgs(directCall, werc20.WithdrawMethod, withdrawAmount)
+				senderBalance := is.network.App.BankKeeper.GetAllBalances(ctx, txSender.AccAddr)
+				receiverBalance := is.network.App.BankKeeper.GetAllBalances(ctx, user.AccAddr)
 
-				_, _, err := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, withdrawCheck)
-				Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+				txArgs, transferArgs := callsData.getTxAndCallArgs(directCall, erc20.TransferMethod, user.Addr, transferAmount)
+				transferCoins := sdk.Coins{sdk.NewInt64Coin(is.wrappedCoinDenom, transferAmount.Int64())}
 
-				finalBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
-				Expect(finalBalance).To(Equal(initBalance))
+				_, _, err := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, transferArgs, transferCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				senderBalanceAfter := is.network.App.BankKeeper.GetAllBalances(ctx, txSender.AccAddr)
+				receiverBalanceAfter := is.network.App.BankKeeper.GetAllBalances(ctx, user.AccAddr)
+				Expect(senderBalanceAfter).To(Equal(senderBalance.Sub(transferCoins...)))
+				Expect(receiverBalanceAfter).To(Equal(receiverBalance.Add(transferCoins...)))
 			})
-			It("it should consume at least the withdraw requested gas", func() {
-				txArgs, callArgs := callsData.getTxAndCallArgs(directCall, werc20.WithdrawMethod, withdrawAmount)
+			It("it should transfer tokens to a receiver using `transferFrom`", func() {
+				ctx := is.network.GetContext()
 
-				_, ethRes, _ := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, withdrawCheck)
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+				senderBalance := is.network.App.BankKeeper.GetAllBalances(ctx, txSender.AccAddr)
+				receiverBalance := is.network.App.BankKeeper.GetAllBalances(ctx, user.AccAddr)
 
-				Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.WithdrawRequiredGas), "expected different gas used for withdraw")
-			})
-		})
-		When("no calldata is provided", func() {
-			It("it should call the fallback which behave like deposit", func() {
-				// Store initial balance to verify withdraw is a no-op and sender
-				// balance remains the same after the contract call.
-				initBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+				txArgs, transferArgs := callsData.getTxAndCallArgs(directCall, erc20.TransferFromMethod, txSender.Addr, user.Addr, transferAmount)
+				transferCoins := sdk.Coins{sdk.NewInt64Coin(is.wrappedCoinDenom, transferAmount.Int64())}
 
-				txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
-				txArgs.Amount = depositAmount
+				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer, auth.EventTypeApproval)
+				_, _, err := is.factory.CallContractAndCheckLogs(txSender.Priv, txArgs, transferArgs, transferCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				_, _, err := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
-				Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
-
-				finalBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
-				Expect(finalBalance).To(Equal(initBalance))
-			})
-			It("it should consume at least the deposit requested gas", func() {
-				txArgs, callArgs := callsData.getTxAndCallArgs(directCall, werc20.DepositMethod)
-				txArgs.Amount = depositAmount
-
-				_, ethRes, _ := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
-
-				Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used for receive")
+				senderBalanceAfter := is.network.App.BankKeeper.GetAllBalances(ctx, txSender.AccAddr)
+				receiverBalanceAfter := is.network.App.BankKeeper.GetAllBalances(ctx, user.AccAddr)
+				Expect(senderBalanceAfter).To(Equal(senderBalance.Sub(transferCoins...)))
+				Expect(receiverBalanceAfter).To(Equal(receiverBalance.Add(transferCoins...)))
 			})
 		})
-		When("the specified method is too short", func() {
-			It("it should call the fallback which behave like deposit", func() {
-				// Store initial balance to verify withdraw is a no-op and sender
-				// balance remains the same after the contract call.
-				initBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+		When("querying information", func() {
+			Context("to retrieve a balance", func() {
+				It("should return the correct balance for an existing account", func() {
+					// Query the balance
+					txArgs, balancesArgs := callsData.getTxAndCallArgs(directCall, erc20.BalanceOfMethod, txSender.Addr)
 
-				txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
-				txArgs.Amount = depositAmount
-				// Short method is directly set in the input to skip ABI validation
-				txArgs.Input = []byte{1, 2, 3}
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(txSender.Priv, txArgs, balancesArgs, passCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				_, _, err := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
-				Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+					expBalance := is.network.App.BankKeeper.GetBalance(is.network.GetContext(), txSender.AccAddr, is.wrappedCoinDenom)
 
-				finalBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
-				Expect(finalBalance).To(Equal(initBalance))
+					var balance *big.Int
+					err = is.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)
+					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+					Expect(balance).To(Equal(expBalance.Amount.BigInt()), "expected different balance")
+				})
+				It("should return a 0 for a new account", func() {
+					// Query the balance
+					txArgs, balancesArgs := callsData.getTxAndCallArgs(directCall, erc20.BalanceOfMethod, evmosutiltx.GenerateAddress())
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(txSender.Priv, txArgs, balancesArgs, passCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					var balance *big.Int
+					err = is.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)
+					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+					Expect(balance.Int64()).To(Equal(int64(0)), "expected different balance")
+				})
 			})
-			It("it should consume at least the deposit requested gas", func() {
-				txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
-				txArgs.Amount = depositAmount
-				// Short method is directly set in the input to skip ABI validation
-				txArgs.Input = []byte{1, 2, 3}
+			It("should return the correct name", func() {
+				txArgs, nameArgs := callsData.getTxAndCallArgs(directCall, erc20.NameMethod)
 
-				_, ethRes, _ := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(txSender.Priv, txArgs, nameArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used for fallback")
+				var name string
+				err = is.precompile.UnpackIntoInterface(&name, erc20.NameMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(name).To(Equal("Evmos"), "expected different name")
 			})
-		})
-		When("the specified method does not exist", func() {
-			It("it should call the fallback which behave like deposit", func() {
-				// Store initial balance to verify withdraw is a no-op and sender
-				// balance remains the same after the contract call.
-				initBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+			It("should return the correct symbol", func() {
+				txArgs, symbolArgs := callsData.getTxAndCallArgs(directCall, erc20.SymbolMethod)
 
-				txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
-				txArgs.Amount = depositAmount
-				// Wrong method is directly set in the input to skip ABI validation
-				txArgs.Input = []byte("nonExistingMethod")
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(txSender.Priv, txArgs, symbolArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				_, _, err := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
-				Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
-
-				finalBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
-				Expect(finalBalance).To(Equal(initBalance))
-			})
-			It("it should consume at least the deposit requested gas", func() {
-				txArgs, callArgs := callsData.getTxAndCallArgs(directCall, "")
-				txArgs.Amount = depositAmount
-				// Wrong method is directly set in the input to skip ABI validation
-				txArgs.Input = []byte("nonExistingMethod")
-
-				_, ethRes, _ := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, callArgs, depositCheck)
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
-
-				Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used for fallback")
+				var symbol string
+				err = is.precompile.UnpackIntoInterface(&symbol, erc20.SymbolMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(symbol).To(Equal("EVMOS"), "expected different symbol")
 			})
 		})
 	})
