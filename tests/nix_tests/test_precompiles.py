@@ -16,8 +16,8 @@ from .utils import (
     KEYS,
     amount_of,
     deploy_contract,
+    get_fee,
     get_precompile_contract,
-    get_scaling_factor,
     send_transaction,
     wait_for_fn,
 )
@@ -94,14 +94,8 @@ def test_ibc_transfer(ibc):
     # check gas estimation is accurate
     assert receipt.gasUsed == gas_estimation
 
-    fee = receipt.gasUsed * evmos_gas_price
-
-    # check if evm has 6 dec,
-    # actual fees will have 6 dec
-    # instead of 18
+    fee = get_fee(cli, evmos_gas_price, gas_estimation, receipt.gasUsed)
     fee_denom = cli.evm_denom()
-    scaling_factor = get_scaling_factor(cli)
-    fee = int(fee / scaling_factor)
 
     new_dst_balances = []
 
@@ -244,14 +238,8 @@ def test_staking(ibc):
     # check gas estimation is accurate
     assert receipt.gasUsed == gas_estimation
 
-    fee = receipt.gasUsed * evmos_gas_price
-
-    # check if evm has 6 dec,
-    # actual fees will have 6 dec
-    # instead of 18
     fee_denom = cli.evm_denom()
-    scaling_factor = get_scaling_factor(cli)
-    fee = int(fee / scaling_factor)
+    fee = get_fee(cli, evmos_gas_price, gas_estimation, receipt.gasUsed)
 
     delegations = cli.get_delegated_amount(del_addr)["delegation_responses"]
     assert len(delegations) == 1
@@ -283,9 +271,7 @@ def test_staking_via_sc(ibc):
     del_addr = cli.address("signer1")
     src_denom = "aevmos"
     validator_addr = cli.validators()[0]["operator_address"]
-
     fee_denom = cli.evm_denom()
-    scaling_factor = get_scaling_factor(cli)
 
     old_src_balances = get_balances(evmos, del_addr)
 
@@ -293,10 +279,11 @@ def test_staking_via_sc(ibc):
     evmos_gas_price = w3.eth.gas_price
 
     # create grant - need to specify gas otherwise will fail with out of gas
+    gas_wanted = 60000
     approve_tx = contract.functions.testApprove(
         receipt.contractAddress, ["/cosmos.staking.v1beta1.MsgDelegate"], amt
     ).build_transaction(
-        {"from": ADDRS["signer1"], "gasPrice": evmos_gas_price, "gas": 60000}
+        {"from": ADDRS["signer1"], "gasPrice": evmos_gas_price, "gas": gas_wanted}
     )
 
     gas_estimation = evmos.w3.eth.estimate_gas(approve_tx)
@@ -309,18 +296,14 @@ def test_staking_via_sc(ibc):
     # FIXME gas estimation > than gasUsed. Should be equal
     # assert receipt.gasUsed == gas_estimation
 
-    fee1 = receipt.gasUsed * evmos_gas_price
-
-    # check if evm has 6 dec,
-    # actual fees will have 6 dec
-    # instead of 18
-    fee1 = round(fee1 / scaling_factor)
+    fee1 = get_fee(cli, evmos_gas_price, gas_wanted, receipt.gasUsed)
 
     # delegate - need to specify gas otherwise will fail with out of gas
+    gas_wanted = 180000
     delegate_tx = contract.functions.testDelegate(
         ADDRS["signer1"], validator_addr, amt
     ).build_transaction(
-        {"from": ADDRS["signer1"], "gasPrice": evmos_gas_price, "gas": 180000}
+        {"from": ADDRS["signer1"], "gasPrice": evmos_gas_price, "gas": gas_wanted}
     )
     gas_estimation = evmos.w3.eth.estimate_gas(delegate_tx)
     receipt = send_transaction(w3, delegate_tx, KEYS["signer1"])
@@ -332,12 +315,7 @@ def test_staking_via_sc(ibc):
     # FIXME gas estimation > than gasUsed. Should be equal
     # assert receipt.gasUsed == gas_estimation
 
-    fee2 = receipt.gasUsed * evmos_gas_price
-
-    # check if evm has 6 dec,
-    # actual fees will have 6 dec
-    # instead of 18
-    fee2 = round(fee2 / scaling_factor)
+    fee2 = get_fee(cli, evmos_gas_price, gas_wanted, receipt.gasUsed)
 
     fees = fee1 + fee2
 

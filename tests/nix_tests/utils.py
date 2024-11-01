@@ -1,6 +1,7 @@
 import base64
 import configparser
 import json
+from math import floor
 import os
 import socket
 import subprocess
@@ -774,3 +775,24 @@ def get_scaling_factor(cli):
     if decimals == 6:
         scaling_factor = SCALE_FACTOR_6DEC
     return scaling_factor
+
+
+def get_fee(cli, gas_price, gas_wanted, gas_used):
+    """
+    Helper function to get the effective fee
+    paid based on the evm decimal precision, gas_wanted
+    and refund
+    """
+    scaling_factor = get_scaling_factor(cli)
+    remaing_gas = gas_wanted - gas_used
+
+    # Calculate initial fee based on gas wanted
+    initial_fee = gas_wanted * gas_price
+    # Scale the fee if the evm denom precision is != 18
+    initial_fee = floor(initial_fee / scaling_factor)
+
+    # Calculate refund
+    refund = remaing_gas * gas_price
+    # Scale the refund if the evm denom precision is != 18
+    refund = floor(refund / scaling_factor)
+    return initial_fee - refund
