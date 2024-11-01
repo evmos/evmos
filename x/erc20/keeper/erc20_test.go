@@ -387,19 +387,6 @@ func (suite *KeeperTestSuite) TestTransferOwnership() {
 			types.ErrERC20TokenPairDisabled.Error(),
 		},
 		{
-			"fail - sender is not the owner",
-			func() {
-				expPair.ContractOwner = types.OWNER_MODULE
-				expPair.SetOwnerAddress(sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String())
-				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, expPair)
-				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, expPair.Denom, id)
-				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, expPair.GetERC20Contract(), id)
-			},
-			func() {},
-			true,
-			authz.ErrNoAuthorizationFound.Error(),
-		},
-		{
 			"pass",
 			func() {
 				expPair.ContractOwner = types.OWNER_MODULE

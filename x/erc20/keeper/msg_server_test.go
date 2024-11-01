@@ -418,7 +418,7 @@ func (suite *KeeperTestSuite) TestUpdateParams() {
 
 func (suite *KeeperTestSuite) TestMint() {
 	contractAddr := utiltx.GenerateAddress()
-	denom := "coin"
+	denom := cosmosTokenDisplay
 	sender := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	testcases := []struct {
