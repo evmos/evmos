@@ -13,7 +13,7 @@ def custom_evmos(tmp_path_factory):
 @pytest.fixture(scope="module")
 def custom_evmos_6dec(tmp_path_factory):
     path = tmp_path_factory.mktemp("storage-proof-6dec")
-    yield from setup_evmos_6dec(path, 46810)
+    yield from setup_evmos_6dec(path, 46910)
 
 
 @pytest.fixture(scope="module")

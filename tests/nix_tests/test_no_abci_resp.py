@@ -21,7 +21,7 @@ def custom_evmos_6dec(tmp_path_factory):
     path = tmp_path_factory.mktemp("no-abci-resp-6dec")
     yield from setup_custom_evmos(
         path,
-        46810,
+        46860,
         evm6dec_config(path, "discard-abci-resp"),
         chain_id=EVMOS_6DEC_CHAIN_ID,
     )

@@ -21,7 +21,7 @@ def custom_evmos_6dec(tmp_path_factory):
     path = tmp_path_factory.mktemp("priority-6dec")
     # run with long timeout commit to ensure all
     # txs are included in the same block
-    yield from setup_evmos_6dec(path, 46810, long_timeout_commit=True)
+    yield from setup_evmos_6dec(path, 46880, long_timeout_commit=True)
 
 
 @pytest.fixture(scope="module")
