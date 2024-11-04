@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"context"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -180,6 +181,8 @@ func (suite *KeeperTestSuite) TestQueryParams() {
 }
 
 func (suite *KeeperTestSuite) TestOwnerAddress() {
+	var ctx context.Context
+	var sdkCtx sdk.Context
 	contractAddr := utiltx.GenerateAddress()
 	ownerAddr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
@@ -197,9 +200,9 @@ func (suite *KeeperTestSuite) TestOwnerAddress() {
 			func() {
 				expPair = types.NewTokenPair(utiltx.GenerateAddress(), "coin", types.OWNER_MODULE)
 				expPair.SetOwnerAddress(ownerAddr.String())
-				s.app.Erc20Keeper.SetTokenPair(s.ctx, expPair)
-				s.app.Erc20Keeper.SetDenomMap(s.ctx, expPair.Denom, id)
-				s.app.Erc20Keeper.SetERC20Map(s.ctx, expPair.GetERC20Contract(), id)
+				suite.network.App.Erc20Keeper.SetTokenPair(sdkCtx, expPair)
+				suite.network.App.Erc20Keeper.SetDenomMap(sdkCtx, expPair.Denom, id)
+				suite.network.App.Erc20Keeper.SetERC20Map(sdkCtx, expPair.GetERC20Contract(), id)
 			},
 			"",
 		}, {
@@ -207,9 +210,9 @@ func (suite *KeeperTestSuite) TestOwnerAddress() {
 			func() {
 				expPair = types.NewTokenPair(contractAddr, "coin", types.OWNER_MODULE)
 				expPair.SetOwnerAddress(ownerAddr.String())
-				s.app.Erc20Keeper.SetTokenPair(s.ctx, expPair)
-				s.app.Erc20Keeper.SetDenomMap(s.ctx, expPair.Denom, id)
-				s.app.Erc20Keeper.SetERC20Map(s.ctx, expPair.GetERC20Contract(), id)
+				suite.network.App.Erc20Keeper.SetTokenPair(sdkCtx, expPair)
+				suite.network.App.Erc20Keeper.SetDenomMap(sdkCtx, expPair.Denom, id)
+				suite.network.App.Erc20Keeper.SetERC20Map(sdkCtx, expPair.GetERC20Contract(), id)
 			},
 			ownerAddr.String(),
 		},
@@ -219,7 +222,8 @@ func (suite *KeeperTestSuite) TestOwnerAddress() {
 		suite.Run(tc.name, func() {
 			suite.SetupTest() // reset
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			sdkCtx = suite.network.GetContext()
+			ctx = sdk.WrapSDKContext(sdkCtx)
 			tc.malleate()
 
 			res, err := suite.queryClient.OwnerAddress(ctx, &types.QueryOwnerAddressRequest{

@@ -404,8 +404,6 @@ func (k *Keeper) ToggleConversion(goCtx context.Context, req *types.MsgToggleCon
 	return &types.MsgToggleConversionResponse{}, nil
 }
 
-
-
 // validateAuthority is a helper function to validate that the provided authority
 // is the keeper's authority address
 func (k *Keeper) validateAuthority(authority string) error {

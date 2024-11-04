@@ -396,6 +396,7 @@ func (suite *KeeperTestSuite) TestUpdateParams() {
 }
 
 func (suite *KeeperTestSuite) TestMint() {
+	var ctx sdk.Context
 	contractAddr := utiltx.GenerateAddress()
 	denom := cosmosTokenDisplay
 	sender := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
@@ -442,9 +443,9 @@ func (suite *KeeperTestSuite) TestMint() {
 					types.OWNER_MODULE,
 				)
 				expPair.SetOwnerAddress(sender.String())
-				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, expPair)
-				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, expPair.Denom, expPair.GetID())
-				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, expPair.GetERC20Contract(), expPair.GetID())
+				suite.network.App.Erc20Keeper.SetTokenPair(ctx, expPair)
+				suite.network.App.Erc20Keeper.SetDenomMap(ctx, expPair.Denom, expPair.GetID())
+				suite.network.App.Erc20Keeper.SetERC20Map(ctx, expPair.GetERC20Contract(), expPair.GetID())
 			},
 			true,
 		},
@@ -452,10 +453,9 @@ func (suite *KeeperTestSuite) TestMint() {
 
 	for _, tc := range testcases {
 		suite.Run(tc.name, func() {
-			ctx := sdk.WrapSDKContext(suite.ctx)
-
+			ctx = suite.network.GetContext()
 			tc.malleate()
-			res, err := suite.app.Erc20Keeper.Mint(ctx, tc.msgMint)
+			res, err := suite.network.App.Erc20Keeper.Mint(ctx, tc.msgMint)
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().NotNil(res)
@@ -467,6 +467,7 @@ func (suite *KeeperTestSuite) TestMint() {
 }
 
 func (suite *KeeperTestSuite) TestBurn() {
+	var ctx sdk.Context
 	contractAddr := utiltx.GenerateAddress()
 	denom := "coin"
 	sender := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
@@ -500,9 +501,9 @@ func (suite *KeeperTestSuite) TestBurn() {
 					denom,
 					types.OWNER_MODULE,
 				)
-				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, expPair)
-				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, expPair.Denom, expPair.GetID())
-				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, expPair.GetERC20Contract(), expPair.GetID())
+				suite.network.App.Erc20Keeper.SetTokenPair(ctx, expPair)
+				suite.network.App.Erc20Keeper.SetDenomMap(ctx, expPair.Denom, expPair.GetID())
+				suite.network.App.Erc20Keeper.SetERC20Map(ctx, expPair.GetERC20Contract(), expPair.GetID())
 			},
 			true,
 		},
@@ -510,16 +511,16 @@ func (suite *KeeperTestSuite) TestBurn() {
 
 	for _, tc := range testcases {
 		suite.Run(tc.name, func() {
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx = suite.network.GetContext()
 
-			err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, sdk.Coins{sdk.NewCoin(denom, math.NewInt(100))})
+			err := suite.network.App.BankKeeper.MintCoins(ctx, types.ModuleName, sdk.Coins{sdk.NewCoin(denom, math.NewInt(100))})
 			suite.Require().NoError(err)
 
-			err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, sdk.Coins{sdk.NewCoin(denom, math.NewInt(100))})
+			err = suite.network.App.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sender, sdk.Coins{sdk.NewCoin(denom, math.NewInt(100))})
 			suite.Require().NoError(err)
 
 			tc.malleate()
-			res, err := suite.app.Erc20Keeper.Burn(ctx, tc.msgBurn)
+			res, err := suite.network.App.Erc20Keeper.Burn(ctx, tc.msgBurn)
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().NotNil(res)
@@ -531,6 +532,7 @@ func (suite *KeeperTestSuite) TestBurn() {
 }
 
 func (suite *KeeperTestSuite) TestTransferContractOwnership() {
+	var ctx sdk.Context
 	tokenAddr := utiltx.GenerateAddress()
 	denom := "coin"
 
@@ -570,9 +572,9 @@ func (suite *KeeperTestSuite) TestTransferContractOwnership() {
 					denom,
 					types.OWNER_MODULE,
 				)
-				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, expPair)
-				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, expPair.Denom, expPair.GetID())
-				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, expPair.GetERC20Contract(), expPair.GetID())
+				suite.network.App.Erc20Keeper.SetTokenPair(suite.network.GetContext(), expPair)
+				suite.network.App.Erc20Keeper.SetDenomMap(suite.network.GetContext(), expPair.Denom, expPair.GetID())
+				suite.network.App.Erc20Keeper.SetERC20Map(suite.network.GetContext(), expPair.GetERC20Contract(), expPair.GetID())
 			},
 			true,
 		},
@@ -580,10 +582,10 @@ func (suite *KeeperTestSuite) TestTransferContractOwnership() {
 
 	for _, tc := range testcases {
 		suite.Run(tc.name, func() {
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx = suite.network.GetContext()
 
 			tc.malleate()
-			res, err := suite.app.Erc20Keeper.TransferContractOwnership(ctx, tc.msg)
+			res, err := suite.network.App.Erc20Keeper.TransferContractOwnership(ctx, tc.msg)
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().NotNil(res)

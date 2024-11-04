@@ -5,6 +5,7 @@ package keeper
 
 import (
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -66,4 +67,118 @@ func (k Keeper) MintingEnabled(
 	}
 
 	return pair, nil
+}
+
+// MintCoins mints the provided amount of coins to the given address.
+func (k Keeper) MintCoins(ctx sdk.Context, sender, to sdk.AccAddress, amount math.Int, token string) error {
+	ctx.Logger().Error("MintCoins", "token", token, "sender", sender.String(), "to", to.String(), "amount", amount.String())
+	pair, err := k.MintingEnabled(ctx, sender, to, token)
+	if err != nil {
+		ctx.Logger().Error("MintingEnabled", "error", err)
+		return err
+	}
+
+	if !pair.IsNativeCoin() {
+		return errorsmod.Wrapf(types.ErrERC20TokenPairDisabled, "minting token '%s' is not enabled by governance", token)
+	}
+
+	contractOwnerAddr, err := sdk.AccAddressFromBech32(pair.OwnerAddress)
+	if err != nil {
+		return errorsmod.Wrapf(err, "invalid owner address")
+	}
+	if !sender.Equals(contractOwnerAddr) {
+		return types.ErrMinterIsNotOwner
+	}
+
+	coins := sdk.Coins{{Denom: pair.Denom, Amount: amount}}
+	err = k.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
+	if err != nil {
+		return err
+	}
+
+	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, to, coins)
+	if err != nil {
+		return err
+	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.TypeMsgMint),
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(sdk.AttributeKeySender, sender.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()),
+		),
+	)
+
+	return nil
+}
+
+// BurnCoins burns the provided amount of coins from the given address.
+func (k Keeper) BurnCoins(ctx sdk.Context, sender sdk.AccAddress, amount math.Int, token string) error {
+	pair, found := k.GetTokenPair(ctx, k.GetTokenPairID(ctx, token))
+	if !found {
+		return errorsmod.Wrapf(types.ErrTokenPairNotFound, "token '%s' not registered", token)
+	}
+
+	if !pair.IsNativeCoin() {
+		return errorsmod.Wrapf(types.ErrERC20TokenPairDisabled, "burning token '%s' is not enabled by governance", token)
+	}
+
+	coins := sdk.Coins{{Denom: pair.Denom, Amount: amount}}
+
+	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, coins)
+	if err != nil {
+		return err
+	}
+
+	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, coins)
+	if err != nil {
+		return err
+	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.TypeMsgBurn),
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(sdk.AttributeKeySender, sender.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()),
+		),
+	)
+	return nil
+}
+
+// TransferOwnership transfers ownership of the token to the new owner
+func (k Keeper) TransferOwnership(ctx sdk.Context, newOwner sdk.AccAddress, token string) error {
+	pair, found := k.GetTokenPair(ctx, k.GetTokenPairID(ctx, token))
+	if !found {
+		return errorsmod.Wrapf(types.ErrTokenPairNotFound, "token '%s' not registered", token)
+	}
+
+	if !pair.IsNativeCoin() {
+		return errorsmod.Wrapf(types.ErrERC20TokenPairDisabled, "transferring ownership of token '%s' is not enabled by governance", token)
+	}
+
+	k.SetTokenPairOwnerAddress(ctx, pair, newOwner.String())
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.TypeMsgTransferOwnership),
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(types.AttributeKeyNewOwner, newOwner.String()),
+		),
+	)
+
+	return nil
+}
+
+func (k Keeper) GetOwnerAddress(ctx sdk.Context, contractAddress string) string {
+	pair, found := k.GetTokenPair(ctx, k.GetTokenPairID(ctx, contractAddress))
+	if !found {
+		return ""
+	}
+
+	return pair.OwnerAddress
 }

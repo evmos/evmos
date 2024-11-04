@@ -177,9 +177,9 @@ func (p *Precompile) Mint(
 		return nil, ConvertErrToERC20Error(err)
 	}
 
-	if p.tokenPair.Denom == utils.BaseDenom {
+	if p.tokenPair.Denom == evmtypes.GetEVMCoinDenom() {
 		p.SetBalanceChangeEntries(
-			cmn.NewBalanceChangeEntry(to, coins.AmountOf(utils.BaseDenom).BigInt(), cmn.Add))
+			cmn.NewBalanceChangeEntry(to, coins.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt(), cmn.Add))
 	}
 
 	if err = p.EmitTransferEvent(ctx, stateDB, to, ZeroAddress, amount); err != nil {
@@ -212,9 +212,9 @@ func (p *Precompile) Burn(
 		return nil, ConvertErrToERC20Error(err)
 	}
 
-	if p.tokenPair.Denom == utils.BaseDenom {
+	if p.tokenPair.Denom == evmtypes.GetEVMCoinDenom() {
 		p.SetBalanceChangeEntries(
-			cmn.NewBalanceChangeEntry(burnerAddr, coins.AmountOf(utils.BaseDenom).BigInt(), cmn.Sub))
+			cmn.NewBalanceChangeEntry(burnerAddr, coins.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt(), cmn.Sub))
 	}
 
 	if err = p.EmitTransferEvent(ctx, stateDB, burnerAddr, ZeroAddress, amount); err != nil {

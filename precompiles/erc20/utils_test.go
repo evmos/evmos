@@ -241,6 +241,7 @@ func (is *IntegrationTestSuite) setupERC20Precompile(denom string, tokenPairs []
 	}
 
 	precompile, err := erc20.NewPrecompile(
+		is.network.App.Erc20Keeper,
 		tokenPair,
 		is.network.App.BankKeeper,
 		is.network.App.AuthzKeeper,
@@ -288,6 +289,7 @@ func setupNewERC20PrecompileForTokenPair(
 	tf factory.TxFactory, tokenPair erc20types.TokenPair,
 ) (*erc20.Precompile, error) {
 	precompile, err := erc20.NewPrecompile(
+		unitNetwork.App.Erc20Keeper,
 		tokenPair,
 		unitNetwork.App.BankKeeper,
 		unitNetwork.App.AuthzKeeper,
