@@ -125,10 +125,6 @@ func (suite *KeeperTestSuite) TestMintCoins() {
 	amount := big.NewInt(1000000)
 	id := expPair.GetID()
 
-	params := types.DefaultParams()
-	params.EnableErc20 = true
-	suite.network.App.Erc20Keeper.SetParams(ctx, params) //nolint:errcheck
-
 	testcases := []struct {
 		name        string
 		malleate    func()
@@ -281,9 +277,7 @@ func (suite *KeeperTestSuite) TestBurnCoins() {
 	amount := big.NewInt(1000000)
 	id := expPair.GetID()
 
-	params := types.DefaultParams()
-	params.EnableErc20 = true
-	suite.network.App.Erc20Keeper.SetParams(ctx, params) //nolint:errcheck
+	
 
 	testcases := []struct {
 		name        string
@@ -294,7 +288,11 @@ func (suite *KeeperTestSuite) TestBurnCoins() {
 	}{
 		{
 			name:        "fail - token pair not found",
-			malleate:    func() {},
+			malleate:    func() {
+				params := types.DefaultParams()
+				params.EnableErc20 = true
+				suite.network.App.Erc20Keeper.SetParams(ctx, params) //nolint:errcheck
+			},
 			postCheck:   func() {},
 			expErr:      true,
 			errContains: "",
@@ -364,10 +362,6 @@ func (suite *KeeperTestSuite) TestTransferOwnership() {
 	expPair.SetOwnerAddress(sender.String())
 	id := expPair.GetID()
 
-	params := types.DefaultParams()
-	params.EnableErc20 = true
-	suite.network.App.Erc20Keeper.SetParams(ctx, params) //nolint:errcheck
-
 	testcases := []struct {
 		name        string
 		malleate    func()
@@ -377,7 +371,11 @@ func (suite *KeeperTestSuite) TestTransferOwnership() {
 	}{
 		{
 			"fail - token pair not found",
-			func() {},
+			func() {
+				params := types.DefaultParams()
+				params.EnableErc20 = true
+				suite.network.App.Erc20Keeper.SetParams(ctx, params) //nolint:errcheck
+			},
 			func() {},
 			true,
 			"",

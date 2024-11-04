@@ -137,8 +137,6 @@ func (m *MsgTransferOwnership) ValidateBasic() error {
 		return errorsmod.Wrap(err, "Invalid authority address")
 	}
 
-	return nil
-
 	if !common.IsHexAddress(m.Token) {
 		return errorsmod.Wrapf(errortypes.ErrInvalidAddress, "invalid new owner hex address %s", m.NewOwner)
 	}
