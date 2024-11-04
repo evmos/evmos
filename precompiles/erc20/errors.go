@@ -41,6 +41,9 @@ var (
 	ErrTransferAmountExceedsBalance = errors.New("ERC20: transfer amount exceeds balance")
 	ErrOwnableInvalidOwner          = errors.New("ERC20: invalid new owner")
 	ErrOwnableUnauthorizedAccount   = errors.New("ERC20: unauthorized account")
+	ErrMinterIsNotOwner             = errors.New("ERC20: minter is not the owner")
+	ErrSenderIsNotOwner             = errors.New("ERC20: sender is not the owner")
+	ErrContractOwnerNotFound        = errors.New("contract owner not found")
 )
 
 // BuildExecRevertedErr returns a mocked error that should align with the
@@ -76,8 +79,12 @@ func ConvertErrToERC20Error(err error) error {
 	switch {
 	case strings.Contains(err.Error(), "spendable balance"):
 		return ErrTransferAmountExceedsBalance
-	case strings.Contains(err.Error(), "minter is not the owner") || strings.Contains(err.Error(), "burner is not the owner"):
-		return vm.ErrExecutionReverted
+	case strings.Contains(err.Error(), "minter is not the owner"):
+		return ErrMinterIsNotOwner
+	case strings.Contains(err.Error(), "sender is not the owner"):
+		return ErrSenderIsNotOwner
+	case strings.Contains(err.Error(), "contract owner not found"):
+		return ErrContractOwnerNotFound
 	case strings.Contains(err.Error(), "requested amount is more than spend limit"):
 		return ErrInsufficientAllowance
 	case strings.Contains(err.Error(), authz.ErrNoAuthorizationFound.Error()):
@@ -86,9 +93,9 @@ func ConvertErrToERC20Error(err error) error {
 		return ErrDecreasedAllowanceBelowZero
 	case strings.Contains(err.Error(), cmn.ErrIntegerOverflow):
 		return vm.ErrExecutionReverted
-	case strings.Contains(err.Error(), "ERC20: unauthorized") || strings.Contains(err.Error(), "authorization not found"):
+	case strings.Contains(err.Error(), "unauthorized") || strings.Contains(err.Error(), "authorization not found"):
 		return ErrOwnableUnauthorizedAccount
-	case strings.Contains(err.Error(), "ERC20: invalid owner"):
+	case strings.Contains(err.Error(), "invalid owner"):
 		return ErrOwnableInvalidOwner
 	case errors.Is(err, ibc.ErrNoIBCVoucherDenom) ||
 		errors.Is(err, ibc.ErrDenomTraceNotFound) ||

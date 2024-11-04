@@ -6,7 +6,6 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
@@ -232,7 +231,7 @@ func (suite *KeeperTestSuite) TestMintCoins() {
 			},
 			func() {},
 			true,
-			authz.ErrNoAuthorizationFound.Error(),
+			types.ErrMinterIsNotOwner.Error(),
 		},
 		{
 			"pass",
@@ -387,21 +386,9 @@ func (suite *KeeperTestSuite) TestTransferOwnership() {
 			types.ErrERC20TokenPairDisabled.Error(),
 		},
 		{
-			"fail - sender is not the owner",
-			func() {
-				expPair.ContractOwner = types.OWNER_MODULE
-				expPair.SetOwnerAddress(sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String())
-				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, expPair)
-				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, expPair.Denom, id)
-				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, expPair.GetERC20Contract(), id)
-			},
-			func() {},
-			true,
-			authz.ErrNoAuthorizationFound.Error(),
-		},
-		{
 			"pass",
 			func() {
+				expPair.ContractOwner = types.OWNER_MODULE
 				expPair.SetOwnerAddress(sender.String())
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, expPair)
 				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, expPair.Denom, id)
@@ -420,7 +407,7 @@ func (suite *KeeperTestSuite) TestTransferOwnership() {
 
 			tc.malleate()
 
-			err := suite.app.Erc20Keeper.TransferOwnership(suite.ctx, sender, newOwner, expPair.Denom)
+			err := suite.app.Erc20Keeper.TransferOwnership(suite.ctx, newOwner, expPair.Denom)
 			if tc.expErr {
 				suite.Require().Error(err, "expected transfer transaction to fail")
 				suite.Require().Contains(err.Error(), tc.errContains, "expected transfer transaction to fail with specific error")

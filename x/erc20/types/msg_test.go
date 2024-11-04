@@ -284,3 +284,55 @@ func (suite *MsgsTestSuite) TestMsgBurnValidateBasic() {
 		})
 	}
 }
+
+func (suite *MsgsTestSuite) TestMsgTransferOwnershipValidateBasic() {
+	testcases := []struct {
+		name    string
+		msg     *types.MsgTransferOwnership
+		expPass bool
+	}{
+		{
+			"fail - invalid authority address",
+			&types.MsgTransferOwnership{
+				Authority: "invalid",
+			},
+			false,
+		},
+		{
+			"fail - invalid contract address",
+			&types.MsgTransferOwnership{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Token:     "invalid",
+			},
+			false,
+		},
+		{
+			"fail - invalid new owner address",
+			&types.MsgTransferOwnership{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				NewOwner:  "invalid",
+			},
+			false,
+		},
+		{
+			"pass - valid msg",
+			&types.MsgTransferOwnership{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				NewOwner:  sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+				Token:     utiltx.GenerateAddress().String(),
+			},
+			true,
+		},
+	}
+
+	for _, tc := range testcases {
+		suite.Run(tc.name, func() {
+			err := tc.msg.ValidateBasic()
+			if tc.expPass {
+				suite.NoError(err)
+			} else {
+				suite.Error(err)
+			}
+		})
+	}
+}

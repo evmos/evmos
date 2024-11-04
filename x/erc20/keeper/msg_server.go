@@ -277,6 +277,27 @@ func (k *Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams)
 	return &types.MsgUpdateParamsResponse{}, nil
 }
 
+// TransferOwnership implements the MsgServer interface for the ERC20 module.
+func (k Keeper) TransferContractOwnership(goCtx context.Context, msg *types.MsgTransferOwnership) (*types.MsgTransferOwnershipResponse, error) {
+	// Validate authority
+	if k.authority.String() != msg.Authority {
+		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", k.authority, msg.Authority)
+	}
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	newOwner, err := sdk.AccAddressFromBech32(msg.NewOwner)
+	if err != nil {
+		return nil, err
+	}
+
+	err = k.TransferOwnership(ctx, newOwner, msg.Token)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgTransferOwnershipResponse{}, nil
+}
+
 // Mint implements the MsgServer interface for the ERC20 module. It mints ERC20 tokens to a given address.
 func (k Keeper) Mint(goCtx context.Context, msg *types.MsgMint) (*types.MsgMintResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
@@ -315,5 +336,3 @@ func (k Keeper) Burn(goCtx context.Context, msg *types.MsgBurn) (*types.MsgBurnR
 
 	return &types.MsgBurnResponse{}, nil
 }
-
-// TODO: Add TransferOwnership handler

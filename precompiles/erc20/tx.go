@@ -15,7 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/utils"
-	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
+	"github.com/evmos/evmos/v19/x/erc20/types"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
@@ -34,8 +34,13 @@ const (
 	TransferOwnershipMethod = "transferOwnership"
 )
 
-// SendMsgURL defines the authorization type for MsgSend
-var SendMsgURL = sdk.MsgTypeURL(&banktypes.MsgSend{})
+var (
+	// SendMsgURL defines the authorization type for MsgSend
+	SendMsgURL = sdk.MsgTypeURL(&banktypes.MsgSend{})
+
+	// ZeroAddress represents the zero address
+	ZeroAddress = common.Address{}
+)
 
 // Transfer executes a direct transfer from the caller address to the
 // destination address.
@@ -176,9 +181,7 @@ func (p *Precompile) Mint(
 			cmn.NewBalanceChangeEntry(to, coins.AmountOf(utils.BaseDenom).BigInt(), cmn.Add))
 	}
 
-	moduleAccount := p.accountKeeper.GetModuleAccount(ctx, erc20types.ModuleName)
-
-	if err = p.EmitTransferEvent(ctx, stateDB, to, common.Address(moduleAccount.GetAddress().Bytes()), amount); err != nil {
+	if err = p.EmitTransferEvent(ctx, stateDB, to, ZeroAddress, amount); err != nil {
 		return nil, err
 	}
 
@@ -213,9 +216,7 @@ func (p *Precompile) Burn(
 			cmn.NewBalanceChangeEntry(burnerAddr, coins.AmountOf(utils.BaseDenom).BigInt(), cmn.Sub))
 	}
 
-	moduleAccount := p.accountKeeper.GetModuleAccount(ctx, erc20types.ModuleName)
-
-	if err = p.EmitTransferEvent(ctx, stateDB, burnerAddr, common.Address(moduleAccount.GetAddress().Bytes()), amount); err != nil {
+	if err = p.EmitTransferEvent(ctx, stateDB, burnerAddr, ZeroAddress, amount); err != nil {
 		return nil, err
 	}
 
@@ -237,10 +238,16 @@ func (p *Precompile) TransferOwnership(
 
 	sender := sdk.AccAddress(contract.CallerAddress.Bytes())
 
-	err = p.erc20Keeper.TransferOwnership(ctx, sender, sdk.AccAddress(newOwner.Bytes()), p.tokenPair.GetERC20Contract().Hex())
-	if err != nil {
-		return nil, err
+	if p.tokenPair.OwnerAddress != sender.String() {
+		return nil, ConvertErrToERC20Error(types.ErrSenderIsNotOwner)
 	}
+
+	err = p.erc20Keeper.TransferOwnership(ctx, sdk.AccAddress(newOwner.Bytes()), p.tokenPair.GetERC20Contract().Hex())
+	if err != nil {
+		return nil, ConvertErrToERC20Error(err)
+	}
+
+	p.tokenPair.OwnerAddress = newOwner.String()
 
 	if err = p.EmitTransferOwnershipEvent(ctx, stateDB, contract.CallerAddress, newOwner); err != nil {
 		return nil, err

@@ -24,6 +24,10 @@ import (
 	"github.com/evmos/evmos/v19/x/erc20/types"
 )
 
+const (
+	FlagAddress = "address"
+)
+
 // NewTxCmd returns a root CLI command handler for erc20 transaction commands
 func NewTxCmd() *cobra.Command {
 	txCmd := &cobra.Command{

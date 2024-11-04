@@ -418,7 +418,7 @@ func (suite *KeeperTestSuite) TestUpdateParams() {
 
 func (suite *KeeperTestSuite) TestMint() {
 	contractAddr := utiltx.GenerateAddress()
-	denom := "coin"
+	denom := cosmosTokenDisplay
 	sender := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	testcases := []struct {
@@ -541,6 +541,70 @@ func (suite *KeeperTestSuite) TestBurn() {
 
 			tc.malleate()
 			res, err := suite.app.Erc20Keeper.Burn(ctx, tc.msgBurn)
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().NotNil(res)
+			} else {
+				suite.Require().Error(err)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestTransferContractOwnership() {
+	tokenAddr := utiltx.GenerateAddress()
+	denom := "coin"
+
+	testcases := []struct {
+		name     string
+		msg      *types.MsgTransferOwnership
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"fail - invalid authority address",
+			&types.MsgTransferOwnership{
+				Authority: "invalid",
+			},
+			func() {},
+			false,
+		},
+		{
+			"fail - invalid new owner address",
+			&types.MsgTransferOwnership{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				NewOwner:  "invalid",
+			},
+			func() {},
+			false,
+		},
+		{
+			"pass - valid msg",
+			&types.MsgTransferOwnership{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				NewOwner:  sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+				Token:     tokenAddr.String(),
+			},
+			func() {
+				expPair := types.NewTokenPair(
+					tokenAddr,
+					denom,
+					types.OWNER_MODULE,
+				)
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, expPair)
+				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, expPair.Denom, expPair.GetID())
+				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, expPair.GetERC20Contract(), expPair.GetID())
+			},
+			true,
+		},
+	}
+
+	for _, tc := range testcases {
+		suite.Run(tc.name, func() {
+			ctx := sdk.WrapSDKContext(suite.ctx)
+
+			tc.malleate()
+			res, err := suite.app.Erc20Keeper.TransferContractOwnership(ctx, tc.msg)
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().NotNil(res)

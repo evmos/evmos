@@ -54,7 +54,6 @@ type Precompile struct {
 	tokenPair      erc20types.TokenPair
 	bankKeeper     bankkeeper.Keeper
 	transferKeeper transferkeeper.Keeper
-	accountKeeper  erc20types.AccountKeeper
 }
 
 // NewPrecompile creates a new ERC-20 Precompile instance as a
@@ -65,7 +64,6 @@ func NewPrecompile(
 	bankKeeper bankkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
-	accountKeeper erc20types.AccountKeeper,
 ) (*Precompile, error) {
 	newABI, err := cmn.LoadABI(f, abiPath)
 	if err != nil {
@@ -84,7 +82,6 @@ func NewPrecompile(
 		tokenPair:      tokenPair,
 		bankKeeper:     bankKeeper,
 		transferKeeper: transferKeeper,
-		accountKeeper:  accountKeeper,
 	}
 	// Address defines the address of the ERC-20 precompile contract.
 	p.SetAddress(p.tokenPair.GetERC20Contract())
@@ -120,9 +117,11 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	case auth.DecreaseAllowanceMethod:
 		return GasDecreaseAllowance
 	case MintMethod:
-		return GasTransfer
+		return GasMint
 	case BurnMethod:
-		return GasTransfer
+		return GasBurn
+	case TransferOwnershipMethod:
+		return GasTransferOwnership
 	// ERC-20 queries
 	case NameMethod:
 		return GasName
@@ -176,7 +175,8 @@ func (Precompile) IsTransaction(methodName string) bool {
 		auth.IncreaseAllowanceMethod,
 		auth.DecreaseAllowanceMethod,
 		MintMethod,
-		BurnMethod:
+		BurnMethod,
+		TransferOwnershipMethod:
 		return true
 	default:
 		return false

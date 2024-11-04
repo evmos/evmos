@@ -17,6 +17,7 @@ var (
 	_ sdk.Msg = &MsgUpdateParams{}
 	_ sdk.Msg = &MsgMint{}
 	_ sdk.Msg = &MsgBurn{}
+	_ sdk.Msg = &MsgTransferOwnership{}
 )
 
 const (
@@ -24,6 +25,8 @@ const (
 	TypeMsgMint              = "mint"
 	TypeMsgBurn              = "burn"
 	TypeMsgTransferOwnership = "transfer_ownership"
+
+	AttributeKeyNewOwner = "new_owner"
 )
 
 // NewMsgConvertERC20 creates a new instance of MsgConvertERC20
@@ -91,10 +94,37 @@ func (m MsgUpdateParams) GetSignBytes() []byte {
 	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
+// GetSigners returns the expected signers for a MsgUpdateParams message.
+func (m *MsgTransferOwnership) GetSigners() []sdk.AccAddress {
+	addr := sdk.MustAccAddressFromBech32(m.Authority)
+	return []sdk.AccAddress{addr}
+}
+
 // GetSigners returns the expected signers for a MsgMint message.
 func (m MsgMint) GetSigners() []sdk.AccAddress {
 	addr := sdk.MustAccAddressFromBech32(m.Sender)
 	return []sdk.AccAddress{addr}
+}
+
+// ValidateBasic does a sanity check of the provided data
+func (m *MsgTransferOwnership) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
+		return errorsmod.Wrap(err, "Invalid authority address")
+	}
+
+	if !common.IsHexAddress(m.Token) {
+		return errorsmod.Wrapf(errortypes.ErrInvalidAddress, "invalid new owner hex address %s", m.NewOwner)
+	}
+
+	if _, err := sdk.AccAddressFromBech32(m.NewOwner); err != nil {
+		return errorsmod.Wrap(err, "Invalid new owner address")
+	}
+	return nil
+}
+
+// GetSignBytes implements the LegacyMsg interface.
+func (m MsgTransferOwnership) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
 // ValidateBasic does a sanity check of the provided data
