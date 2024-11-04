@@ -8,7 +8,6 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/evmos/evmos/v19/x/erc20/types"
@@ -88,7 +87,7 @@ func (k Keeper) MintCoins(ctx sdk.Context, sender, to sdk.AccAddress, amount mat
 		return errorsmod.Wrapf(err, "invalid owner address")
 	}
 	if !sender.Equals(contractOwnerAddr) {
-		return errorsmod.Wrapf(authz.ErrNoAuthorizationFound, "minter is not the owner")
+		return types.ErrMinterIsNotOwner
 	}
 
 	coins := sdk.Coins{{Denom: pair.Denom, Amount: amount}}

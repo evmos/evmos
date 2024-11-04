@@ -6,7 +6,6 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
@@ -232,7 +231,7 @@ func (suite *KeeperTestSuite) TestMintCoins() {
 			},
 			func() {},
 			true,
-			authz.ErrNoAuthorizationFound.Error(),
+			types.ErrMinterIsNotOwner.Error(),
 		},
 		{
 			"pass",
