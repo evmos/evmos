@@ -13,7 +13,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/address"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/gov/client/cli"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
@@ -43,7 +42,6 @@ func NewTxCmd() *cobra.Command {
 		NewConvertERC20Cmd(),
 		NewMintCmd(),
 		NewBurnCmd(),
-		NewTransferOwnershipCmd(),
 	)
 
 	return txCmd
@@ -217,46 +215,6 @@ func NewToggleTokenConversionProposalCmd() *cobra.Command {
 	if err := cmd.MarkFlagRequired(cli.FlagDeposit); err != nil {
 		panic(err)
 	}
-	return cmd
-}
-
-func NewTransferOwnershipCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "transfer-ownership TOKEN NEW_OWNER",
-		Args:    cobra.ExactArgs(2),
-		Short:   "Submit a transfer ownership proposal",
-		Long:    "Submit a proposal to transfer the ownership of a token pair to a new owner.",
-		Example: fmt.Sprintf("$ %s tx erc20 transfer-ownership DENOM_OR_CONTRACT NEW_OWNER", version.AppName),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			proposal, err := cli.ReadGovPropFlags(clientCtx, cmd.Flags())
-			if err != nil {
-				return err
-			}
-
-			token, newOwner := args[0], args[1]
-
-			authority := sdk.AccAddress(address.Module("gov"))
-
-			msg := &types.MsgTransferOwnership{
-				Authority: authority.String(),
-				Token:     token,
-				NewOwner:  newOwner,
-			}
-
-			if err := proposal.SetMsgs([]sdk.Msg{
-				msg,
-			}); err != nil {
-				return fmt.Errorf("failed to set governance proposal: %w", err)
-			}
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
-		},
-	}
-	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
