@@ -15,6 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v19/precompiles/common"
 	"github.com/evmos/evmos/v19/utils"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 )
 
@@ -157,7 +158,39 @@ func (p *Precompile) Mint(
 		return nil, err
 	}
 
-	return p.transfer(ctx, contract, stateDB, method, common.Address{}, to, amount)
+	// TODO: Check minter is the owner of the token
+	minterAddr := contract.CallerAddress
+	_ = sdk.AccAddress(minterAddr.Bytes())
+	// minterIsOwner := minter.Equals(sdk.AccAddress(to.Bytes()))
+	minterIsOwner := true
+
+	if !minterIsOwner {
+		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(authz.ErrNoAuthorizationFound, "minter is not the owner"))
+	}
+
+	coins := sdk.Coins{{Denom: p.tokenPair.Denom, Amount: math.NewIntFromBigInt(amount)}}
+	err = p.bankKeeper.MintCoins(ctx, erc20types.ModuleName, coins)
+	if err != nil {
+		return nil, err
+	}
+
+	err = p.bankKeeper.SendCoinsFromModuleToAccount(ctx, erc20types.ModuleName, sdk.AccAddress(to.Bytes()), coins)
+	if err != nil {
+		return nil, err
+	}
+
+	if p.tokenPair.Denom == utils.BaseDenom {
+		p.SetBalanceChangeEntries(
+			cmn.NewBalanceChangeEntry(to, coins.AmountOf(utils.BaseDenom).BigInt(), cmn.Add))
+	}
+
+	moduleAccount := p.accountKeeper.GetModuleAccount(ctx, erc20types.ModuleName)
+
+	if err = p.EmitTransferEvent(ctx, stateDB, to, common.Address(moduleAccount.GetAddress().Bytes()), amount); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(true)
 }
 
 // Burn executes a burn of the caller's tokens.
@@ -168,10 +201,42 @@ func (p *Precompile) Burn(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	from, amount, err := ParseBurnArgs(args)
+	amount, err := ParseBurnArgs(args)
 	if err != nil {
 		return nil, err
 	}
 
-	return p.transfer(ctx, contract, stateDB, method, from, common.Address{}, amount)
+	burnerAddr := contract.CallerAddress
+	burner := sdk.AccAddress(burnerAddr.Bytes())
+	// TODO: Replace with Ownable
+	// burnerIsOwner := burner.Equals(sdk.AccAddress(from.Bytes()))
+	burnerIsOwner := true
+
+	if !burnerIsOwner {
+		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(authz.ErrNoAuthorizationFound, "burner is not the owner"))
+	}
+	coins := sdk.Coins{{Denom: p.tokenPair.Denom, Amount: math.NewIntFromBigInt(amount)}}
+
+	err = p.bankKeeper.SendCoinsFromAccountToModule(ctx, burner, erc20types.ModuleName, coins)
+	if err != nil {
+		return nil, err
+	}
+
+	moduleAccount := p.accountKeeper.GetModuleAccount(ctx, erc20types.ModuleName)
+
+	err = p.bankKeeper.BurnCoins(ctx, erc20types.ModuleName, coins)
+	if err != nil {
+		return nil, err
+	}
+
+	if p.tokenPair.Denom == utils.BaseDenom {
+		p.SetBalanceChangeEntries(
+			cmn.NewBalanceChangeEntry(burnerAddr, coins.AmountOf(utils.BaseDenom).BigInt(), cmn.Sub))
+	}
+
+	if err = p.EmitTransferEvent(ctx, stateDB, burnerAddr, common.Address(moduleAccount.GetAddress().Bytes()), amount); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack()
 }

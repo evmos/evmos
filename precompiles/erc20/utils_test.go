@@ -243,6 +243,7 @@ func setupERC20PrecompileForTokenPair(
 		unitNetwork.App.BankKeeper,
 		unitNetwork.App.AuthzKeeper,
 		unitNetwork.App.TransferKeeper,
+		unitNetwork.App.AccountKeeper,
 	)
 	if err != nil {
 		return nil, errorsmod.Wrapf(err, "failed to create %q erc20 precompile", tokenPair.Denom)
