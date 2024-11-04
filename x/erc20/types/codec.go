@@ -43,6 +43,8 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		(*sdk.Msg)(nil),
 		&MsgConvertERC20{},
 		&MsgUpdateParams{},
+		&MsgMint{},
+		&MsgBurn{},
 	)
 	registry.RegisterImplementations(
 		(*govv1beta1.Content)(nil),

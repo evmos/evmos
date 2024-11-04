@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -39,6 +40,9 @@ const (
 	// BalanceOfMethod defines the ABI method name for the ERC-20 BalanceOf
 	// query.
 	BalanceOfMethod = "balanceOf"
+	// OwnerMethod defines the ABI method name for the ERC-20 Owner
+	// query.
+	OwnerMethod = "owner"
 )
 
 // Name returns the name of the token. If the token metadata is registered in the
@@ -204,6 +208,27 @@ func (p Precompile) Allowance(
 	}
 
 	return method.Outputs.Pack(allowance)
+}
+
+// Owner returns the address of the current owner of the token.
+func (p Precompile) Owner(
+	ctx sdk.Context,
+	_ *vm.Contract,
+	_ vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	err := ParseOwnerArgs(args)
+	if err != nil {
+		return nil, err
+	}
+
+	ownerAddr, err := p.erc20Keeper.GetTokenPairOwnerAddress(ctx, p.tokenPair.GetERC20Contract().Hex())
+	if err != nil {
+		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(err, "contract owner not found"))
+	}
+
+	return method.Outputs.Pack(common.Address(ownerAddr.Bytes()))
 }
 
 // GetAuthzExpirationAndAllowance returns the authorization, its expiration as well as the amount of denom

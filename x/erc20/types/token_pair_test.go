@@ -57,10 +57,10 @@ func (suite *TokenPairTestSuite) TestTokenPair() {
 		pair       types.TokenPair
 		expectPass bool
 	}{
-		{msg: "Register token pair - invalid address (no hex)", pair: types.TokenPair{"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ", "test", true, types.OWNER_MODULE}, expectPass: false},
-		{msg: "Register token pair - invalid address (invalid length 1)", pair: types.TokenPair{"0x5dCA2483280D9727c80b5518faC4556617fb19", "test", true, types.OWNER_MODULE}, expectPass: false},
-		{msg: "Register token pair - invalid address (invalid length 2)", pair: types.TokenPair{"0x5dCA2483280D9727c80b5518faC4556617fb194FFF", "test", true, types.OWNER_MODULE}, expectPass: false},
-		{msg: "pass", pair: types.TokenPair{utiltx.GenerateAddress().String(), "test", true, types.OWNER_MODULE}, expectPass: true},
+		{msg: "Register token pair - invalid address (no hex)", pair: types.TokenPair{"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ", "test", true, types.OWNER_MODULE, ""}, expectPass: false},
+		{msg: "Register token pair - invalid address (invalid length 1)", pair: types.TokenPair{"0x5dCA2483280D9727c80b5518faC4556617fb19", "test", true, types.OWNER_MODULE, ""}, expectPass: false},
+		{msg: "Register token pair - invalid address (invalid length 2)", pair: types.TokenPair{"0x5dCA2483280D9727c80b5518faC4556617fb194FFF", "test", true, types.OWNER_MODULE, ""}, expectPass: false},
+		{msg: "pass", pair: types.TokenPair{utiltx.GenerateAddress().String(), "test", true, types.OWNER_MODULE, ""}, expectPass: true},
 	}
 
 	for i, tc := range testCases {
@@ -99,17 +99,17 @@ func (suite *TokenPairTestSuite) TestIsNativeCoin() {
 	}{
 		{
 			"no owner",
-			types.TokenPair{utiltx.GenerateAddress().String(), "test", true, types.OWNER_UNSPECIFIED},
+			types.TokenPair{utiltx.GenerateAddress().String(), "test", true, types.OWNER_UNSPECIFIED, ""},
 			false,
 		},
 		{
 			"external ERC20 owner",
-			types.TokenPair{utiltx.GenerateAddress().String(), "test", true, types.OWNER_EXTERNAL},
+			types.TokenPair{utiltx.GenerateAddress().String(), "test", true, types.OWNER_EXTERNAL, ""},
 			false,
 		},
 		{
 			"pass",
-			types.TokenPair{utiltx.GenerateAddress().String(), "test", true, types.OWNER_MODULE},
+			types.TokenPair{utiltx.GenerateAddress().String(), "test", true, types.OWNER_MODULE, ""},
 			true,
 		},
 	}
@@ -132,17 +132,17 @@ func (suite *TokenPairTestSuite) TestIsNativeERC20() {
 	}{
 		{
 			"no owner",
-			types.TokenPair{utiltx.GenerateAddress().String(), "test", true, types.OWNER_UNSPECIFIED},
+			types.TokenPair{utiltx.GenerateAddress().String(), "test", true, types.OWNER_UNSPECIFIED, ""},
 			false,
 		},
 		{
 			"module owner",
-			types.TokenPair{utiltx.GenerateAddress().String(), "test", true, types.OWNER_MODULE},
+			types.TokenPair{utiltx.GenerateAddress().String(), "test", true, types.OWNER_MODULE, ""},
 			false,
 		},
 		{
 			"pass",
-			types.TokenPair{utiltx.GenerateAddress().String(), "test", true, types.OWNER_EXTERNAL},
+			types.TokenPair{utiltx.GenerateAddress().String(), "test", true, types.OWNER_EXTERNAL, ""},
 			true,
 		},
 	}

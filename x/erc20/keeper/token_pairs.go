@@ -203,3 +203,25 @@ func (k Keeper) GetTokenDenom(ctx sdk.Context, tokenAddress common.Address) (str
 
 	return tokenPair.Denom, nil
 }
+
+// GetTokenOwnerAddress returns the OwnerAddress of the token
+func (k Keeper) GetTokenPairOwnerAddress(ctx sdk.Context, token string) (sdk.AccAddress, error) {
+	tokenPairID := k.GetERC20Map(ctx, common.HexToAddress(token))
+	if len(tokenPairID) == 0 {
+		return nil, errorsmod.Wrapf(types.ErrTokenPairNotFound, "token '%s' not registered", token)
+	}
+
+	tokenPair, found := k.GetTokenPair(ctx, tokenPairID)
+	if !found {
+		return nil, errorsmod.Wrapf(types.ErrTokenPairNotFound, "token '%s' not registered", token)
+	}
+
+	return sdk.AccAddressFromBech32(tokenPair.OwnerAddress)
+}
+
+// SetTokenPairOwnerAddress sets the owner address for the token pair
+func (k Keeper) SetTokenPairOwnerAddress(ctx sdk.Context, pair types.TokenPair, newOwner string) {
+	pair.SetOwnerAddress(newOwner)
+
+	k.SetTokenPair(ctx, pair)
+}

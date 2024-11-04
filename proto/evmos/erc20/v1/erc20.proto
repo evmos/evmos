@@ -30,6 +30,9 @@ message TokenPair {
   bool enabled = 3;
   // contract_owner is the an ENUM specifying the type of ERC20 owner (0 invalid, 1 ModuleAccount, 2 external address)
   Owner contract_owner = 4;
+  // owner_address is the address of the current owner of the token
+  // Only set if contract_owner is OWNER_MODULE
+  string owner_address = 5;
 }
 
 // protolint:disable MESSAGES_HAVE_COMMENT

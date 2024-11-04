@@ -43,7 +43,7 @@ func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.
 	if !ok {
 		return nil, fmt.Errorf("token pair not found: %s", address)
 	}
-	return erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper, k.accountKeeper)
+	return erc20.NewPrecompile(k, pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
 }
 
 // IsAvailableDynamicPrecompile returns true if the given precompile address is contained in the

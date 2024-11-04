@@ -3,10 +3,15 @@ package keeper_test
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/evmos/v19/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+)
+
+const (
+	tokenDenom = "token"
 )
 
 func (suite *KeeperTestSuite) TestGetTokenPairs() {
@@ -234,7 +239,6 @@ func (suite *KeeperTestSuite) TestIsDenomRegistered() {
 
 func (suite *KeeperTestSuite) TestGetTokenDenom() {
 	tokenAddress := utiltx.GenerateAddress()
-	tokenDenom := "token"
 
 	testCases := []struct {
 		name        string
@@ -281,6 +285,109 @@ func (suite *KeeperTestSuite) TestGetTokenDenom() {
 				suite.Require().Error(err, "expected an error while getting the token denom")
 				suite.Require().ErrorContains(err, tc.errContains)
 			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestGetTokenPairOwnerAddress() {
+	tokenAddress := utiltx.GenerateAddress()
+	ownerAddress := utiltx.GenerateAddress()
+	testCases := []struct {
+		name         string
+		ownerAddress sdk.AccAddress
+		malleate     func()
+		expError     bool
+		errContains  string
+	}{
+		{
+			"owner address found",
+			sdk.AccAddress(ownerAddress.Bytes()),
+			func() {
+				pair := types.NewTokenPair(tokenAddress, tokenDenom, types.OWNER_MODULE)
+				pair.SetOwnerAddress(sdk.AccAddress(ownerAddress.Bytes()).String())
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
+				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, tokenAddress, pair.GetID())
+			},
+			true,
+			"",
+		},
+		{
+			"owner address not found",
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
+			func() {
+				address := utiltx.GenerateAddress()
+				pair := types.NewTokenPair(address, tokenDenom, types.OWNER_MODULE)
+				pair.SetOwnerAddress(sdk.AccAddress(address.Bytes()).String())
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
+				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, address, pair.GetID())
+			},
+			false,
+			fmt.Sprintf("token '%s' not registered", tokenAddress),
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			tc.malleate()
+			res, err := suite.app.Erc20Keeper.GetTokenPairOwnerAddress(suite.ctx, tokenAddress.Hex())
+
+			if tc.expError {
+				suite.Require().NoError(err)
+				suite.Require().Equal(res.String(), tc.ownerAddress.String())
+			} else {
+				suite.Require().Error(err, "expected an error while getting the token denom")
+				suite.Require().ErrorContains(err, tc.errContains)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestSetTokenPairOwnerAddress() {
+	tokenAddress := utiltx.GenerateAddress()
+	newOwnerAddress := utiltx.GenerateAddress()
+
+	testCases := []struct {
+		name            string
+		newOwnerAddress sdk.AccAddress
+		malleate        func() types.TokenPair
+		postCheck       func(*types.TokenPair, string) error
+		expError        bool
+		errContains     string
+	}{
+		{
+			"owner address set",
+			sdk.AccAddress(newOwnerAddress.Bytes()),
+			func() types.TokenPair {
+				pair := types.NewTokenPair(tokenAddress, tokenDenom, types.OWNER_MODULE)
+				pair.SetOwnerAddress(sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String())
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
+				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, tokenAddress, pair.GetID())
+				return pair
+			},
+			func(tp *types.TokenPair, expectedNewOwner string) error {
+				pair, found := suite.app.Erc20Keeper.GetTokenPair(suite.ctx, tp.GetID())
+				if !found {
+					return fmt.Errorf("token pair not found")
+				}
+
+				if pair.OwnerAddress != expectedNewOwner {
+					return fmt.Errorf("owner address mismatch: expected %s, got %s", expectedNewOwner, pair.OwnerAddress)
+				}
+				return nil
+			},
+			true,
+			"",
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			pair := tc.malleate()
+			suite.app.Erc20Keeper.SetTokenPairOwnerAddress(suite.ctx, pair, tc.newOwnerAddress.String())
+
+			suite.Require().Nil(tc.postCheck(&pair, tc.newOwnerAddress.String()))
 		})
 	}
 }

@@ -21,6 +21,7 @@ const (
 	ProposalTypeRegisterCoin          string = "RegisterCoin"
 	ProposalTypeRegisterERC20         string = "RegisterERC20"
 	ProposalTypeToggleTokenConversion string = "ToggleTokenConversion" // #nosec
+	ProposalTypeTransferOwnership     string = "TransferOwnership"
 )
 
 // Implements Proposal Interface

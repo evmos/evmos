@@ -9,6 +9,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
+	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/evmos/v19/x/erc20/keeper"
 	"github.com/evmos/evmos/v19/x/erc20/types"
 	erc20mocks "github.com/evmos/evmos/v19/x/erc20/types/mocks"
@@ -410,6 +411,205 @@ func (suite *KeeperTestSuite) TestUpdateParams() {
 				suite.Require().Error(err)
 			} else {
 				suite.Require().NoError(err)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestMint() {
+	contractAddr := utiltx.GenerateAddress()
+	denom := cosmosTokenDisplay
+	sender := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+
+	testcases := []struct {
+		name     string
+		msgMint  *types.MsgMint
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"fail - invalid sender address",
+			&types.MsgMint{
+				ContractAddress: utiltx.GenerateAddress().String(),
+				Amount:          math.NewInt(100),
+				Sender:          "invalid",
+			},
+			func() {},
+			false,
+		},
+		{
+			"fail - invalid receiver address",
+			&types.MsgMint{
+				ContractAddress: contractAddr.String(),
+				Amount:          math.NewInt(100),
+				Sender:          sender.String(),
+				To:              "invalid",
+			},
+			func() {},
+			false,
+		},
+		{
+			"pass - valid msg",
+			&types.MsgMint{
+				ContractAddress: contractAddr.String(),
+				Amount:          math.NewInt(100),
+				Sender:          sender.String(),
+				To:              sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+			},
+			func() {
+				expPair := types.NewTokenPair(
+					contractAddr,
+					denom,
+					types.OWNER_MODULE,
+				)
+				expPair.SetOwnerAddress(sender.String())
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, expPair)
+				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, expPair.Denom, expPair.GetID())
+				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, expPair.GetERC20Contract(), expPair.GetID())
+			},
+			true,
+		},
+	}
+
+	for _, tc := range testcases {
+		suite.Run(tc.name, func() {
+			ctx := sdk.WrapSDKContext(suite.ctx)
+
+			tc.malleate()
+			res, err := suite.app.Erc20Keeper.Mint(ctx, tc.msgMint)
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().NotNil(res)
+			} else {
+				suite.Require().Error(err)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestBurn() {
+	contractAddr := utiltx.GenerateAddress()
+	denom := "coin"
+	sender := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+
+	testcases := []struct {
+		name     string
+		msgBurn  *types.MsgBurn
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"fail - invalid sender address",
+			&types.MsgBurn{
+				ContractAddress: contractAddr.String(),
+				Amount:          math.NewInt(100),
+				Sender:          "invalid",
+			},
+			func() {},
+			false,
+		},
+		{
+			"pass - valid msg",
+			&types.MsgBurn{
+				ContractAddress: contractAddr.String(),
+				Amount:          math.NewInt(100),
+				Sender:          sender.String(),
+			},
+			func() {
+				expPair := types.NewTokenPair(
+					contractAddr,
+					denom,
+					types.OWNER_MODULE,
+				)
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, expPair)
+				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, expPair.Denom, expPair.GetID())
+				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, expPair.GetERC20Contract(), expPair.GetID())
+			},
+			true,
+		},
+	}
+
+	for _, tc := range testcases {
+		suite.Run(tc.name, func() {
+			ctx := sdk.WrapSDKContext(suite.ctx)
+
+			err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, sdk.Coins{sdk.NewCoin(denom, math.NewInt(100))})
+			suite.Require().NoError(err)
+
+			err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, sdk.Coins{sdk.NewCoin(denom, math.NewInt(100))})
+			suite.Require().NoError(err)
+
+			tc.malleate()
+			res, err := suite.app.Erc20Keeper.Burn(ctx, tc.msgBurn)
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().NotNil(res)
+			} else {
+				suite.Require().Error(err)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestTransferContractOwnership() {
+	tokenAddr := utiltx.GenerateAddress()
+	denom := "coin"
+
+	testcases := []struct {
+		name     string
+		msg      *types.MsgTransferOwnership
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"fail - invalid authority address",
+			&types.MsgTransferOwnership{
+				Authority: "invalid",
+			},
+			func() {},
+			false,
+		},
+		{
+			"fail - invalid new owner address",
+			&types.MsgTransferOwnership{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				NewOwner:  "invalid",
+			},
+			func() {},
+			false,
+		},
+		{
+			"pass - valid msg",
+			&types.MsgTransferOwnership{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				NewOwner:  sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+				Token:     tokenAddr.String(),
+			},
+			func() {
+				expPair := types.NewTokenPair(
+					tokenAddr,
+					denom,
+					types.OWNER_MODULE,
+				)
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, expPair)
+				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, expPair.Denom, expPair.GetID())
+				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, expPair.GetERC20Contract(), expPair.GetID())
+			},
+			true,
+		},
+	}
+
+	for _, tc := range testcases {
+		suite.Run(tc.name, func() {
+			ctx := sdk.WrapSDKContext(suite.ctx)
+
+			tc.malleate()
+			res, err := suite.app.Erc20Keeper.TransferContractOwnership(ctx, tc.msg)
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().NotNil(res)
+			} else {
+				suite.Require().Error(err)
 			}
 		})
 	}
