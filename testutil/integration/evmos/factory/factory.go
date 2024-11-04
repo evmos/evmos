@@ -153,6 +153,8 @@ func (tf *IntegrationTxFactory) populateEvmTxArgsWithDefault(
 	// If the gas limit is not set, estimate it
 	// through the /simulate endpoint.
 	if txArgs.GasLimit == 0 {
+		// TODO: sometimes this method does not converge, we should investigate
+		// why.
 		gasLimit, err := tf.EstimateGasLimit(&fromAddr, &txArgs)
 		if err != nil {
 			return evmtypes.EvmTxArgs{}, errorsmod.Wrap(err, "failed to estimate gas limit")

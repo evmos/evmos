@@ -5,6 +5,7 @@ package werc20_test
 
 import (
 	"math/big"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -17,13 +18,12 @@ import (
 	"github.com/evmos/evmos/v20/precompiles/werc20"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	evmosutiltx "github.com/evmos/evmos/v20/testutil/tx"
-	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
-
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 
 	"github.com/ethereum/go-ethereum/common"
 
@@ -67,6 +67,9 @@ func (is *PrecompileIntegrationTestSuite) SetupTest() {
 	keyring := keyring.New(2)
 
 	customGenesis := network.CustomGenesisState{}
+
+	// Set the base fee to zero to allow for zero cost tx. The final gas cost is
+	// not part of the logic tested here so this makes testing more easy.
 	feemarketGenesis := feemarkettypes.DefaultGenesisState()
 	feemarketGenesis.Params.NoBaseFee = true
 	customGenesis[feemarkettypes.ModuleName] = feemarketGenesis
@@ -97,6 +100,9 @@ func (is *PrecompileIntegrationTestSuite) SetupTest() {
 		ContainElement(is.precompileAddrHex),
 		"expected wevmos to be in the native precompiles",
 	)
+
+	_, found := is.network.App.BankKeeper.GetDenomMetaData(ctx, evmtypes.GetEVMCoinDenom())
+	Expect(found).To(BeTrue(), "expected native token metadata to be registered")
 
 	// Check that WEVMOS is registered in the token pairs map.
 	tokenPairID := is.network.App.Erc20Keeper.GetTokenPairID(ctx, is.wrappedCoinDenom)
@@ -152,6 +158,7 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 		is.SetupTest()
 
 		precompileAddr := common.HexToAddress(is.precompileAddrHex)
+		// TODO: is the denom correct for both mainnet and tesnet?
 		tokenPair := erc20types.NewTokenPair(
 			precompileAddr,
 			evmtypes.GetEVMCoinDenom(),
@@ -474,7 +481,7 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
 					Expect(balance).To(Equal(expBalance.Amount.BigInt()), "expected different balance")
 				})
-				It("should return a 0 for a new account", func() {
+				It("should return 0 for a new account", func() {
 					// Query the balance
 					txArgs, balancesArgs := callsData.getTxAndCallArgs(directCall, erc20.BalanceOfMethod, evmosutiltx.GenerateAddress())
 
@@ -496,8 +503,9 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 				var name string
 				err = is.precompile.UnpackIntoInterface(&name, erc20.NameMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-				Expect(name).To(Equal("Evmos"), "expected different name")
+				Expect(name).To(ContainSubstring("Evmos"), "expected different name")
 			})
+
 			It("should return the correct symbol", func() {
 				txArgs, symbolArgs := callsData.getTxAndCallArgs(directCall, erc20.SymbolMethod)
 
@@ -507,8 +515,24 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 				var symbol string
 				err = is.precompile.UnpackIntoInterface(&symbol, erc20.SymbolMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-				Expect(symbol).To(Equal("EVMOS"), "expected different symbol")
+				Expect(symbol).To(ContainSubstring("EVMOS"), "expected different symbol")
 			})
+
+			It("should return the decimals", func() {
+				txArgs, decimalsArgs := callsData.getTxAndCallArgs(directCall, erc20.DecimalsMethod)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(txSender.Priv, txArgs, decimalsArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var decimals uint8
+				err = is.precompile.UnpackIntoInterface(&decimals, erc20.DecimalsMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+
+				chainID := strings.Split(is.network.GetChainID(), "-")[0]
+				coinInfo := evmtypes.ChainsCoinInfo[chainID]
+				Expect(decimals).To(Equal(uint8(coinInfo.Decimals)), "expected different decimals")
+			},
+			)
 		})
 	})
 })

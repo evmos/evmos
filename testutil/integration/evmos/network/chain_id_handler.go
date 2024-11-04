@@ -7,15 +7,55 @@
 package network
 
 import (
-	"github.com/evmos/evmos/v20/app"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/evmos/evmos/v20/utils"
 	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
+
+func generateBankGenesisMetadata(chainID string) banktypes.Metadata {
+	if utils.IsTestnet(chainID) {
+		return banktypes.Metadata{
+			Description: "The native EVM, governance and staking token of the Evmos testnet",
+			Base:        "atevmos",
+			DenomUnits: []*banktypes.DenomUnit{
+				{
+					Denom:    "atevmos",
+					Exponent: 0,
+				},
+				{
+					Denom:    "tevmos",
+					Exponent: 18,
+				},
+			},
+			Name:    "tEvmos",
+			Symbol:  "tEVMOS",
+			Display: "tevmos",
+		}
+	}
+
+	return banktypes.Metadata{
+		Description: "The native EVM, governance and staking token of the Evmos mainnet",
+		Base:        "aevmos",
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    "aevmos",
+				Exponent: 0,
+			},
+			{
+				Denom:    "evmos",
+				Exponent: 18,
+			},
+		},
+		Name:    "Evmos",
+		Symbol:  "EVMOS",
+		Display: "evmos",
+	}
+}
 
 // handleDefaultErc20GenesisState modify the default genesis state for the
 // testing suite depending on the chainID.
-func handleDefaultErc20GenesisState(evmosApp *app.Evmos, erc20GenesisState erc20types.GenesisState) erc20types.GenesisState {
-	chainID := evmosApp.ChainID()
+func handleDefaultErc20GenesisState(chainID string, erc20GenesisState erc20types.GenesisState) erc20types.GenesisState {
 	if !utils.IsTestnet(chainID) {
 		return erc20GenesisState
 	}
@@ -43,15 +83,17 @@ func updateErc20Params(chainID string, params erc20types.Params) erc20types.Para
 }
 
 func updateErc20TokenPairs(chainID string, tokenPairs []erc20types.TokenPair) []erc20types.TokenPair {
-	mainnetAddress := erc20types.GetWEVMOSContractHex(utils.MainnetChainID)
 	testnetAddress := erc20types.GetWEVMOSContractHex(chainID)
+	coinInfo := evmtypes.ChainsCoinInfo[utils.MainnetChainID]
+
+	mainnetAddress := erc20types.GetWEVMOSContractHex(utils.MainnetChainID)
 
 	updatedTokenPairs := make([]erc20types.TokenPair, len(tokenPairs))
 	for i, tokenPair := range tokenPairs {
 		if tokenPair.Erc20Address == mainnetAddress {
 			updatedTokenPairs[i] = erc20types.TokenPair{
 				Erc20Address:  testnetAddress,
-				Denom:         tokenPair.Denom,
+				Denom:         coinInfo.Denom,
 				Enabled:       tokenPair.Enabled,
 				ContractOwner: tokenPair.ContractOwner,
 			}

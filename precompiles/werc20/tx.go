@@ -9,9 +9,13 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ethereum/go-ethereum/common"
+
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	"github.com/evmos/evmos/v20/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 const (
@@ -46,6 +50,10 @@ func (p Precompile) Deposit(ctx sdk.Context, contract *vm.Contract, stateDB vm.S
 	); err != nil {
 		return nil, err
 	}
+
+	// Add the entries to the statedb journal in 18 decimals.
+	convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(depositedAmount)
+	p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(caller, convertedAmount, cmn.Sub))
 
 	if err := p.EmitDepositEvent(ctx, stateDB, caller, depositedAmount); err != nil {
 		return nil, err

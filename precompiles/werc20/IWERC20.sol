@@ -38,4 +38,3 @@ interface IWERC20 is IERC20MetadataAllowance {
     /// @param wad The amount of native tokens to be withdrawn.
     function withdraw(uint256 wad) external;
 }
-
