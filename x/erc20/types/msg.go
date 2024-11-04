@@ -18,8 +18,6 @@ import (
 )
 
 var (
-	_ sdk.Msg              = &MsgConvertERC20{}
-	_ sdk.Msg              = &MsgUpdateParams{}
 	_ sdk.Msg              = &MsgMint{}
 	_ sdk.Msg              = &MsgBurn{}
 	_ sdk.Msg              = &MsgTransferOwnership{}

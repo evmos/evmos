@@ -71,15 +71,13 @@ func (k Keeper) MintingEnabled(
 
 // MintCoins mints the provided amount of coins to the given address.
 func (k Keeper) MintCoins(ctx sdk.Context, sender, to sdk.AccAddress, amount math.Int, token string) error {
-	ctx.Logger().Error("MintCoins", "token", token, "sender", sender.String(), "to", to.String(), "amount", amount.String())
 	pair, err := k.MintingEnabled(ctx, sender, to, token)
 	if err != nil {
-		ctx.Logger().Error("MintingEnabled", "error", err)
 		return err
 	}
 
 	if !pair.IsNativeCoin() {
-		return errorsmod.Wrapf(types.ErrERC20TokenPairDisabled, "minting token '%s' is not enabled by governance", token)
+		return errorsmod.Wrapf(types.ErrNonNativeCoinMintingDisabled, token)
 	}
 
 	contractOwnerAddr, err := sdk.AccAddressFromBech32(pair.OwnerAddress)
@@ -122,7 +120,7 @@ func (k Keeper) BurnCoins(ctx sdk.Context, sender sdk.AccAddress, amount math.In
 	}
 
 	if !pair.IsNativeCoin() {
-		return errorsmod.Wrapf(types.ErrERC20TokenPairDisabled, "burning token '%s' is not enabled by governance", token)
+		return errorsmod.Wrapf(types.ErrNonNativeCoinBurningDisabled, token)
 	}
 
 	coins := sdk.Coins{{Denom: pair.Denom, Amount: amount}}
@@ -157,7 +155,7 @@ func (k Keeper) TransferOwnership(ctx sdk.Context, newOwner sdk.AccAddress, toke
 	}
 
 	if !pair.IsNativeCoin() {
-		return errorsmod.Wrapf(types.ErrERC20TokenPairDisabled, "transferring ownership of token '%s' is not enabled by governance", token)
+		return errorsmod.Wrapf(types.ErrNonNativeTransferOwnershipDisabled, token)
 	}
 
 	k.SetTokenPairOwnerAddress(ctx, pair, newOwner.String())

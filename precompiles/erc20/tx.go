@@ -182,7 +182,7 @@ func (p *Precompile) Mint(
 			cmn.NewBalanceChangeEntry(to, coins.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt(), cmn.Add))
 	}
 
-	if err = p.EmitTransferEvent(ctx, stateDB, to, ZeroAddress, amount); err != nil {
+	if err = p.EmitTransferEvent(ctx, stateDB, ZeroAddress, to, amount); err != nil {
 		return nil, err
 	}
 

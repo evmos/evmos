@@ -217,7 +217,7 @@ func (suite *KeeperTestSuite) TestMintCoins() {
 			},
 			func() {},
 			true,
-			types.ErrERC20TokenPairDisabled.Error(),
+			types.ErrNonNativeCoinMintingDisabled.Error(),
 		},
 		{
 			"fail - minter is not the owner",
@@ -305,7 +305,7 @@ func (suite *KeeperTestSuite) TestBurnCoins() {
 			},
 			func() {},
 			true,
-			types.ErrERC20TokenPairDisabled.Error(),
+			types.ErrNonNativeCoinBurningDisabled.Error(),
 		},
 		{
 			"pass",
@@ -388,7 +388,7 @@ func (suite *KeeperTestSuite) TestTransferOwnership() {
 			},
 			func() {},
 			true,
-			types.ErrERC20TokenPairDisabled.Error(),
+			types.ErrNonNativeTransferOwnershipDisabled.Error(),
 		},
 		{
 			"pass",
