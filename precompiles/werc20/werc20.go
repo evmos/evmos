@@ -49,7 +49,8 @@ func LoadABI() (abi.ABI, error) {
 }
 
 // NewPrecompile creates a new WERC20 Precompile instance implementing the
-// PrecompiledContract interface.
+// PrecompiledContract interface. This type wraps around the ERC20 Precompile
+// instance to provide additional methods.
 func NewPrecompile(
 	tokenPair erc20types.TokenPair,
 	bankKeeper bankkeeper.Keeper,
@@ -63,7 +64,7 @@ func NewPrecompile(
 
 	erc20Precompile, err := erc20.NewPrecompile(tokenPair, bankKeeper, authzKeeper, transferKeeper)
 	if err != nil {
-		return nil, fmt.Errorf("error during instantiation of the ERC20 precompile: %w", err)
+		return nil, fmt.Errorf("error instantiating the ERC20 precompile: %w", err)
 	}
 
 	// use the IWERC20 ABI

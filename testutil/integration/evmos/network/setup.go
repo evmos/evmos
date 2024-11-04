@@ -325,15 +325,15 @@ type BankCustomGenesisState struct {
 
 // setDefaultBankGenesisState sets the default bank genesis state
 func setDefaultBankGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, overwriteParams BankCustomGenesisState) evmostypes.GenesisState {
-	metadata := generateBankGenesisMetadata(evmosApp.ChainID())
 	bankGenesis := banktypes.NewGenesisState(
 		banktypes.DefaultGenesisState().Params,
 		overwriteParams.balances,
 		overwriteParams.totalSupply,
-		[]banktypes.Metadata{metadata},
+		[]banktypes.Metadata{},
 		[]banktypes.SendEnabled{},
 	)
-	genesisState[banktypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(bankGenesis)
+	updatedBankGen := updateBankGenesisStateForChainID(evmosApp.ChainID(), *bankGenesis)
+	genesisState[banktypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(&updatedBankGen)
 	return genesisState
 }
 
@@ -452,8 +452,8 @@ func setDefaultGovGenesisState(evmosApp *app.Evmos, genesisState evmostypes.Gene
 
 func setDefaultErc20GenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState) evmostypes.GenesisState {
 	erc20Gen := erc20types.DefaultGenesisState()
-	handledErc20Gen := handleDefaultErc20GenesisState(evmosApp.ChainID(), *erc20Gen)
-	genesisState[erc20types.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(&handledErc20Gen)
+	updatedErc20Gen := updateErc20GenesisStateForChainID(evmosApp.ChainID(), *erc20Gen)
+	genesisState[erc20types.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(&updatedErc20Gen)
 	return genesisState
 }
 

@@ -49,7 +49,8 @@ type Precompile struct {
 	cmn.Precompile
 	tokenPair      erc20types.TokenPair
 	transferKeeper transferkeeper.Keeper
-	BankKeeper     bankkeeper.Keeper
+	// BankKeeper is a public field so that the werc20 precompile can use it.
+	BankKeeper bankkeeper.Keeper
 }
 
 // NewPrecompile creates a new ERC-20 Precompile instance as a

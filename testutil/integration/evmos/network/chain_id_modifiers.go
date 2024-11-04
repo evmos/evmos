@@ -13,6 +13,15 @@ import (
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
+// updateErc20GenesisStateForChainID modify the default genesis state for the
+// bank module of the testing suite depending on the chainID.
+func updateBankGenesisStateForChainID(chainID string, bankGenesisState banktypes.GenesisState) banktypes.GenesisState {
+	metadata := generateBankGenesisMetadata(chainID)
+	bankGenesisState.DenomMetadata = []banktypes.Metadata{metadata}
+
+	return bankGenesisState
+}
+
 func generateBankGenesisMetadata(chainID string) banktypes.Metadata {
 	if utils.IsTestnet(chainID) {
 		return banktypes.Metadata{
@@ -53,9 +62,9 @@ func generateBankGenesisMetadata(chainID string) banktypes.Metadata {
 	}
 }
 
-// handleDefaultErc20GenesisState modify the default genesis state for the
-// testing suite depending on the chainID.
-func handleDefaultErc20GenesisState(chainID string, erc20GenesisState erc20types.GenesisState) erc20types.GenesisState {
+// updateErc20GenesisStateForChainID modify the default genesis state for the
+// erc20 module on the testing suite depending on the chainID.
+func updateErc20GenesisStateForChainID(chainID string, erc20GenesisState erc20types.GenesisState) erc20types.GenesisState {
 	if !utils.IsTestnet(chainID) {
 		return erc20GenesisState
 	}
