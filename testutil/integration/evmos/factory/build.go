@@ -14,8 +14,8 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v19/server/config"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/server/config"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 func (tf *IntegrationTxFactory) GenerateDefaultTxTypeArgs(sender common.Address, txType int) (evmtypes.EvmTxArgs, error) {
@@ -60,14 +60,9 @@ func (tf *IntegrationTxFactory) EstimateGasLimit(from *common.Address, txArgs *e
 
 // GenerateSignedEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
 func (tf *IntegrationTxFactory) GenerateSignedEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error) {
-	msgEthereumTx, err := tf.GenerateMsgEthereumTx(privKey, txArgs)
+	signedMsg, err := tf.GenerateSignedMsgEthereumTx(privKey, txArgs)
 	if err != nil {
-		return nil, errorsmod.Wrap(err, "failed to create ethereum tx")
-	}
-
-	signedMsg, err := tf.SignMsgEthereumTx(privKey, msgEthereumTx)
-	if err != nil {
-		return nil, errorsmod.Wrap(err, "failed to sign ethereum tx")
+		return nil, errorsmod.Wrap(err, "failed to generate signed MsgEthereumTx")
 	}
 
 	// Validate the transaction to avoid unrealistic behavior
@@ -76,6 +71,16 @@ func (tf *IntegrationTxFactory) GenerateSignedEthTx(privKey cryptotypes.PrivKey,
 	}
 
 	return tf.buildSignedTx(signedMsg)
+}
+
+// GenerateSignedMsgEthereumTx generates an MsgEthereumTx signed with the provided private key and txArgs.
+func (tf *IntegrationTxFactory) GenerateSignedMsgEthereumTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (evmtypes.MsgEthereumTx, error) {
+	msgEthereumTx, err := tf.GenerateMsgEthereumTx(privKey, txArgs)
+	if err != nil {
+		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to create ethereum tx")
+	}
+
+	return tf.SignMsgEthereumTx(privKey, msgEthereumTx)
 }
 
 // GenerateMsgEthereumTx creates a new MsgEthereumTx with the provided arguments.

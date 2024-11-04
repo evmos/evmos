@@ -12,7 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 
-	"github.com/evmos/evmos/v19/x/erc20/types"
+	"github.com/evmos/evmos/v20/x/erc20/types"
 )
 
 // GetQueryCmd returns the parent command for all erc20 CLI query commands

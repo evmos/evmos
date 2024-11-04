@@ -11,10 +11,10 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
 
-	auth "github.com/evmos/evmos/v19/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	auth "github.com/evmos/evmos/v20/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
 )
 
 const (
@@ -54,7 +54,7 @@ func (p Precompile) EmitTransferEvent(ctx sdk.Context, stateDB vm.StateDB, from,
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        packed,
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -91,7 +91,7 @@ func (p Precompile) EmitApprovalEvent(ctx sdk.Context, stateDB vm.StateDB, owner
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        packed,
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil

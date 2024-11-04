@@ -6,10 +6,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/precompiles/bank"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
+	"github.com/evmos/evmos/v20/precompiles/bank"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
@@ -40,16 +40,17 @@ func (is *IntegrationTestSuite) setupBankPrecompile() *bank.Precompile {
 }
 
 // mintAndSendXMPLCoin is a helper function to mint and send a coin to a given address.
-func (s *PrecompileTestSuite) mintAndSendXMPLCoin(addr sdk.AccAddress, amount math.Int) {
+func (s *PrecompileTestSuite) mintAndSendXMPLCoin(ctx sdk.Context, addr sdk.AccAddress, amount math.Int) sdk.Context {
 	coins := sdk.NewCoins(sdk.NewCoin(s.tokenDenom, amount))
-	err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, coins)
+	err := s.network.App.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, coins)
 	s.Require().NoError(err)
-	err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(s.network.GetContext(), inflationtypes.ModuleName, addr, coins)
+	err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(ctx, inflationtypes.ModuleName, addr, coins)
 	s.Require().NoError(err)
+	return ctx
 }
 
 // mintAndSendXMPLCoin is a helper function to mint and send a coin to a given address.
-func (is *IntegrationTestSuite) mintAndSendXMPLCoin(addr sdk.AccAddress, amount math.Int) {
+func (is *IntegrationTestSuite) mintAndSendXMPLCoin(addr sdk.AccAddress, amount math.Int) { //nolint:unused
 	coins := sdk.NewCoins(sdk.NewCoin(is.tokenDenom, amount))
 	err := is.network.App.BankKeeper.MintCoins(is.network.GetContext(), inflationtypes.ModuleName, coins)
 	Expect(err).ToNot(HaveOccurred())
@@ -106,3 +107,9 @@ func Max(x, y int) int {
 	}
 	return y
 }
+
+// XMPL Token metadata to use on tests
+const (
+	xmplDenom     = "xmpl"
+	xmplErc20Addr = "0x5db67696C3c088DfBf588d3dd849f44266ffffff"
+)

@@ -4,23 +4,26 @@ import (
 	"fmt"
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/encoding"
-	"github.com/evmos/evmos/v19/tests/e2e/upgrade"
+	"github.com/evmos/evmos/v20/encoding"
+	"github.com/evmos/evmos/v20/tests/e2e/upgrade"
+	"github.com/evmos/evmos/v20/types"
 	"github.com/stretchr/testify/require"
 )
 
 func TestUnpackBalancesResponse(t *testing.T) {
 	t.Parallel()
 
-	expAmount, ok := sdk.NewIntFromString("1000000000000000000000")
+	expAmount, ok := math.NewIntFromString("1000000000000000000000")
 	require.True(t, ok, "failed to convert amount to int")
 
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	encodingConfig := encoding.MakeConfig()
 	protoCodec, ok := encodingConfig.Codec.(*codec.ProtoCodec)
 	require.True(t, ok, "failed to cast codec to proto codec")
+
+	baseDenom := types.BaseDenom
 
 	testcases := []struct {
 		name        string
@@ -32,11 +35,12 @@ func TestUnpackBalancesResponse(t *testing.T) {
 		{
 			name: "success",
 			output: fmt.Sprintf(
-				`{"balances":[{"denom":"aevmos","amount":"%s"}],`+
+				`{"balances":[{"denom":"%s","amount":"%s"}],`+
 					`"pagination":{"next_key":null,"total":"0"}}`,
+				baseDenom,
 				expAmount,
 			),
-			want:    sdk.Coins{sdk.NewCoin("aevmos", expAmount)},
+			want:    sdk.Coins{sdk.NewCoin(baseDenom, expAmount)},
 			expPass: true,
 		},
 		{
@@ -53,7 +57,7 @@ func TestUnpackBalancesResponse(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		tc := tc // Added for parallel testing, check https://pkg.go.dev/testing#hdr-Subtests_and_Sub_benchmarks
+		tc := tc //nolint:copyloopvar // Added for parallel testing, check https://pkg.go.dev/testing#hdr-Subtests_and_Sub_benchmarks
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

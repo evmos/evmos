@@ -7,14 +7,9 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	evmostypes "github.com/evmos/evmos/v19/types"
-
-	utils "github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/inflation/v1/types"
+	utils "github.com/evmos/evmos/v20/utils"
+	"github.com/evmos/evmos/v20/x/inflation/v1/types"
 )
-
-// 200M token at year 4 allocated to the team
-var teamAlloc = math.NewInt(200_000_000).Mul(evmostypes.PowerReduction)
 
 // MintAndAllocateInflation performs inflation minting and allocation
 func (k Keeper) MintAndAllocateInflation(
@@ -77,11 +72,11 @@ func (k Keeper) AllocateExponentialInflation(
 	// Allocate community pool amount (remaining module balance) to community
 	// pool address
 	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
-	inflationBalance := k.bankKeeper.GetAllBalances(ctx, moduleAddr)
+	communityPool = k.bankKeeper.GetAllBalances(ctx, moduleAddr)
 
 	err = k.distrKeeper.FundCommunityPool(
 		ctx,
-		inflationBalance,
+		communityPool,
 		moduleAddr,
 	)
 	if err != nil {
@@ -91,7 +86,7 @@ func (k Keeper) AllocateExponentialInflation(
 	return staking, communityPool, nil
 }
 
-// GetAllocationProportion calculates the proportion of coins that is to be
+// GetProportions calculates the proportion of coins that is to be
 // allocated during inflation for a given distribution.
 func (k Keeper) GetProportions(
 	_ sdk.Context,
@@ -106,32 +101,62 @@ func (k Keeper) GetProportions(
 
 // BondedRatio the fraction of the staking tokens which are currently bonded
 // It doesn't consider team allocation for inflation
-func (k Keeper) BondedRatio(ctx sdk.Context) math.LegacyDec {
-	stakeSupply := k.stakingKeeper.StakingTokenSupply(ctx)
+func (k Keeper) BondedRatio(ctx sdk.Context) (math.LegacyDec, error) {
+	stakeSupply, err := k.stakingKeeper.StakingTokenSupply(ctx)
+	if err != nil {
+		return math.LegacyZeroDec(), err
+	}
 
 	isMainnet := utils.IsMainnet(ctx.ChainID())
 
-	if !stakeSupply.IsPositive() || (isMainnet && stakeSupply.LTE(teamAlloc)) {
-		return math.LegacyZeroDec()
-	}
-
-	// don't count team allocation in bonded ratio's stake supple
+	mintDenom := k.GetParams(ctx).MintDenom
+	teamAlloc := math.LegacyZeroDec()
 	if isMainnet {
-		stakeSupply = stakeSupply.Sub(teamAlloc)
+		teamAlloc = k.computeTeamAllocation(ctx, mintDenom)
 	}
 
-	return math.LegacyNewDecFromInt(k.stakingKeeper.TotalBondedTokens(ctx)).QuoInt(stakeSupply)
+	legacyStakeSupply := math.LegacyNewDecFromInt(stakeSupply)
+	if !stakeSupply.IsPositive() || (isMainnet && legacyStakeSupply.LTE(teamAlloc)) {
+		return math.LegacyZeroDec(), nil
+	}
+
+	// Don't count team allocation in bonded ratio's stake supply
+	if isMainnet {
+		stakeSupply = legacyStakeSupply.Sub(teamAlloc).RoundInt()
+	}
+
+	totalBondedTokens, err := k.stakingKeeper.TotalBondedTokens(ctx)
+	if err != nil {
+		return math.LegacyZeroDec(), err
+	}
+	return math.LegacyNewDecFromInt(totalBondedTokens).QuoInt(stakeSupply), nil
+}
+
+// computeTeamAllocation computes the allocation associated with the Evmos team.
+// The team allocation is defined as the total mint tokens in the wallets of the
+// foundation.
+func (k Keeper) computeTeamAllocation(ctx sdk.Context, mintDenom string) math.LegacyDec {
+	teamAllocation := math.LegacyZeroDec()
+	for _, wallet := range types.FoundationWallets {
+		walletAddress := utils.EthHexToCosmosAddr(wallet)
+		walletBalance := k.bankKeeper.GetBalance(ctx, walletAddress, mintDenom)
+		teamAllocation = teamAllocation.Add(math.LegacyNewDecFromInt(walletBalance.Amount))
+	}
+	return teamAllocation
 }
 
 // GetCirculatingSupply returns the bank supply of the mintDenom excluding the
 // team allocation in the first year
 func (k Keeper) GetCirculatingSupply(ctx sdk.Context, mintDenom string) math.LegacyDec {
 	circulatingSupply := math.LegacyNewDecFromInt(k.bankKeeper.GetSupply(ctx, mintDenom).Amount)
-	teamAllocation := math.LegacyNewDecFromInt(teamAlloc)
 
-	// Consider team allocation only on mainnet chain id
+	// Consider team allocation only on mainnet chain id. Team funds are held in
+	// the foundation wallets. When the foundation distribute tokens to the
+	// team, they will not be in these wallets anymore and will be account for
+	// the in the circulating supply.
 	if utils.IsMainnet(ctx.ChainID()) {
-		circulatingSupply = circulatingSupply.Sub(teamAllocation)
+		foundationAllocation := k.computeTeamAllocation(ctx, mintDenom)
+		circulatingSupply = circulatingSupply.Sub(foundationAllocation)
 	}
 
 	return circulatingSupply
@@ -163,10 +188,15 @@ func (k Keeper) GetInflationRate(ctx sdk.Context, mintDenom string) math.LegacyD
 // GetEpochMintProvision retrieves necessary params KV storage
 // and calculate EpochMintProvision
 func (k Keeper) GetEpochMintProvision(ctx sdk.Context) math.LegacyDec {
+	bondedRadio, err := k.BondedRatio(ctx)
+	// ?? Should we bubble up this error instead of returning 0 ??
+	if err != nil {
+		return math.LegacyZeroDec()
+	}
 	return types.CalculateEpochMintProvision(
 		k.GetParams(ctx),
 		k.GetPeriod(ctx),
 		k.GetEpochsPerPeriod(ctx),
-		k.BondedRatio(ctx),
-	)
+		bondedRadio,
+	).Quo(math.LegacyNewDec(types.ReductionFactor))
 }

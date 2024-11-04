@@ -10,16 +10,16 @@ import (
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/app"
-	auth "github.com/evmos/evmos/v19/precompiles/authorization"
-	"github.com/evmos/evmos/v19/precompiles/erc20"
-	"github.com/evmos/evmos/v19/testutil"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
+	"github.com/evmos/evmos/v20/app"
+	auth "github.com/evmos/evmos/v20/precompiles/authorization"
+	"github.com/evmos/evmos/v20/precompiles/erc20"
+	"github.com/evmos/evmos/v20/testutil"
+	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	inflationtypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
 )
 
 // Define useful variables for tests here.
@@ -187,8 +187,6 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
@@ -337,8 +335,6 @@ func (s *PrecompileTestSuite) TestDecimals() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
@@ -390,8 +386,6 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
@@ -470,8 +464,6 @@ func (s *PrecompileTestSuite) TestBalanceOf() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
@@ -572,8 +564,6 @@ func (s *PrecompileTestSuite) TestAllowance() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			s.SetupTest()
 

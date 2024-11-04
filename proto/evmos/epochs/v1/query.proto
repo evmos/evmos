@@ -3,12 +3,13 @@
 syntax = "proto3";
 package evmos.epochs.v1;
 
+import "amino/amino.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "evmos/epochs/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 
-option go_package = "github.com/evmos/evmos/v19/x/epochs/types";
+option go_package = "github.com/evmos/evmos/v20/x/epochs/types";
 
 // Query defines the gRPC querier service.
 service Query {
@@ -33,7 +34,7 @@ message QueryEpochsInfoRequest {
 // method.
 message QueryEpochsInfoResponse {
   // epochs is a slice of all EpochInfos
-  repeated EpochInfo epochs = 1 [(gogoproto.nullable) = false];
+  repeated EpochInfo epochs = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
   // pagination defines an optional pagination for the request.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

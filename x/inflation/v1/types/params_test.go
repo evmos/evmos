@@ -43,7 +43,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"valid",
 			NewParams(
-				"aevmos",
+				DefaultInflationDenom,
 				validExponentialCalculation,
 				validInflationDistribution,
 				true,
@@ -53,7 +53,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"valid param literal",
 			Params{
-				MintDenom:              "aevmos",
+				MintDenom:              DefaultInflationDenom,
 				ExponentialCalculation: validExponentialCalculation,
 				InflationDistribution:  validInflationDistribution,
 				EnableInflation:        true,
@@ -83,7 +83,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"invalid - exponential calculation - negative A",
 			Params{
-				MintDenom: "aevmos",
+				MintDenom: DefaultInflationDenom,
 				ExponentialCalculation: ExponentialCalculation{
 					A:             math.LegacyNewDec(int64(-1)),
 					R:             math.LegacyNewDecWithPrec(5, 1),
@@ -99,7 +99,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"invalid - exponential calculation - R greater than 1",
 			Params{
-				MintDenom: "aevmos",
+				MintDenom: DefaultInflationDenom,
 				ExponentialCalculation: ExponentialCalculation{
 					A:             math.LegacyNewDec(int64(300_000_000)),
 					R:             math.LegacyNewDecWithPrec(5, 0),
@@ -115,7 +115,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"invalid - exponential calculation - negative R",
 			Params{
-				MintDenom: "aevmos",
+				MintDenom: DefaultInflationDenom,
 				ExponentialCalculation: ExponentialCalculation{
 					A:             math.LegacyNewDec(int64(300_000_000)),
 					R:             math.LegacyNewDecWithPrec(-5, 1),
@@ -131,7 +131,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"invalid - exponential calculation - negative C",
 			Params{
-				MintDenom: "aevmos",
+				MintDenom: DefaultInflationDenom,
 				ExponentialCalculation: ExponentialCalculation{
 					A:             math.LegacyNewDec(int64(300_000_000)),
 					R:             math.LegacyNewDecWithPrec(5, 1),
@@ -147,7 +147,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"invalid - exponential calculation - BondingTarget greater than 1",
 			Params{
-				MintDenom: "aevmos",
+				MintDenom: DefaultInflationDenom,
 				ExponentialCalculation: ExponentialCalculation{
 					A:             math.LegacyNewDec(int64(300_000_000)),
 					R:             math.LegacyNewDecWithPrec(5, 1),
@@ -163,7 +163,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"invalid - exponential calculation - negative BondingTarget",
 			Params{
-				MintDenom: "aevmos",
+				MintDenom: DefaultInflationDenom,
 				ExponentialCalculation: ExponentialCalculation{
 					A:             math.LegacyNewDec(int64(300_000_000)),
 					R:             math.LegacyNewDecWithPrec(5, 1),
@@ -179,7 +179,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"invalid - exponential calculation - negative max Variance",
 			Params{
-				MintDenom: "aevmos",
+				MintDenom: DefaultInflationDenom,
 				ExponentialCalculation: ExponentialCalculation{
 					A:             math.LegacyNewDec(int64(300_000_000)),
 					R:             math.LegacyNewDecWithPrec(5, 1),
@@ -195,7 +195,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"invalid - inflation distribution - negative staking rewards",
 			Params{
-				MintDenom:              "aevmos",
+				MintDenom:              DefaultInflationDenom,
 				ExponentialCalculation: validExponentialCalculation,
 				InflationDistribution: InflationDistribution{
 					StakingRewards:  math.LegacyOneDec().Neg(),
@@ -209,7 +209,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"invalid - inflation distribution - negative usage incentives",
 			Params{
-				MintDenom:              "aevmos",
+				MintDenom:              DefaultInflationDenom,
 				ExponentialCalculation: validExponentialCalculation,
 				InflationDistribution: InflationDistribution{
 					StakingRewards:  math.LegacyNewDecWithPrec(533334, 6),
@@ -223,7 +223,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"invalid - inflation distribution - negative community pool rewards",
 			Params{
-				MintDenom:              "aevmos",
+				MintDenom:              DefaultInflationDenom,
 				ExponentialCalculation: validExponentialCalculation,
 				InflationDistribution: InflationDistribution{
 					StakingRewards:  math.LegacyNewDecWithPrec(533334, 6),
@@ -237,7 +237,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 		{
 			"invalid - inflation distribution - total distribution ratio unequal 1",
 			Params{
-				MintDenom:              "aevmos",
+				MintDenom:              DefaultInflationDenom,
 				ExponentialCalculation: validExponentialCalculation,
 				InflationDistribution: InflationDistribution{
 					StakingRewards:  math.LegacyNewDecWithPrec(533333, 6),

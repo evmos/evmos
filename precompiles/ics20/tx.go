@@ -9,15 +9,15 @@ import (
 	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/utils"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
 )
 
 const (
@@ -60,7 +60,7 @@ func (p *Precompile) Transfer(
 		return nil, err
 	}
 
-	res, err := p.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), msg)
+	res, err := p.transferKeeper.Transfer(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (p *Precompile) Transfer(
 		return nil, err
 	}
 
-	if contract.CallerAddress != origin && msg.Token.Denom == utils.BaseDenom {
+	if contract.CallerAddress != origin && msg.Token.Denom == evmtypes.GetEVMCoinDenom() {
 		// escrow address is also changed on this tx, and it is not a module account
 		// so we need to account for this on the UpdateDirties
 		escrowAccAddress := transfertypes.GetEscrowAddress(msg.SourcePort, msg.SourceChannel)

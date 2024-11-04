@@ -19,7 +19,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
 )
 
 const (
@@ -154,19 +154,15 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 			Details:         description.Details,
 		},
 		Commission: stakingtypes.CommissionRates{
-			Rate:          sdk.NewDecFromBigIntWithPrec(commission.Rate, sdk.Precision),
-			MaxRate:       sdk.NewDecFromBigIntWithPrec(commission.Rate, sdk.Precision),
-			MaxChangeRate: sdk.NewDecFromBigIntWithPrec(commission.Rate, sdk.Precision),
+			Rate:          math.LegacyNewDecFromBigIntWithPrec(commission.Rate, math.LegacyPrecision),
+			MaxRate:       math.LegacyNewDecFromBigIntWithPrec(commission.Rate, math.LegacyPrecision),
+			MaxChangeRate: math.LegacyNewDecFromBigIntWithPrec(commission.Rate, math.LegacyPrecision),
 		},
-		MinSelfDelegation: sdk.NewIntFromBigInt(minSelfDelegation),
+		MinSelfDelegation: math.NewIntFromBigInt(minSelfDelegation),
 		DelegatorAddress:  sdk.AccAddress(validatorAddress.Bytes()).String(),
 		ValidatorAddress:  sdk.ValAddress(validatorAddress.Bytes()).String(),
 		Pubkey:            pubkey,
 		Value:             sdk.Coin{Denom: denom, Amount: math.NewIntFromBigInt(value)},
-	}
-
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
 	}
 
 	return msg, validatorAddress, nil
@@ -198,7 +194,7 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 	// If the value passed in by the user is not DoNotModifyCommissionRate, which is -1, it means that the user wants to modify its value.
 	var commissionRate *math.LegacyDec
 	if commissionRateBigInt.Cmp(big.NewInt(DoNotModifyCommissionRate)) != 0 {
-		cr := sdk.NewDecFromBigIntWithPrec(commissionRateBigInt, sdk.Precision)
+		cr := math.LegacyNewDecFromBigIntWithPrec(commissionRateBigInt, math.LegacyPrecision)
 		commissionRate = &cr
 	}
 
@@ -226,10 +222,6 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 		MinSelfDelegation: minSelfDelegation,
 	}
 
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
-	}
-
 	return msg, validatorHexAddr, nil
 }
 
@@ -250,10 +242,6 @@ func NewMsgDelegate(args []interface{}, denom string) (*stakingtypes.MsgDelegate
 		},
 	}
 
-	if err = msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
-	}
-
 	return msg, delegatorAddr, nil
 }
 
@@ -272,10 +260,6 @@ func NewMsgUndelegate(args []interface{}, denom string) (*stakingtypes.MsgUndele
 			Denom:  denom,
 			Amount: math.NewIntFromBigInt(amount),
 		},
-	}
-
-	if err = msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
 	}
 
 	return msg, delegatorAddr, nil
@@ -318,10 +302,6 @@ func NewMsgRedelegate(args []interface{}, denom string) (*stakingtypes.MsgBeginR
 		},
 	}
 
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
-	}
-
 	return msg, delegatorAddr, nil
 }
 
@@ -360,10 +340,6 @@ func NewMsgCancelUnbondingDelegation(args []interface{}, denom string) (*staking
 			Amount: math.NewIntFromBigInt(amount),
 		},
 		CreationHeight: creationHeight.Int64(),
-	}
-
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
 	}
 
 	return msg, delegatorAddr, nil
@@ -636,7 +612,7 @@ func (vo *ValidatorOutput) FromResponse(res *stakingtypes.QueryValidatorResponse
 			OperatorAddress: common.BytesToAddress(operatorAddress.Bytes()).String(),
 			ConsensusPubkey: FormatConsensusPubkey(res.Validator.ConsensusPubkey),
 			Jailed:          res.Validator.Jailed,
-			Status:          uint8(stakingtypes.BondStatus_value[res.Validator.Status.String()]),
+			Status:          uint8(stakingtypes.BondStatus_value[res.Validator.Status.String()]), //#nosec G115
 			Tokens:          res.Validator.Tokens.BigInt(),
 			DelegatorShares: res.Validator.DelegatorShares.BigInt(), // TODO: Decimal
 			// TODO: create description type,
@@ -675,7 +651,7 @@ func (vo *ValidatorsOutput) FromResponse(res *stakingtypes.QueryValidatorsRespon
 				OperatorAddress:   common.BytesToAddress(operatorAddress.Bytes()).String(),
 				ConsensusPubkey:   FormatConsensusPubkey(v.ConsensusPubkey),
 				Jailed:            v.Jailed,
-				Status:            uint8(stakingtypes.BondStatus_value[v.Status.String()]),
+				Status:            uint8(stakingtypes.BondStatus_value[v.Status.String()]), //#nosec G115
 				Tokens:            v.Tokens.BigInt(),
 				DelegatorShares:   v.DelegatorShares.BigInt(),
 				Description:       v.Description.Details,

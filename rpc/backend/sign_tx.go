@@ -10,6 +10,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -17,7 +18,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // SendTransaction sends transaction based on received args using Node's key to sign it
@@ -66,15 +67,10 @@ func (b *Backend) SendTransaction(args evmtypes.TransactionArgs) (common.Hash, e
 		return common.Hash{}, err
 	}
 
-	// Query params to use the EVM denomination
-	res, err := b.queryClient.QueryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
-	if err != nil {
-		b.logger.Error("failed to query evm params", "error", err.Error())
-		return common.Hash{}, err
-	}
+	baseDenom := evmtypes.GetEVMCoinDenom()
 
 	// Assemble transaction from fields
-	tx, err := msg.BuildTx(b.clientCtx.TxConfig.NewTxBuilder(), res.Params.EvmDenom)
+	tx, err := msg.BuildTx(b.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 	if err != nil {
 		b.logger.Error("build cosmos tx failed", "error", err.Error())
 		return common.Hash{}, err
@@ -125,7 +121,7 @@ func (b *Backend) Sign(address common.Address, data hexutil.Bytes) (hexutil.Byte
 	}
 
 	// Sign the requested hash with the wallet
-	signature, _, err := b.clientCtx.Keyring.SignByAddress(from, data)
+	signature, _, err := b.clientCtx.Keyring.SignByAddress(from, data, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
 	if err != nil {
 		b.logger.Error("keyring.SignByAddress failed", "address", address.Hex())
 		return nil, err
@@ -151,7 +147,7 @@ func (b *Backend) SignTypedData(address common.Address, typedData apitypes.Typed
 	}
 
 	// Sign the requested hash with the wallet
-	signature, _, err := b.clientCtx.Keyring.SignByAddress(from, sigHash)
+	signature, _, err := b.clientCtx.Keyring.SignByAddress(from, sigHash, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
 	if err != nil {
 		b.logger.Error("keyring.SignByAddress failed", "address", address.Hex())
 		return nil, err

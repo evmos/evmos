@@ -19,7 +19,7 @@ defined with the signature:
 func(jt *vm.JumpTable) {}
 ```
 
-where `vm` is the package `"github.com/evmos/evmos/v19/x/evm/core/vm"`.
+where `vm` is the package `"github.com/evmos/evmos/v20/x/evm/core/vm"`.
 
 Custom EIPs are used to modify the behavior of opcodes, which are described by the `operation` structure:
 
@@ -102,7 +102,7 @@ In **evmOS**, custom activators should be defined in a structure with the same d
 ```go
 // Activate custom EIPs: 0000, 0001, 0002, etc
 evmosActivators = map[int]func(*vm.JumpTable){
-        "evmos_0": eips.Enable0000,
+	"evmos_0": eips.Enable0000,
 	"evmos_1": eips.Enable0001,
 	"evmos_2": eips.Enable0002,
 }
@@ -225,7 +225,7 @@ func NewEVMInterpreter(evm *EVM, cfg Config) *EVMInterpreter {
 As we can see, a new `JumpTable` is created if it is not received from previous evm executions in the same transaction.
 After that, the function iterate over the `ExtraEips` defined in the configuration. Then, it is checked if the EIP is
 associated with an activator. If yes, the activator function is execute, otherwise an error is returned and the EIP is
-removed from the  VM configuration. At this point, all the opcodes are ready to be executed.
+removed from the VM configuration. At this point, all the opcodes are ready to be executed.
 
 ## How to Use It
 

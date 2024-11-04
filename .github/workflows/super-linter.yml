@@ -21,7 +21,7 @@ jobs:
           fetch-depth: 0
 
       - name: Lint Code Base
-        uses: github/super-linter@v6
+        uses: github/super-linter@v7
         env:
           LINTER_RULES_PATH: /
           YAML_CONFIG_FILE: .yamllint
@@ -32,6 +32,7 @@ jobs:
           VALIDATE_OPENAPI: false
           VALIDATE_JSCPD: false
           VALIDATE_GO: false
+          VALIDATE_GO_MODULES: false
           PYTHON_PYLINT_CONFIG_FILE: .pylintrc
           DEFAULT_BRANCH: "main"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

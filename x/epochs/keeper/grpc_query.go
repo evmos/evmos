@@ -6,13 +6,13 @@ package keeper
 import (
 	"context"
 
-	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"cosmossdk.io/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/evmos/evmos/v19/x/epochs/types"
+	"github.com/evmos/evmos/v20/x/epochs/types"
 )
 
 var _ types.QueryServer = Keeper{}

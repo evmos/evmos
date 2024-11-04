@@ -19,7 +19,7 @@ import (
 
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 
-	"github.com/evmos/evmos/v19/types"
+	"github.com/evmos/evmos/v20/types"
 )
 
 // BlockNumber represents decoding hex string to block values
@@ -94,7 +94,7 @@ func (bn *BlockNumber) UnmarshalJSON(data []byte) error {
 	if blckNum > math.MaxInt64 {
 		return fmt.Errorf("block number larger than int64")
 	}
-	*bn = BlockNumber(blckNum) // #nosec G701
+	*bn = BlockNumber(blckNum) // #nosec G701 G115
 
 	return nil
 }

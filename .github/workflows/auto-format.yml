@@ -6,43 +6,42 @@ on:
 permissions: read-all
 
 jobs:
-  format-go-code:
+  format-code:
     runs-on: ubuntu-latest
 
     permissions:
       contents: write
 
     steps:
+      # Checkout repository
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.E2E_PAT }}
+
+      # Install shell formatter
+      - run: sudo apt-get install -y shfmt
+
+      # Set up Go
       - uses: actions/setup-go@v5
         with:
           go-version: "1.22"
           check-latest: true
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.E2E_PAT }}
+
+      # Install Go formatter
       - run: go install mvdan.cc/gofumpt@latest
+
+      # Set up Python
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      # Install Python formatters
+      - run: pip install black isort
+
+      # Run the combined format command
       - run: make format
+
       # Commit formatted files if necessary
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: run make format
-
-  format-python-code:
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.E2E_PAT }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'           
-      - run: pip install black isort
-      - run: make format-python
-      # Commit formatted files if necessary
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: run make format-python          

@@ -9,7 +9,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/log"
 	"go.opencensus.io/stats"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/tag"
@@ -110,7 +110,7 @@ func (tpc *tpsCounter) recordValue(ctx context.Context, latest, previous uint64,
 		return 0, nil
 	}
 
-	n := int64(latest - previous)
+	n := int64(latest - previous) //#nosec G115
 	if n < 0 {
 		// Perhaps we exceeded the uint64 limits then wrapped around, for the latest value.
 		// TODO: Perhaps log this?

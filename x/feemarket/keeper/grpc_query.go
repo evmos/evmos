@@ -9,7 +9,7 @@ import (
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v19/x/feemarket/types"
+	"github.com/evmos/evmos/v20/x/feemarket/types"
 )
 
 var _ types.QueryServer = Keeper{}
@@ -30,11 +30,7 @@ func (k Keeper) BaseFee(c context.Context, _ *types.QueryBaseFeeRequest) (*types
 
 	res := &types.QueryBaseFeeResponse{}
 	baseFee := k.GetBaseFee(ctx)
-
-	if baseFee != nil {
-		aux := sdkmath.NewIntFromBigInt(baseFee)
-		res.BaseFee = &aux
-	}
+	res.BaseFee = &baseFee
 
 	return res, nil
 }

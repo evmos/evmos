@@ -12,12 +12,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v19/testutil"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/staking/keeper"
-	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
+	"github.com/evmos/evmos/v20/testutil"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v20/types"
+	"github.com/evmos/evmos/v20/x/staking/keeper"
+	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -25,7 +25,7 @@ func TestMsgDelegate(t *testing.T) {
 	var (
 		ctx              sdk.Context
 		nw               *network.UnitTestNetwork
-		defaultDelCoin   = sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18))
+		defaultDelCoin   = sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(1e18))
 		delegatorAddr, _ = utiltx.NewAccAddressAndKey()
 		funderAddr, _    = utiltx.NewAccAddressAndKey()
 	)
@@ -74,8 +74,7 @@ func TestMsgDelegate(t *testing.T) {
 				// after first vesting period and before lockup
 				// some vested tokens, but still all locked
 				cliffDuration := time.Duration(testutil.TestVestingSchedule.CliffPeriodLength)
-				require.NoError(t, nw.NextBlockAfter(cliffDuration*time.Second))
-				ctx = nw.GetContext()
+				ctx = ctx.WithBlockTime(ctx.BlockTime().Add(cliffDuration * time.Second))
 
 				acc := nw.App.AccountKeeper.GetAccount(ctx, delegatorAddr)
 				vestAcc, ok := acc.(*vestingtypes.ClawbackVestingAccount)
@@ -99,8 +98,7 @@ func TestMsgDelegate(t *testing.T) {
 				// Between first and second lockup periods
 				// vested coins are unlocked
 				lockDuration := time.Duration(testutil.TestVestingSchedule.LockupPeriodLength)
-				require.NoError(t, nw.NextBlockAfter(lockDuration*time.Second))
-				ctx = nw.GetContext()
+				ctx = ctx.WithBlockTime(ctx.BlockTime().Add(lockDuration * time.Second))
 
 				acc := nw.App.AccountKeeper.GetAccount(ctx, delegatorAddr)
 				vestAcc, ok := acc.(*vestingtypes.ClawbackVestingAccount)
@@ -144,7 +142,7 @@ func TestMsgCreateValidator(t *testing.T) {
 	var (
 		ctx              sdk.Context
 		nw               *network.UnitTestNetwork
-		defaultDelCoin   = sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18))
+		defaultDelCoin   = sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(1e18))
 		validatorAddr, _ = utiltx.NewAccAddressAndKey()
 		funderAddr, _    = utiltx.NewAccAddressAndKey()
 	)
@@ -193,8 +191,7 @@ func TestMsgCreateValidator(t *testing.T) {
 				// after first vesting period and before lockup
 				// some vested tokens, but still all locked
 				cliffDuration := time.Duration(testutil.TestVestingSchedule.CliffPeriodLength)
-				require.NoError(t, nw.NextBlockAfter(cliffDuration*time.Second))
-				ctx = nw.GetContext()
+				ctx = ctx.WithBlockTime(ctx.BlockTime().Add(cliffDuration * time.Second))
 
 				acc := nw.App.AccountKeeper.GetAccount(ctx, validatorAddr)
 				vestAcc, ok := acc.(*vestingtypes.ClawbackVestingAccount)
@@ -218,8 +215,7 @@ func TestMsgCreateValidator(t *testing.T) {
 				// Between first and second lockup periods
 				// vested coins are unlocked
 				lockDuration := time.Duration(testutil.TestVestingSchedule.LockupPeriodLength)
-				require.NoError(t, nw.NextBlockAfter(lockDuration*time.Second))
-				ctx = nw.GetContext()
+				ctx = ctx.WithBlockTime(ctx.BlockTime().Add(lockDuration * time.Second))
 
 				acc := nw.App.AccountKeeper.GetAccount(ctx, validatorAddr)
 				vestAcc, ok := acc.(*vestingtypes.ClawbackVestingAccount)
@@ -243,17 +239,17 @@ func TestMsgCreateValidator(t *testing.T) {
 
 			pubKey := ed25519.GenPrivKey().PubKey()
 			commissions := types.NewCommissionRates(
-				sdk.NewDecWithPrec(5, 2),
-				sdk.NewDecWithPrec(2, 1),
-				sdk.NewDecWithPrec(5, 2),
+				math.LegacyNewDecWithPrec(5, 2),
+				math.LegacyNewDecWithPrec(2, 1),
+				math.LegacyNewDecWithPrec(5, 2),
 			)
 			msg, err := types.NewMsgCreateValidator(
-				sdk.ValAddress(validatorAddr),
+				sdk.ValAddress(validatorAddr).String(),
 				pubKey,
 				coinToSelfBond,
 				types.NewDescription("T", "E", "S", "T", "Z"),
 				commissions,
-				sdk.OneInt(),
+				math.OneInt(),
 			)
 			require.NoError(t, err)
 			srv := keeper.NewMsgServerImpl(&nw.App.StakingKeeper)

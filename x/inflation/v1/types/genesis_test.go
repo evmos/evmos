@@ -3,7 +3,7 @@ package types
 import (
 	"testing"
 
-	epochstypes "github.com/evmos/evmos/v19/x/epochs/types"
+	epochstypes "github.com/evmos/evmos/v20/x/epochs/types"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -84,7 +84,6 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		err := tc.genState.Validate()
 		if tc.expPass {
 			suite.Require().NoError(err, tc.name)

@@ -6,10 +6,9 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	grpchandler "github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
+	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
 	"github.com/stretchr/testify/require"
 )
 
@@ -20,7 +19,6 @@ func TestCheckBalances(t *testing.T) {
 		network.WithDenom(testDenom),
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
-	handler := grpchandler.NewIntegrationHandler(nw)
 
 	testcases := []struct {
 		name        string
@@ -38,13 +36,12 @@ func TestCheckBalances(t *testing.T) {
 		{
 			name:        "fail - wrong amount",
 			address:     keyring.GetAccAddr(0).String(),
-			expAmount:   sdk.NewInt(1),
+			expAmount:   math.NewInt(1),
 			errContains: "expected balance",
 		},
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			balances := []banktypes.Balance{{
 				Address: tc.address,
@@ -53,7 +50,7 @@ func TestCheckBalances(t *testing.T) {
 				),
 			}}
 
-			err := utils.CheckBalances(handler, balances)
+			err := utils.CheckBalances(nw.GetContext(), nw.GetBankClient(), balances)
 			if tc.expPass {
 				require.NoError(t, err, "unexpected error checking balances")
 			} else {

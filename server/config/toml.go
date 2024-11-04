@@ -97,3 +97,61 @@ certificate-path = "{{ .TLS.CertificatePath }}"
 # Key path defines the key.pem file path for the TLS configuration.
 key-path = "{{ .TLS.KeyPath }}"
 `
+
+const DefaultRosettaConfigTemplate = `
+###############################################################################
+###                           Rosetta Configuration                         ###
+###############################################################################
+
+[rosetta]
+
+# Enable defines if the Rosetta API server should be enabled.
+enable = {{ .Rosetta.Enable }}
+
+# Address defines the Rosetta API server to listen on.
+address = "{{ .Rosetta.Config.Addr }}"
+
+# Network defines the name of the blockchain that will be returned by Rosetta.
+blockchain = "{{ .Rosetta.Config.Blockchain }}"
+
+# Network defines the name of the network that will be returned by Rosetta.
+network = "{{ .Rosetta.Config.Network }}"
+
+# TendermintRPC defines the endpoint to connect to CometBFT RPC,
+# specifying 'tcp://' before is not required, usually it's at port 26657
+tendermint-rpc = "{{ .Rosetta.Config.TendermintRPC }}"
+
+# GRPCEndpoint defines the cosmos application gRPC endpoint
+# usually it is located at 9090 port
+grpc-endpoint = "{{ .Rosetta.Config.GRPCEndpoint }}"
+
+# Retries defines the number of retries when connecting to the node before failing.
+retries = {{ .Rosetta.Config.Retries }}
+
+# Offline defines if Rosetta server should run in offline mode.
+offline = {{ .Rosetta.Config.Offline }}
+
+# EnableFeeSuggestion indicates to use fee suggestion when 'construction/metadata' is called without gas limit and price.
+enable-fee-suggestion = {{ .Rosetta.Config.EnableFeeSuggestion }}
+
+# GasToSuggest defines gas limit when calculating the fee
+gas-to-suggest = {{ .Rosetta.Config.GasToSuggest }}
+
+# DenomToSuggest defines the defult denom for fee suggestion.
+# Price must be in minimum-gas-prices.
+denom-to-suggest = "{{ .Rosetta.Config.DenomToSuggest }}"
+
+# GasPrices defines the gas prices for fee suggestion
+gas-prices = "{{ .Rosetta.Config.GasPrices }}"
+`
+
+const DefaultVersionDBTemplate = `
+###############################################################################
+###                         VersionDB Configuration                         ###
+###############################################################################
+
+[versiondb]
+
+# Enable defines if the versiondb should be enabled.
+enable = {{ .VersionDB.Enable }}
+`

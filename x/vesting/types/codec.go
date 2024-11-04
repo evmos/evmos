@@ -12,7 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	migrationtypes "github.com/evmos/evmos/v19/x/vesting/migrations/types"
+	migrationtypes "github.com/evmos/evmos/v20/x/vesting/migrations/types"
 )
 
 var (
@@ -21,7 +21,7 @@ var (
 	// ONLY be used in certain instances of tests and for JSON encoding.
 	ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 	// AminoCdc is a amino codec created to support amino JSON compatible msgs.
-	AminoCdc = codec.NewAminoCodec(amino)
+	AminoCdc = codec.NewAminoCodec(amino) //nolint:staticcheck
 )
 
 const (
@@ -51,7 +51,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	)
 
 	registry.RegisterImplementations(
-		(*authtypes.AccountI)(nil),
+		(*sdk.AccountI)(nil),
 		&sdkvesting.BaseVestingAccount{},
 		&ClawbackVestingAccount{},
 		&migrationtypes.ClawbackVestingAccount{},

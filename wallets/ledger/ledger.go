@@ -14,9 +14,9 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 
-	"github.com/evmos/evmos/v19/ethereum/eip712"
-	"github.com/evmos/evmos/v19/wallets/accounts"
-	"github.com/evmos/evmos/v19/wallets/usbwallet"
+	"github.com/evmos/evmos/v20/ethereum/eip712"
+	"github.com/evmos/evmos/v20/wallets/accounts"
+	"github.com/evmos/evmos/v20/wallets/usbwallet"
 )
 
 // Secp256k1DerivationFn defines the derivation function used on the Cosmos SDK Keyring.
@@ -96,7 +96,7 @@ func (e EvmosSECP256K1) GetAddressPubKeySECP256K1(hdPath []uint32, hrp string) (
 
 // SignSECP256K1 returns the signature bytes generated from signing a transaction
 // using the EIP712 signature.
-func (e EvmosSECP256K1) SignSECP256K1(hdPath []uint32, signDocBytes []byte) ([]byte, error) {
+func (e EvmosSECP256K1) SignSECP256K1(hdPath []uint32, signDocBytes []byte, _ byte) ([]byte, error) {
 	fmt.Printf("Generating payload, please check your Ledger...\n")
 
 	if e.PrimaryWallet == nil {
@@ -151,6 +151,7 @@ func (e EvmosSECP256K1) displayEIP712Hash(typedData apitypes.TypedData) error {
 	return nil
 }
 
+// connectToLedgerApp connects to the Ledger hardware wallet and initializes the wallet instance.
 func (e *EvmosSECP256K1) connectToLedgerApp() (sdkledger.SECP256K1, error) {
 	// Instantiate new Ledger object
 	ledger, err := usbwallet.NewLedgerHub()

@@ -1,7 +1,7 @@
 local config = import 'default.jsonnet';
 
 config {
-  'evmos_9000-1'+: {
+  'evmos_9002-1'+: {
     key_name: 'signer1',
     accounts: super.accounts[:std.length(super.accounts) - 1] + [super.accounts[std.length(super.accounts) - 1] {
       coins: super.coins + ',100000000000ibcfee',
@@ -32,14 +32,14 @@ config {
     },
     validators: [
       {
-        coins: '2234240000000000000cro',
-        staked: '10000000000000cro',
+        coins: '2234240000000000000basecro',
+        staked: '10000000000000basecro',
         mnemonic: '${VALIDATOR1_MNEMONIC}',
         base_port: 26800,
       },
       {
-        coins: '987870000000000000cro',
-        staked: '20000000000000cro',
+        coins: '987870000000000000basecro',
+        staked: '20000000000000basecro',
         mnemonic: '${VALIDATOR2_MNEMONIC}',
         base_port: 26810,
       },
@@ -47,17 +47,17 @@ config {
     accounts: [
       {
         name: 'community',
-        coins: '10000000000000cro',
+        coins: '10000000000000basecro',
         mnemonic: '${COMMUNITY_MNEMONIC}',
       },
       {
         name: 'relayer',
-        coins: '10000000000000cro',
+        coins: '10000000000000basecro',
         mnemonic: '${SIGNER1_MNEMONIC}',
       },
       {
         name: 'signer2',
-        coins: '10000000000000cro',
+        coins: '10000000000000basecro',
         mnemonic: '${SIGNER2_MNEMONIC}',
       },
     ],
@@ -127,7 +127,7 @@ config {
     },
     chains: [
       {
-        id: 'evmos_9000-1',
+        id: 'evmos_9002-1',
         max_gas: 3000000,
         default_gas: 100000,
         gas_multiplier: 1.2,
@@ -138,12 +138,12 @@ config {
           },
         },
         gas_price: {
-          price: 40000000000,
+          price: 80000000000,
           denom: 'aevmos',
         },
         extension_options: [{
           type: 'ethermint_dynamic_fee',
-          value: '1000000',
+          value: '1000000000000000000000000', # this changed from BigInt to LegacyDec type, so in this case, the integer part is 1000000
         }],
       },
       {

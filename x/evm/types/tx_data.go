@@ -39,12 +39,17 @@ type TxData interface {
 	AsEthereumData() ethtypes.TxData
 	Validate() error
 
-	// static fee
+	// Fee returns the maximum fee a sender of a message is willing to pay.
 	Fee() *big.Int
+	// Cost returns the total cost of a transaction before executing any smart
+	// contract call. This means it should return the fee the user has to pay
+	// plus the amount of tokens they want to transfer.
 	Cost() *big.Int
 
-	// effective gasPrice/fee/cost according to current base fee
+	// EffectiveGasPrice returns the price for the gas used in a transaction
+	// based on the transaction type.
 	EffectiveGasPrice(baseFee *big.Int) *big.Int
+	// EffectiveFee returns the fees a user is willing to pay for a transaction.
 	EffectiveFee(baseFee *big.Int) *big.Int
 	EffectiveCost(baseFee *big.Int) *big.Int
 }
@@ -69,54 +74,16 @@ func NewTxDataFromTx(tx *ethtypes.Transaction) (TxData, error) {
 	return txData, nil
 }
 
-// DeriveChainID derives the chain id from the given v parameter.
-//
-// CONTRACT: v value is either:
-//
-//   - {0,1} + CHAIN_ID * 2 + 35, if EIP155 is used
-//   - {0,1} + 27, otherwise
-//
-// Ref: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md
-func DeriveChainID(v *big.Int) *big.Int {
-	if v == nil || v.Sign() < 1 {
-		return nil
-	}
-
-	if v.BitLen() <= 64 {
-		v := v.Uint64()
-		if v == 27 || v == 28 {
-			return new(big.Int)
-		}
-
-		if v < 35 {
-			return nil
-		}
-
-		// V MUST be of the form {0,1} + CHAIN_ID * 2 + 35
-		return new(big.Int).SetUint64((v - 35) / 2)
-	}
-	v = new(big.Int).Sub(v, big.NewInt(35))
-	return v.Div(v, big.NewInt(2))
-}
-
-func rawSignatureValues(vBz, rBz, sBz []byte) (v, r, s *big.Int) {
-	if len(vBz) > 0 {
-		v = new(big.Int).SetBytes(vBz)
-	}
-	if len(rBz) > 0 {
-		r = new(big.Int).SetBytes(rBz)
-	}
-	if len(sBz) > 0 {
-		s = new(big.Int).SetBytes(sBz)
-	}
-	return v, r, s
-}
-
+// fee returns the fee for a transaction given by the gas price time the gas.
 func fee(gasPrice *big.Int, gas uint64) *big.Int {
 	gasLimit := new(big.Int).SetUint64(gas)
 	return new(big.Int).Mul(gasPrice, gasLimit)
 }
 
+// cost returns the sum of the fee and value. If value is nil it returns only
+// the fee. This function is made to be used in the ante handler to compute the
+// total cost of a transaction given by the fee the user has to pay and the
+// amount they want to transfer.
 func cost(fee, value *big.Int) *big.Int {
 	if value != nil {
 		return new(big.Int).Add(fee, value)

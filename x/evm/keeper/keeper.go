@@ -6,22 +6,22 @@ import (
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/log"
 	"cosmossdk.io/math"
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/store/prefix"
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	"github.com/evmos/evmos/v20/x/evm/wrappers"
 
-	evmostypes "github.com/evmos/evmos/v19/types"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	"github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/x/evm/statedb"
+	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // Keeper grants access to the EVM module state and implements the go-ethereum StateDB interface.
@@ -43,17 +43,17 @@ type Keeper struct {
 
 	// access to account state
 	accountKeeper types.AccountKeeper
-	// update balance and accounting operations with coins
-	bankKeeper types.BankKeeper
+
+	// bankWrapper is used to convert the Cosmos SDK coin used in the EVM to the
+	// proper decimal representation.
+	bankWrapper types.BankWrapper
+
 	// access historical headers for EVM state transition execution
 	stakingKeeper types.StakingKeeper
 	// fetch EIP1559 base fee and parameters
-	feeMarketKeeper types.FeeMarketKeeper
+	feeMarketWrapper *wrappers.FeeMarketWrapper
 	// erc20Keeper interface needed to instantiate erc20 precompiles
 	erc20Keeper types.Erc20Keeper
-
-	// chain ID number obtained from the context's chain id
-	eip155ChainID *big.Int
 
 	// Tracer used to collect execution traces from the EVM transaction execution
 	tracer string
@@ -90,44 +90,28 @@ func NewKeeper(
 		panic(err)
 	}
 
+	bankWrapper := wrappers.NewBankWrapper(bankKeeper)
+	feeMarketWrapper := wrappers.NewFeeMarketWrapper(fmk)
+
 	// NOTE: we pass in the parameter space to the CommitStateDB in order to use custom denominations for the EVM operations
 	return &Keeper{
-		cdc:             cdc,
-		authority:       authority,
-		accountKeeper:   ak,
-		bankKeeper:      bankKeeper,
-		stakingKeeper:   sk,
-		feeMarketKeeper: fmk,
-		storeKey:        storeKey,
-		transientKey:    transientKey,
-		tracer:          tracer,
-		erc20Keeper:     erc20Keeper,
-		ss:              ss,
+		cdc:              cdc,
+		authority:        authority,
+		accountKeeper:    ak,
+		bankWrapper:      bankWrapper,
+		stakingKeeper:    sk,
+		feeMarketWrapper: feeMarketWrapper,
+		storeKey:         storeKey,
+		transientKey:     transientKey,
+		tracer:           tracer,
+		erc20Keeper:      erc20Keeper,
+		ss:               ss,
 	}
 }
 
 // Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", types.ModuleName)
-}
-
-// WithChainID sets the chain id to the local variable in the keeper
-func (k *Keeper) WithChainID(ctx sdk.Context) {
-	chainID, err := evmostypes.ParseChainID(ctx.ChainID())
-	if err != nil {
-		panic(err)
-	}
-
-	if k.eip155ChainID != nil && k.eip155ChainID.Cmp(chainID) != 0 {
-		panic("chain id already set")
-	}
-
-	k.eip155ChainID = chainID
-}
-
-// ChainID returns the EIP155 chain ID for the EVM context
-func (k Keeper) ChainID() *big.Int {
-	return k.eip155ChainID
 }
 
 // ----------------------------------------------------------------------------
@@ -153,7 +137,7 @@ func (k Keeper) GetAuthority() sdk.AccAddress {
 // GetBlockBloomTransient returns bloom bytes for the current block height
 func (k Keeper) GetBlockBloomTransient(ctx sdk.Context) *big.Int {
 	store := prefix.NewStore(ctx.TransientStore(k.transientKey), types.KeyPrefixTransientBloom)
-	heightBz := sdk.Uint64ToBigEndian(uint64(ctx.BlockHeight()))
+	heightBz := sdk.Uint64ToBigEndian(uint64(ctx.BlockHeight())) //nolint:gosec // G115
 	bz := store.Get(heightBz)
 	if len(bz) == 0 {
 		return big.NewInt(0)
@@ -166,7 +150,7 @@ func (k Keeper) GetBlockBloomTransient(ctx sdk.Context) *big.Int {
 // every block.
 func (k Keeper) SetBlockBloomTransient(ctx sdk.Context, bloom *big.Int) {
 	store := prefix.NewStore(ctx.TransientStore(k.transientKey), types.KeyPrefixTransientBloom)
-	heightBz := sdk.Uint64ToBigEndian(uint64(ctx.BlockHeight()))
+	heightBz := sdk.Uint64ToBigEndian(uint64(ctx.BlockHeight())) //nolint:gosec // G115
 	store.Set(heightBz, bloom.Bytes())
 }
 
@@ -183,12 +167,7 @@ func (k Keeper) SetTxIndexTransient(ctx sdk.Context, index uint64) {
 // GetTxIndexTransient returns EVM transaction index on the current block.
 func (k Keeper) GetTxIndexTransient(ctx sdk.Context) uint64 {
 	store := ctx.TransientStore(k.transientKey)
-	bz := store.Get(types.KeyPrefixTransientTxIndex)
-	if len(bz) == 0 {
-		return 0
-	}
-
-	return sdk.BigEndianToUint64(bz)
+	return sdk.BigEndianToUint64(store.Get(types.KeyPrefixTransientTxIndex))
 }
 
 // ----------------------------------------------------------------------------
@@ -198,12 +177,7 @@ func (k Keeper) GetTxIndexTransient(ctx sdk.Context) uint64 {
 // GetLogSizeTransient returns EVM log index on the current block.
 func (k Keeper) GetLogSizeTransient(ctx sdk.Context) uint64 {
 	store := ctx.TransientStore(k.transientKey)
-	bz := store.Get(types.KeyPrefixTransientLogSize)
-	if len(bz) == 0 {
-		return 0
-	}
-
-	return sdk.BigEndianToUint64(bz)
+	return sdk.BigEndianToUint64(store.Get(types.KeyPrefixTransientLogSize))
 }
 
 // SetLogSizeTransient fetches the current EVM log index from the transient store, increases its
@@ -255,7 +229,7 @@ func (k *Keeper) GetAccountWithoutBalance(ctx sdk.Context, addr common.Address) 
 	}
 }
 
-// GetAccountOrEmpty returns empty account if not exist
+// GetAccountOrEmpty returns empty account if not exist.
 func (k *Keeper) GetAccountOrEmpty(ctx sdk.Context, addr common.Address) statedb.Account {
 	acct := k.GetAccount(ctx, addr)
 	if acct != nil {
@@ -280,16 +254,13 @@ func (k *Keeper) GetNonce(ctx sdk.Context, addr common.Address) uint64 {
 	return acct.GetSequence()
 }
 
-// GetBalance load account's balance of gas token
+// GetBalance load account's balance of gas token.
 func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 	cosmosAddr := sdk.AccAddress(addr.Bytes())
-	evmParams := k.GetParams(ctx)
-	evmDenom := evmParams.GetEvmDenom()
-	// if node is pruned, params is empty. Return invalid value
-	if evmDenom == "" {
-		return big.NewInt(-1)
-	}
-	coin := k.bankKeeper.GetBalance(ctx, cosmosAddr, evmDenom)
+
+	// Get the balance via bank wrapper to convert it to 18 decimals if needed.
+	coin := k.bankWrapper.GetBalance(ctx, cosmosAddr, types.GetEVMCoinDenom())
+
 	return coin.Amount.BigInt()
 }
 
@@ -297,15 +268,12 @@ func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 // - `nil`: london hardfork not enabled.
 // - `0`: london hardfork enabled but feemarket is not enabled.
 // - `n`: both london hardfork and feemarket are enabled.
-func (k Keeper) GetBaseFee(ctx sdk.Context, ethCfg *params.ChainConfig) *big.Int {
-	return k.getBaseFee(ctx, types.IsLondon(ethCfg, ctx.BlockHeight()))
-}
-
-func (k Keeper) getBaseFee(ctx sdk.Context, london bool) *big.Int {
-	if !london {
+func (k Keeper) GetBaseFee(ctx sdk.Context) *big.Int {
+	ethCfg := types.GetEthChainConfig()
+	if !types.IsLondon(ethCfg, ctx.BlockHeight()) {
 		return nil
 	}
-	baseFee := k.feeMarketKeeper.GetBaseFee(ctx)
+	baseFee := k.feeMarketWrapper.GetBaseFee(ctx)
 	if baseFee == nil {
 		// return 0 if feemarket not enabled.
 		baseFee = big.NewInt(0)
@@ -315,7 +283,13 @@ func (k Keeper) getBaseFee(ctx sdk.Context, london bool) *big.Int {
 
 // GetMinGasMultiplier returns the MinGasMultiplier param from the fee market module
 func (k Keeper) GetMinGasMultiplier(ctx sdk.Context) math.LegacyDec {
-	return k.feeMarketKeeper.GetParams(ctx).MinGasMultiplier
+	return k.feeMarketWrapper.GetParams(ctx).MinGasMultiplier
+}
+
+// GetMinGasPrice returns the MinGasPrice param from the fee market module
+// adapted according to the evm denom decimals
+func (k Keeper) GetMinGasPrice(ctx sdk.Context) math.LegacyDec {
+	return k.feeMarketWrapper.GetParams(ctx).MinGasPrice
 }
 
 // ResetTransientGasUsed reset gas used to prepare for execution of current cosmos tx, called in ante handler.
@@ -327,11 +301,7 @@ func (k Keeper) ResetTransientGasUsed(ctx sdk.Context) {
 // GetTransientGasUsed returns the gas used by current cosmos tx.
 func (k Keeper) GetTransientGasUsed(ctx sdk.Context) uint64 {
 	store := ctx.TransientStore(k.transientKey)
-	bz := store.Get(types.KeyPrefixTransientGasUsed)
-	if len(bz) == 0 {
-		return 0
-	}
-	return sdk.BigEndianToUint64(bz)
+	return sdk.BigEndianToUint64(store.Get(types.KeyPrefixTransientGasUsed))
 }
 
 // SetTransientGasUsed sets the gas used by current cosmos tx.

@@ -5,18 +5,18 @@ package ante
 
 import (
 	errorsmod "cosmossdk.io/errors"
+	storetypes "cosmossdk.io/store/types"
+	txsigning "cosmossdk.io/x/tx/signing"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 
-	evmante "github.com/evmos/evmos/v19/app/ante/evm"
-	anteutils "github.com/evmos/evmos/v19/app/ante/utils"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	evmante "github.com/evmos/evmos/v20/app/ante/evm"
+	anteutils "github.com/evmos/evmos/v20/app/ante/utils"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // HandlerOptions defines the list of module keepers required to run the Evmos
@@ -32,7 +32,7 @@ type HandlerOptions struct {
 	EvmKeeper              evmante.EVMKeeper
 	FeegrantKeeper         ante.FeegrantKeeper
 	ExtensionOptionChecker ante.ExtensionOptionChecker
-	SignModeHandler        authsigning.SignModeHandler
+	SignModeHandler        *txsigning.HandlerMap
 	SigGasConsumer         func(meter storetypes.GasMeter, sig signing.SignatureV2, params authtypes.Params) error
 	MaxTxGasWanted         uint64
 	TxFeeChecker           ante.TxFeeChecker

@@ -20,6 +20,9 @@ paths = [
 stopwords = [
     '''secp256k1''',
     '''evmospub1addwnpepqgcxazmq6wgt2j4rdfumsfwla0zfk8e5sws3p3zg5dkm9007hmfysxas0u2''',
+    '''0x8FA78CEB7F04118Ec6d06AaC37Ca854691d8e963''',
+    '''0x205CF44075E77A3543abC690437F3b2819bc450a''',
+    '''evmos10d07y265gmmuvt4z0w9aw880jnsr700jcrztvm''',
 ]
 
 [[rules]]

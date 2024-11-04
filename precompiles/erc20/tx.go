@@ -13,10 +13,10 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/erc20/types"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	"github.com/evmos/evmos/v20/x/erc20/types"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 const (
@@ -92,7 +92,7 @@ func (p *Precompile) transfer(
 
 	msg := banktypes.NewMsgSend(from.Bytes(), to.Bytes(), coins)
 
-	if err = msg.ValidateBasic(); err != nil {
+	if err := msg.Amount.Validate(); err != nil {
 		return nil, err
 	}
 
@@ -105,11 +105,11 @@ func (p *Precompile) transfer(
 	var prevAllowance *big.Int
 	if ownerIsSpender {
 		msgSrv := bankkeeper.NewMsgServerImpl(p.bankKeeper)
-		_, err = msgSrv.Send(sdk.WrapSDKContext(ctx), msg)
+		_, err = msgSrv.Send(ctx, msg)
 	} else {
 		_, _, prevAllowance, err = GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, spenderAddr, from, p.tokenPair.Denom)
 		if err != nil {
-			return nil, ConvertErrToERC20Error(errorsmod.Wrapf(authz.ErrNoAuthorizationFound, err.Error()))
+			return nil, ConvertErrToERC20Error(errorsmod.Wrapf(authz.ErrNoAuthorizationFound, "%s", err.Error()))
 		}
 
 		_, err = p.AuthzKeeper.DispatchActions(ctx, spender, []sdk.Msg{msg})
@@ -120,10 +120,11 @@ func (p *Precompile) transfer(
 		return nil, err
 	}
 
-	// TODO: where should we get this
-	if p.tokenPair.Denom == utils.BaseDenom {
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(from, msg.Amount.AmountOf(utils.BaseDenom).BigInt(), cmn.Sub),
-			cmn.NewBalanceChangeEntry(to, msg.Amount.AmountOf(utils.BaseDenom).BigInt(), cmn.Add))
+	if p.tokenPair.Denom == evmtypes.GetEVMCoinDenom() {
+		// add the entries to the statedb journal in 18 decimals
+		convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(amount)
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(from, convertedAmount, cmn.Sub),
+			cmn.NewBalanceChangeEntry(to, convertedAmount, cmn.Add))
 	}
 
 	if err = p.EmitTransferEvent(ctx, stateDB, from, to, amount); err != nil {

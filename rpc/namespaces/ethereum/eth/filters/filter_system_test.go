@@ -2,18 +2,17 @@ package filters
 
 import (
 	"context"
-	"os"
 	"sync"
 	"testing"
 	"time"
 
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/log"
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/eth/filters"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/evmos/evmos/v19/rpc/ethereum/pubsub"
+	"github.com/evmos/evmos/v20/rpc/ethereum/pubsub"
 )
 
 func makeSubscription(id, event string) *Subscription {
@@ -37,7 +36,7 @@ func TestFilterSystem(t *testing.T) {
 		index[i] = make(map[rpc.ID]*Subscription)
 	}
 	es := &EventSystem{
-		logger:     log.NewTMLogger(log.NewSyncWriter(os.Stdout)),
+		logger:     log.NewTestLogger(t),
 		ctx:        context.Background(),
 		lightMode:  false,
 		index:      index,

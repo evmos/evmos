@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"sort"
 
-	cryptohd "github.com/evmos/evmos/v19/crypto/hd"
+	cryptohd "github.com/evmos/evmos/v20/crypto/hd"
 
 	bip39 "github.com/cosmos/go-bip39"
 	"github.com/spf13/cobra"
@@ -259,7 +259,7 @@ func printCreate(cmd *cobra.Command, k *keyring.Record, showMnemonic bool, mnemo
 	switch outputFormat {
 	case OutputFormatText:
 		cmd.PrintErrln()
-		if err := printKeyringRecord(cmd.OutOrStdout(), k, keyring.MkAccKeyOutput, outputFormat); err != nil {
+		if err := printKeyringRecord(cmd.OutOrStdout(), k, keys.MkAccKeyOutput, outputFormat); err != nil {
 			return err
 		}
 
@@ -272,7 +272,7 @@ func printCreate(cmd *cobra.Command, k *keyring.Record, showMnemonic bool, mnemo
 			}
 		}
 	case OutputFormatJSON:
-		out, err := keyring.MkAccKeyOutput(k)
+		out, err := keys.MkAccKeyOutput(k)
 		if err != nil {
 			return err
 		}

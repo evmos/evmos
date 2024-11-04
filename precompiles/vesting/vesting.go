@@ -7,18 +7,18 @@ import (
 	"embed"
 	"fmt"
 
-	"github.com/evmos/evmos/v19/precompiles/authorization"
+	"github.com/evmos/evmos/v20/precompiles/authorization"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/cometbft/cometbft/libs/log"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	vestingkeeper "github.com/evmos/evmos/v19/x/vesting/keeper"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	vestingkeeper "github.com/evmos/evmos/v20/x/vesting/keeper"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -52,7 +52,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	return p.Precompile.RequiredGas(input, p.IsTransaction(method.Name))
 }
 
-// NewPrecompile creates a new staking Precompile instance as a
+// NewPrecompile creates a new vesting Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
 	vestingKeeper vestingkeeper.Keeper,

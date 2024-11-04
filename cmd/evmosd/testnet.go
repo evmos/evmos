@@ -16,10 +16,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/params"
 
-	tmconfig "github.com/cometbft/cometbft/config"
-	tmrand "github.com/cometbft/cometbft/libs/rand"
+	cmtconfig "github.com/cometbft/cometbft/config"
+	cmtrand "github.com/cometbft/cometbft/libs/rand"
 	"github.com/cometbft/cometbft/types"
-	tmtime "github.com/cometbft/cometbft/types/time"
+	cmttime "github.com/cometbft/cometbft/types/time"
 	"github.com/spf13/cobra"
 
 	"cosmossdk.io/math"
@@ -41,15 +41,14 @@ import (
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	cmdcfg "github.com/evmos/evmos/v19/cmd/config"
-	"github.com/evmos/evmos/v19/crypto/hd"
-	evmoskr "github.com/evmos/evmos/v19/crypto/keyring"
-	"github.com/evmos/evmos/v19/server/config"
-	srvflags "github.com/evmos/evmos/v19/server/flags"
-	"github.com/evmos/evmos/v19/testutil/network"
-	evmostypes "github.com/evmos/evmos/v19/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+	"github.com/evmos/evmos/v20/crypto/hd"
+	evmoskr "github.com/evmos/evmos/v20/crypto/keyring"
+	"github.com/evmos/evmos/v20/server/config"
+	srvflags "github.com/evmos/evmos/v20/server/flags"
+	"github.com/evmos/evmos/v20/testutil/network"
+	evmostypes "github.com/evmos/evmos/v20/types"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 )
 
 var (
@@ -76,7 +75,7 @@ type initArgs struct {
 	numValidators     int
 	outputDir         string
 	startingIPAddress string
-	baseFee           math.Int
+	baseFee           math.LegacyDec
 	minGasPrice       math.LegacyDec
 }
 
@@ -102,7 +101,7 @@ func addTestnetFlagsToCmd(cmd *cobra.Command) {
 	cmd.Flags().Int(flagNumValidators, 4, "Number of validators to initialize the testnet with")
 	cmd.Flags().StringP(flagOutputDir, "o", "./.testnets", "Directory to store initialization data for the testnet")
 	cmd.Flags().String(flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
-	cmd.Flags().String(sdkserver.FlagMinGasPrices, fmt.Sprintf("0.000006%s", cmdcfg.BaseDenom), "Minimum gas prices to accept for transactions; All fees in a tx must meet this minimum (e.g. 0.01photino,0.001stake)")
+	cmd.Flags().String(sdkserver.FlagMinGasPrices, fmt.Sprintf("0.000006%s", evmostypes.BaseDenom), "Minimum gas prices to accept for transactions; All fees in a tx must meet this minimum (e.g. 0.01photino,0.001stake)")
 	cmd.Flags().String(flags.FlagKeyType, string(hd.EthSecp256k1Type), "Key signing algorithm to generate keys for")
 	cmd.Flags().String(flagBaseFee, strconv.Itoa(params.InitialBaseFee), "The params base_fee in the feemarket module in geneis")
 	cmd.Flags().String(flagMinGasPrice, "0", "The params min_gas_price in the feemarket module in geneis")
@@ -162,10 +161,12 @@ Example:
 			baseFee, _ := cmd.Flags().GetString(flagBaseFee)
 			minGasPrice, _ := cmd.Flags().GetString(flagMinGasPrice)
 
-			var ok bool
-			args.baseFee, ok = math.NewIntFromString(baseFee)
-			if !ok || args.baseFee.LT(math.ZeroInt()) {
-				return fmt.Errorf("invalid value for --base-fee. expected a int number greater than or equal to 0 but got %s", baseFee)
+			args.baseFee, err = math.LegacyNewDecFromStr(baseFee)
+			if err != nil {
+				return fmt.Errorf("invalid value for --base-fee. failed during the conversion from string %s to decimal. err %s", baseFee, err.Error())
+			}
+			if args.baseFee.IsNil() || args.baseFee.IsNegative() {
+				return fmt.Errorf("invalid value for --base-fee. expected a int or decimal number greater than or equal to 0 but got %s", baseFee)
 			}
 
 			args.minGasPrice, err = math.LegacyNewDecFromStr(minGasPrice)
@@ -235,13 +236,13 @@ const nodeDirPerm = 0o755
 func initTestnetFiles(
 	clientCtx client.Context,
 	cmd *cobra.Command,
-	nodeConfig *tmconfig.Config,
+	nodeConfig *cmtconfig.Config,
 	mbm module.BasicManager,
 	genBalIterator banktypes.GenesisBalancesIterator,
 	args initArgs,
 ) error {
 	if args.chainID == "" {
-		args.chainID = fmt.Sprintf("evmos_%d-1", tmrand.Int63n(9999999999999)+1)
+		args.chainID = fmt.Sprintf("evmos_%d-1", cmtrand.Int63n(9999999999999)+1)
 	}
 
 	nodeIDs := make([]string, args.numValidators)
@@ -324,7 +325,7 @@ func initTestnetFiles(
 
 		accStakingTokens := sdk.TokensFromConsensusPower(5000, evmostypes.PowerReduction)
 		coins := sdk.Coins{
-			sdk.NewCoin(cmdcfg.BaseDenom, accStakingTokens),
+			sdk.NewCoin(evmostypes.BaseDenom, accStakingTokens),
 		}
 
 		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
@@ -332,11 +333,11 @@ func initTestnetFiles(
 
 		valTokens := sdk.TokensFromConsensusPower(100, evmostypes.PowerReduction)
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(
-			sdk.ValAddress(addr),
+			sdk.ValAddress(addr).String(),
 			valPubKeys[i],
-			sdk.NewCoin(cmdcfg.BaseDenom, valTokens),
+			sdk.NewCoin(evmostypes.BaseDenom, valTokens),
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
-			stakingtypes.NewCommissionRates(math.LegacyOneDec(), math.LegacyOneDec(), math.LegacyOneDec()),
+			stakingtypes.NewCommissionRates(stakingtypes.DefaultMinCommissionRate, math.LegacyOneDec(), math.LegacyOneDec()),
 			math.OneInt(),
 		)
 		if err != nil {
@@ -349,13 +350,13 @@ func initTestnetFiles(
 		}
 
 		minGasPrice := args.minGasPrice
-		if math.LegacyNewDecFromInt(args.baseFee).GT(args.minGasPrice) {
-			minGasPrice = math.LegacyNewDecFromInt(args.baseFee)
+		if args.baseFee.GT(args.minGasPrice) {
+			minGasPrice = args.baseFee
 		}
 
 		txBuilder.SetMemo(memo)
 		txBuilder.SetGasLimit(createValidatorMsgGasLimit)
-		txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(cmdcfg.BaseDenom, minGasPrice.MulInt64(createValidatorMsgGasLimit).Ceil().TruncateInt())))
+		txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, minGasPrice.MulInt64(createValidatorMsgGasLimit).Ceil().TruncateInt())))
 
 		txFactory := tx.Factory{}
 		txFactory = txFactory.
@@ -364,7 +365,7 @@ func initTestnetFiles(
 			WithKeybase(kb).
 			WithTxConfig(clientCtx.TxConfig)
 
-		if err := tx.Sign(txFactory, nodeDirName, txBuilder, true); err != nil {
+		if err := tx.Sign(cmd.Context(), txFactory, nodeDirName, txBuilder, true); err != nil {
 			return err
 		}
 
@@ -377,7 +378,7 @@ func initTestnetFiles(
 			return err
 		}
 
-		customAppTemplate, customAppConfig := config.AppConfig(cmdcfg.BaseDenom)
+		customAppTemplate, customAppConfig := config.AppConfig(evmostypes.BaseDenom)
 		srvconfig.SetConfigTemplate(customAppTemplate)
 		customTMConfig := initTendermintConfig()
 
@@ -388,7 +389,7 @@ func initTestnetFiles(
 		srvconfig.WriteConfigFile(filepath.Join(nodeDir, "config/app.toml"), appConfig)
 	}
 
-	if err := initGenFiles(clientCtx, mbm, args.chainID, cmdcfg.BaseDenom, genAccounts, genBalances, genFiles, args.numValidators, args.baseFee, args.minGasPrice); err != nil {
+	if err := initGenFiles(clientCtx, mbm, args.chainID, evmostypes.BaseDenom, genAccounts, genBalances, genFiles, args.numValidators, args.baseFee, args.minGasPrice); err != nil {
 		return err
 	}
 
@@ -413,7 +414,7 @@ func initGenFiles(
 	genBalances []banktypes.Balance,
 	genFiles []string,
 	numValidators int,
-	baseFee math.Int,
+	baseFee math.LegacyDec,
 	minGasPrice math.LegacyDec,
 ) error {
 	appGenState := mbm.DefaultGenesis(clientCtx.Codec)
@@ -446,13 +447,11 @@ func initGenFiles(
 	clientCtx.Codec.MustUnmarshalJSON(appGenState[govtypes.ModuleName], &govGenState)
 
 	govGenState.Params.MinDeposit[0].Denom = coinDenom
+	govGenState.Params.ExpeditedMinDeposit[0].Denom = coinDenom
 	appGenState[govtypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(&govGenState)
 
 	var evmGenState evmtypes.GenesisState
 	clientCtx.Codec.MustUnmarshalJSON(appGenState[evmtypes.ModuleName], &evmGenState)
-
-	evmGenState.Params.EvmDenom = coinDenom
-	appGenState[evmtypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(&evmGenState)
 
 	var feemarketGenState feemarkettypes.GenesisState
 	clientCtx.Codec.MustUnmarshalJSON(appGenState[feemarkettypes.ModuleName], &feemarketGenState)
@@ -482,12 +481,12 @@ func initGenFiles(
 }
 
 func collectGenFiles(
-	clientCtx client.Context, nodeConfig *tmconfig.Config, chainID string,
+	clientCtx client.Context, nodeConfig *cmtconfig.Config, chainID string,
 	nodeIDs []string, valPubKeys []cryptotypes.PubKey, numValidators int,
 	outputDir, nodeDirPrefix, nodeDaemonHome string, genBalIterator banktypes.GenesisBalancesIterator,
 ) error {
 	var appState json.RawMessage
-	genTime := tmtime.Now()
+	genTime := cmttime.Now()
 
 	for i := 0; i < numValidators; i++ {
 		nodeDirName := fmt.Sprintf("%s%d", nodeDirPrefix, i)
@@ -500,15 +499,17 @@ func collectGenFiles(
 		nodeID, valPubKey := nodeIDs[i], valPubKeys[i]
 		initCfg := genutiltypes.NewInitConfig(chainID, gentxsDir, nodeID, valPubKey)
 
-		genDoc, err := types.GenesisDocFromFile(nodeConfig.GenesisFile())
+		genFile := nodeConfig.GenesisFile()
+		appGenesis, err := genutiltypes.AppGenesisFromFile(genFile)
 		if err != nil {
 			return err
 		}
 
 		nodeAppState, err := genutil.GenAppStateFromConfig(
 			clientCtx.Codec, clientCtx.TxConfig,
-			nodeConfig, initCfg, *genDoc, genBalIterator,
+			nodeConfig, initCfg, appGenesis, genBalIterator,
 			genutiltypes.DefaultMessageValidator,
+			clientCtx.TxConfig.SigningContext().ValidatorAddressCodec(),
 		)
 		if err != nil {
 			return err
@@ -518,8 +519,6 @@ func collectGenFiles(
 			// set the canonical application state (they should not differ)
 			appState = nodeAppState
 		}
-
-		genFile := nodeConfig.GenesisFile()
 
 		// overwrite each validator's genesis file to have a canonical genesis time
 		if err := genutil.ExportGenesisFileWithTime(genFile, chainID, nil, appState, genTime); err != nil {

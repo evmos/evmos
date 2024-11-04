@@ -4,7 +4,14 @@ import pytest
 from web3 import Web3
 
 from .network import create_snapshots_dir, setup_custom_evmos
-from .utils import ADDRS, eth_to_bech32, memiavl_config, wait_for_fn
+from .utils import (
+    ADDRS,
+    KEYS,
+    eth_to_bech32,
+    memiavl_config,
+    send_transaction,
+    wait_for_fn,
+)
 
 
 @pytest.fixture(scope="module")
@@ -97,15 +104,16 @@ def test_eth_tx(evmos_cluster):
     old_src_balance = w3.eth.get_balance(sender)
     old_dst_balance = w3.eth.get_balance(receiver)
 
-    txhash = w3.eth.send_transaction(
+    receipt = send_transaction(
+        w3,
         {
             "from": sender,
             "to": receiver,
             "value": amt,
             "gasPrice": 0,
-        }
+        },
+        KEYS["signer1"],
     )
-    receipt = w3.eth.wait_for_transaction_receipt(txhash)
     assert receipt.status == 1
 
     new_dst_balance = 0

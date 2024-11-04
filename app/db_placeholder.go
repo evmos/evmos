@@ -9,15 +9,14 @@ package app
 import (
 	"errors"
 
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	storetypes "cosmossdk.io/store/types"
 )
 
 // versionDB constant for 'versiondb'
 // is same constant as in 'app/db.go' but need to include it here too
 // cause only one of these files (db.go or db_placeholder.go) will be
 // included in the compiled binary depending on the build type (with or without rocksdb)
-const versionDB = "versiondb"
+const versionDB = "versiondb" //nolint:unused
 
 // setupVersionDB returns error on non-rocksdb build
 // because it is not supported in other builds
@@ -29,6 +28,6 @@ func (app *Evmos) setupVersionDB(
 	_ map[string]*storetypes.KVStoreKey,
 	_ map[string]*storetypes.TransientStoreKey,
 	_ map[string]*storetypes.MemoryStoreKey,
-) (sdk.MultiStore, error) {
+) (storetypes.MultiStore, error) {
 	return nil, errors.New("versiondb is not supported in this binary")
 }

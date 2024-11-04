@@ -3,17 +3,17 @@
 package common
 
 import (
-	"fmt"
+	"errors"
 	"math/big"
 	"time"
 
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	"github.com/evmos/evmos/v20/x/evm/statedb"
 )
 
 // Precompile is a common struct for all precompiles that holds the common data each
@@ -51,7 +51,7 @@ func NewBalanceChangeEntry(acc common.Address, amt *big.Int, op Operation) balan
 // This is needed to allow us to revert the changes
 // during the EVM execution
 type snapshot struct {
-	MultiStore sdk.CacheMultiStore
+	MultiStore storetypes.CacheMultiStore
 	Events     sdk.Events
 }
 
@@ -78,7 +78,7 @@ func (p Precompile) RunSetup(
 ) (ctx sdk.Context, stateDB *statedb.StateDB, s snapshot, method *abi.Method, gasConfig storetypes.Gas, args []interface{}, err error) { //nolint:revive
 	stateDB, ok := evm.StateDB.(*statedb.StateDB)
 	if !ok {
-		return sdk.Context{}, nil, s, nil, uint64(0), nil, fmt.Errorf(ErrNotRunInEvm)
+		return sdk.Context{}, nil, s, nil, uint64(0), nil, errors.New(ErrNotRunInEvm)
 	}
 
 	// get the stateDB cache ctx
@@ -159,7 +159,7 @@ func HandleGasError(ctx sdk.Context, contract *vm.Contract, initialGas storetype
 	return func() {
 		if r := recover(); r != nil {
 			switch r.(type) {
-			case sdk.ErrorOutOfGas:
+			case storetypes.ErrorOutOfGas:
 				// update contract gas
 				usedGas := ctx.GasMeter().GasConsumed() - initialGas
 				_ = contract.UseGas(usedGas)

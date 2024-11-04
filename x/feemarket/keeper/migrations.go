@@ -4,8 +4,9 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v4 "github.com/evmos/evmos/v19/x/feemarket/migrations/v4"
-	"github.com/evmos/evmos/v19/x/feemarket/types"
+	v4 "github.com/evmos/evmos/v20/x/feemarket/migrations/v4"
+	v5 "github.com/evmos/evmos/v20/x/feemarket/migrations/v5"
+	"github.com/evmos/evmos/v20/x/feemarket/types"
 )
 
 // Migrator is a struct for handling in-place store migrations.
@@ -25,4 +26,9 @@ func NewMigrator(keeper Keeper, legacySubspace types.Subspace) Migrator {
 // Migrate3to4 migrates the store from consensus version 3 to 4
 func (m Migrator) Migrate3to4(ctx sdk.Context) error {
 	return v4.MigrateStore(ctx, m.keeper.storeKey, m.legacySubspace, m.keeper.cdc)
+}
+
+// Migrate4to5 migrates the store from consensus version 4 to 5
+func (m Migrator) Migrate4to5(ctx sdk.Context) error {
+	return v5.MigrateStore(ctx, m.keeper.storeKey, m.keeper.cdc)
 }

@@ -8,15 +8,15 @@ import (
 	"math/big"
 	"reflect"
 
-	"github.com/evmos/evmos/v19/precompiles/authorization"
+	"github.com/evmos/evmos/v20/precompiles/authorization"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
 
 const (
@@ -71,7 +71,7 @@ func (p Precompile) EmitApprovalEvent(ctx sdk.Context, stateDB vm.StateDB, grant
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        packed,
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -120,7 +120,7 @@ func (p Precompile) EmitAllowanceChangeEvent(ctx sdk.Context, stateDB vm.StateDB
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        packed,
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -144,7 +144,7 @@ func (p Precompile) EmitCreateValidatorEvent(ctx sdk.Context, stateDB vm.StateDB
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        b.Bytes(),
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -179,7 +179,7 @@ func (p Precompile) EmitEditValidatorEvent(ctx sdk.Context, stateDB vm.StateDB, 
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        b.Bytes(),
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -218,7 +218,7 @@ func (p Precompile) EmitDelegateEvent(ctx sdk.Context, stateDB vm.StateDB, msg *
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        b.Bytes(),
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -247,7 +247,7 @@ func (p Precompile) EmitUnbondEvent(ctx sdk.Context, stateDB vm.StateDB, msg *st
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        b.Bytes(),
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -286,7 +286,7 @@ func (p Precompile) EmitRedelegateEvent(ctx sdk.Context, stateDB vm.StateDB, msg
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        b.Bytes(),
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -315,7 +315,7 @@ func (p Precompile) EmitCancelUnbondingDelegationEvent(ctx sdk.Context, stateDB 
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        b.Bytes(),
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil

@@ -6,29 +6,30 @@ package types
 import (
 	"context"
 
+	"cosmossdk.io/core/address"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
 
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // AccountKeeper defines the expected interface needed to retrieve account info.
 type AccountKeeper interface {
-	GetModuleAccount(ctx sdk.Context, moduleName string) authtypes.ModuleAccountI
-	GetSequence(sdk.Context, sdk.AccAddress) (uint64, error)
-	GetAccount(sdk.Context, sdk.AccAddress) authtypes.AccountI
+	AddressCodec() address.Codec
+	GetModuleAddress(moduleName string) sdk.AccAddress
+	GetSequence(context.Context, sdk.AccAddress) (uint64, error)
+	GetAccount(context.Context, sdk.AccAddress) sdk.AccountI
 }
 
 // StakingKeeper defines the expected interface needed to retrieve the staking denom.
 type StakingKeeper interface {
-	BondDenom(ctx sdk.Context) string
+	BondDenom(ctx context.Context) (string, error)
 }
 
 // EVMKeeper defines the expected EVM keeper interface used on erc20
@@ -41,6 +42,10 @@ type EVMKeeper interface {
 	IsAvailableStaticPrecompile(params *evmtypes.Params, address common.Address) bool
 	CallEVM(ctx sdk.Context, abi abi.ABI, from, contract common.Address, commit bool, method string, args ...interface{}) (*evmtypes.MsgEthereumTxResponse, error)
 	CallEVMWithData(ctx sdk.Context, from common.Address, contract *common.Address, data []byte, commit bool) (*evmtypes.MsgEthereumTxResponse, error)
+	GetCode(ctx sdk.Context, hash common.Hash) []byte
+	SetCode(ctx sdk.Context, hash []byte, bytecode []byte)
+	SetAccount(ctx sdk.Context, address common.Address, account statedb.Account) error
+	GetAccount(ctx sdk.Context, address common.Address) *statedb.Account
 }
 
 type (

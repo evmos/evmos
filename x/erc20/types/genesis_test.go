@@ -3,8 +3,8 @@ package types_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/erc20/types"
+	evmostypes "github.com/evmos/evmos/v20/types"
+	"github.com/evmos/evmos/v20/x/erc20/types"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -57,7 +57,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					},
 					{
 						Erc20Address: types.WEVMOSContractMainnet,
-						Denom:        utils.BaseDenom,
+						Denom:        evmostypes.BaseDenom,
 						Enabled:      true,
 					},
 				},
@@ -81,7 +81,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					},
 					{
 						Erc20Address: types.WEVMOSContractMainnet,
-						Denom:        utils.BaseDenom,
+						Denom:        evmostypes.BaseDenom,
 						Enabled:      true,
 					},
 				},
@@ -105,7 +105,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					},
 					{
 						Erc20Address: types.WEVMOSContractMainnet,
-						Denom:        utils.BaseDenom,
+						Denom:        evmostypes.BaseDenom,
 						Enabled:      true,
 					},
 				},
@@ -129,7 +129,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					},
 					{
 						Erc20Address: types.WEVMOSContractMainnet,
-						Denom:        utils.BaseDenom,
+						Denom:        evmostypes.BaseDenom,
 						Enabled:      true,
 					},
 				},
@@ -148,7 +148,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					},
 					{
 						Erc20Address: types.WEVMOSContractMainnet,
-						Denom:        utils.BaseDenom,
+						Denom:        evmostypes.BaseDenom,
 						Enabled:      true,
 					},
 				},
@@ -178,7 +178,6 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		err := tc.genState.Validate()
 		if tc.expPass {
 			suite.Require().NoError(err, tc.name)

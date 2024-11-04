@@ -8,9 +8,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/x/evm/keeper"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/x/evm/keeper"
+	"github.com/evmos/evmos/v20/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // VerifyAccountBalance checks that the account balance is greater than the total transaction cost.
@@ -25,7 +25,7 @@ func VerifyAccountBalance(
 	from common.Address,
 	txData evmtypes.TxData,
 ) error {
-	// check whether the sender address is EOA
+	// Only EOA are allowed to send transactions.
 	if account != nil && account.IsContract() {
 		return errorsmod.Wrapf(
 			errortypes.ErrInvalidType,

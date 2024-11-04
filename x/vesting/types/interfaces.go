@@ -4,10 +4,10 @@
 package types
 
 import (
+	context "context"
+
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -15,16 +15,20 @@ import (
 // requires for storing accounts.
 type AccountKeeper interface {
 	GetModuleAddress(name string) sdk.AccAddress
-	GetAccount(sdk.Context, sdk.AccAddress) authtypes.AccountI
-	SetAccount(sdk.Context, authtypes.AccountI)
-	IterateAccounts(ctx sdk.Context, process func(authtypes.AccountI) bool)
-	RemoveAccount(ctx sdk.Context, acc authtypes.AccountI)
+	GetAccount(context.Context, sdk.AccAddress) sdk.AccountI
+	SetAccount(context.Context, sdk.AccountI)
+	NewAccount(ctx context.Context, acc sdk.AccountI) sdk.AccountI
+	NewAccountWithAddress(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
+	IterateAccounts(ctx context.Context, process func(sdk.AccountI) bool)
+	RemoveAccount(ctx context.Context, acc sdk.AccountI)
 }
 
 // BankKeeper defines the expected interface contract the vesting module requires
 // for creating vesting accounts with funds.
 type BankKeeper interface {
-	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
+	GetAllBalances(ctx context.Context, addr sdk.AccAddress) sdk.Coins
+	SendCoins(ctx context.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
+	SpendableCoins(ctx context.Context, addr sdk.AccAddress) sdk.Coins
 	BlockedAddr(addr sdk.AccAddress) bool
 }
 
@@ -37,22 +41,15 @@ type EVMKeeper interface {
 // StakingKeeper defines the expected interface contract the vesting module
 // requires for finding and changing the delegated tokens, used in clawback.
 type StakingKeeper interface {
-	BondDenom(ctx sdk.Context) string
+	BondDenom(ctx context.Context) (string, error)
 
 	// Support functions for Agoric's custom stakingkeeper logic on vestingkeeper
-	GetDelegatorUnbonding(ctx sdk.Context, delegator sdk.AccAddress) math.Int
-	GetDelegatorBonded(ctx sdk.Context, delegator sdk.AccAddress) math.Int
+	GetDelegatorUnbonding(ctx context.Context, delegator sdk.AccAddress) (math.Int, error)
+	GetDelegatorBonded(ctx context.Context, delegator sdk.AccAddress) (math.Int, error)
 }
 
 // DistributionKeeper defines the expected interface contract the vesting module
 // requires for clawing back unvested coins to the community pool.
 type DistributionKeeper interface {
-	FundCommunityPool(ctx sdk.Context, amount sdk.Coins, sender sdk.AccAddress) error
-}
-
-// GovKeeper defines the expected interface contract the vesting module requires
-// for accessing governance related information.
-type GovKeeper interface {
-	GetParams(ctx sdk.Context) v1.Params
-	GetProposal(ctx sdk.Context, proposalID uint64) (v1.Proposal, bool)
+	FundCommunityPool(ctx context.Context, amount sdk.Coins, sender sdk.AccAddress) error
 }

@@ -13,11 +13,11 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v19/server/config"
-	"github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/server/config"
+	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
-// CallEVM performs a smart contract method call using given args
+// CallEVM performs a smart contract method call using given args.
 func (k Keeper) CallEVM(
 	ctx sdk.Context,
 	abi abi.ABI,
@@ -41,7 +41,7 @@ func (k Keeper) CallEVM(
 	return resp, nil
 }
 
-// CallEVMWithData performs a smart contract method call using contract data
+// CallEVMWithData performs a smart contract method call using contract data.
 func (k Keeper) CallEVMWithData(
 	ctx sdk.Context,
 	from common.Address,
@@ -65,7 +65,7 @@ func (k Keeper) CallEVMWithData(
 			return nil, errorsmod.Wrapf(errortypes.ErrJSONMarshal, "failed to marshal tx args: %s", err.Error())
 		}
 
-		gasRes, err := k.EstimateGasInternal(sdk.WrapSDKContext(ctx), &types.EthCallRequest{
+		gasRes, err := k.EstimateGasInternal(ctx, &types.EthCallRequest{
 			Args:   args,
 			GasCap: config.DefaultGasCap,
 		}, types.Internal)

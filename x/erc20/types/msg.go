@@ -4,10 +4,15 @@
 package types
 
 import (
+	protov2 "google.golang.org/protobuf/proto"
+
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
+	txsigning "cosmossdk.io/x/tx/signing"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+
+	erc20api "github.com/evmos/evmos/v20/api/evmos/erc20/v1"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -18,6 +23,14 @@ var (
 	_ sdk.Msg = &MsgMint{}
 	_ sdk.Msg = &MsgBurn{}
 	_ sdk.Msg = &MsgTransferOwnership{}
+	_ sdk.Msg              = &MsgConvertERC20{}
+	_ sdk.Msg              = &MsgUpdateParams{}
+	_ sdk.Msg              = &MsgRegisterERC20{}
+	_ sdk.Msg              = &MsgToggleConversion{}
+	_ sdk.HasValidateBasic = &MsgConvertERC20{}
+	_ sdk.HasValidateBasic = &MsgUpdateParams{}
+	_ sdk.HasValidateBasic = &MsgRegisterERC20{}
+	_ sdk.HasValidateBasic = &MsgToggleConversion{}
 )
 
 const (
@@ -28,6 +41,11 @@ const (
 
 	AttributeKeyNewOwner = "new_owner"
 )
+
+var MsgConvertERC20CustomGetSigner = txsigning.CustomGetSigner{
+	MsgType: protov2.MessageName(&erc20api.MsgConvertERC20{}),
+	Fn:      erc20api.GetSigners,
+}
 
 // NewMsgConvertERC20 creates a new instance of MsgConvertERC20
 func NewMsgConvertERC20(amount math.Int, receiver sdk.AccAddress, contract, sender common.Address) *MsgConvertERC20 { //nolint: interfacer
@@ -68,18 +86,6 @@ func (msg MsgConvertERC20) GetSignBytes() []byte {
 	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
 }
 
-// GetSigners defines whose signature is required
-func (msg MsgConvertERC20) GetSigners() []sdk.AccAddress {
-	addr := common.HexToAddress(msg.Sender)
-	return []sdk.AccAddress{addr.Bytes()}
-}
-
-// GetSigners returns the expected signers for a MsgUpdateParams message.
-func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
-	addr := sdk.MustAccAddressFromBech32(m.Authority)
-	return []sdk.AccAddress{addr}
-}
-
 // ValidateBasic does a sanity check of the provided data
 func (m *MsgUpdateParams) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
@@ -92,6 +98,25 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 // GetSignBytes implements the LegacyMsg interface.
 func (m MsgUpdateParams) GetSignBytes() []byte {
 	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
+}
+
+// ValidateBasic does a sanity check of the provided data
+func (m *MsgRegisterERC20) ValidateBasic() error {
+	for _, addr := range m.Erc20Addresses {
+		if !common.IsHexAddress(addr) {
+			return errortypes.ErrInvalidAddress.Wrapf("invalid ERC20 contract address: %s", addr)
+		}
+	}
+	return nil
+}
+
+// ValidateBasic does a sanity check of the provided data
+func (m *MsgToggleConversion) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
+		return errorsmod.Wrap(err, "Invalid authority address")
+	}
+
+	return nil
 }
 
 // GetSigners returns the expected signers for a MsgUpdateParams message.
@@ -111,6 +136,8 @@ func (m *MsgTransferOwnership) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
 		return errorsmod.Wrap(err, "Invalid authority address")
 	}
+
+	return nil
 
 	if !common.IsHexAddress(m.Token) {
 		return errorsmod.Wrapf(errortypes.ErrInvalidAddress, "invalid new owner hex address %s", m.NewOwner)

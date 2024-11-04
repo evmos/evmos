@@ -7,10 +7,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
-	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"
-	evmante "github.com/evmos/evmos/v19/app/ante/evm"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
+	cosmosante "github.com/evmos/evmos/v20/app/ante/cosmos"
+	evmante "github.com/evmos/evmos/v20/app/ante/evm"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // newCosmosAnteHandler creates the default ante handler for Cosmos transactions
@@ -28,7 +28,7 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		cosmosante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		cosmosante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.DistributionKeeper, options.FeegrantKeeper, options.StakingKeeper, options.TxFeeChecker),
+		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),

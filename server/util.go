@@ -8,7 +8,7 @@ import (
 	"time"
 
 	// TODO update import to local pkg when rpc pkg is migrated
-	"github.com/evmos/evmos/v19/server/config"
+	"github.com/evmos/evmos/v20/server/config"
 	"github.com/gorilla/mux"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/spf13/cobra"
@@ -18,8 +18,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/version"
 
+	"cosmossdk.io/log"
 	tmcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
-	tmlog "github.com/cometbft/cometbft/libs/log"
 	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
 )
 
@@ -60,7 +60,12 @@ func AddCommands(
 	)
 }
 
-func ConnectTmWS(tmRPCAddr, tmEndpoint string, logger tmlog.Logger) *rpcclient.WSClient {
+// ConnectTmWS connects to a Tendermint WebSocket (WS) server.
+// Parameters:
+// - tmRPCAddr: The RPC address of the Tendermint server.
+// - tmEndpoint: The WebSocket endpoint on the Tendermint server.
+// - logger: A logger instance used to log debug and error messages.
+func ConnectTmWS(tmRPCAddr, tmEndpoint string, logger log.Logger) *rpcclient.WSClient {
 	tmWsClient, err := rpcclient.NewWS(tmRPCAddr, tmEndpoint,
 		rpcclient.MaxReconnectAttempts(256),
 		rpcclient.ReadWait(120*time.Second),
@@ -88,11 +93,17 @@ func ConnectTmWS(tmRPCAddr, tmEndpoint string, logger tmlog.Logger) *rpcclient.W
 	return tmWsClient
 }
 
+// MountGRPCWebServices mounts gRPC-Web services on specific HTTP POST routes.
+// Parameters:
+// - router: The HTTP router instance to mount the routes on (using mux.Router).
+// - grpcWeb: The wrapped gRPC-Web server that will handle incoming gRPC-Web and WebSocket requests.
+// - grpcResources: A list of resource endpoints (URLs) that should be mounted for gRPC-Web POST requests.
+// - logger: A logger instance used to log information about the mounted resources.
 func MountGRPCWebServices(
 	router *mux.Router,
 	grpcWeb *grpcweb.WrappedGrpcServer,
 	grpcResources []string,
-	logger tmlog.Logger,
+	logger log.Logger,
 ) {
 	for _, res := range grpcResources {
 		logger.Info("[GRPC Web] HTTP POST mounted", "resource", res)

@@ -19,13 +19,13 @@ import (
 	"github.com/ethereum/go-ethereum/consensus/misc"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
+	"cosmossdk.io/log"
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/log"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 
 	"github.com/cometbft/cometbft/proto/tendermint/crypto"
-	"github.com/evmos/evmos/v19/rpc/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/rpc/types"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 type txGasAndReward struct {
@@ -61,7 +61,7 @@ func (b *Backend) getAccountNonce(accAddr common.Address, pending bool, height i
 		}
 		return 0, err
 	}
-	var acc authtypes.AccountI
+	var acc sdk.AccountI
 	if err := b.clientCtx.InterfaceRegistry.UnpackAny(res.Account, &acc); err != nil {
 		return 0, err
 	}
@@ -172,7 +172,7 @@ func (b *Backend) processBlock(
 			b.logger.Debug("failed to decode transaction in block", "height", blockHeight, "error", err.Error())
 			continue
 		}
-		txGasUsed := uint64(eachTendermintTxResult.GasUsed) // #nosec G701
+		txGasUsed := uint64(eachTendermintTxResult.GasUsed) //nolint:gosec // G115
 		for _, msg := range tx.GetMsgs() {
 			ethMsg, ok := msg.(*evmtypes.MsgEthereumTx)
 			if !ok {
@@ -266,7 +266,7 @@ func ParseTxLogsFromEvent(event abci.Event) ([]*ethtypes.Log, error) {
 
 // ShouldIgnoreGasUsed returns true if the gasUsed in result should be ignored
 // workaround for issue: https://github.com/cosmos/cosmos-sdk/issues/10832
-func ShouldIgnoreGasUsed(res *abci.ResponseDeliverTx) bool {
+func ShouldIgnoreGasUsed(res *abci.ExecTxResult) bool {
 	return res.GetCode() == 11 && strings.Contains(res.GetLog(), "no block gas left to run tx: out of gas")
 }
 

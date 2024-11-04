@@ -7,6 +7,7 @@ import (
 	"bytes"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -14,7 +15,7 @@ import (
 )
 
 var (
-	_ authtypes.AccountI                 = (*EthAccount)(nil)
+	_ sdk.AccountI                       = (*EthAccount)(nil)
 	_ EthAccountI                        = (*EthAccount)(nil)
 	_ authtypes.GenesisAccount           = (*EthAccount)(nil)
 	_ codectypes.UnpackInterfacesMessage = (*EthAccount)(nil)
@@ -31,7 +32,7 @@ const (
 
 // EthAccountI represents the interface of an EVM compatible account
 type EthAccountI interface {
-	authtypes.AccountI
+	sdk.AccountI
 	// EthAddress returns the ethereum Address representation of the AccAddress
 	EthAddress() common.Address
 	// CodeHash is the keccak256 hash of the contract code (if any)
@@ -48,7 +49,7 @@ type EthAccountI interface {
 
 // ProtoAccount defines the prototype function for BaseAccount used for an
 // AccountKeeper.
-func ProtoAccount() authtypes.AccountI {
+func ProtoAccount() sdk.AccountI {
 	return &EthAccount{
 		BaseAccount: &authtypes.BaseAccount{},
 		CodeHash:    common.BytesToHash(emptyCodeHash).String(),

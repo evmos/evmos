@@ -11,8 +11,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
 
 const (
@@ -79,7 +79,7 @@ func EmitRevocationEvent(args cmn.EmitEventArgs) error {
 		Address:     args.ContractAddr,
 		Topics:      topics,
 		Data:        packed,
-		BlockNumber: uint64(args.Ctx.BlockHeight()),
+		BlockNumber: uint64(args.Ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -120,7 +120,7 @@ func EmitIBCTransferAuthorizationEvent(
 		Address:     precompileAddr,
 		Topics:      topics,
 		Data:        packed,
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil

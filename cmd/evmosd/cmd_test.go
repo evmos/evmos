@@ -9,12 +9,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v19/app"
-	evmosd "github.com/evmos/evmos/v19/cmd/evmosd"
-	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v20/app"
+	evmosd "github.com/evmos/evmos/v20/cmd/evmosd"
+	"github.com/evmos/evmos/v20/utils"
 )
 
 func TestInitCmd(t *testing.T) {
+	err := app.InitializeAppConfiguration("evmos_9001-1")
+	require.NoError(t, err)
 	target := t.TempDir()
 
 	rootCmd, _ := evmosd.NewRootCmd()
@@ -26,7 +28,7 @@ func TestInitCmd(t *testing.T) {
 		fmt.Sprintf("--%s=%s", flags.FlagChainID, utils.TestnetChainID+"-1"),
 	})
 
-	err := svrcmd.Execute(rootCmd, "evmosd", app.DefaultNodeHome)
+	err = svrcmd.Execute(rootCmd, "evmosd", app.DefaultNodeHome)
 	require.NoError(t, err)
 }
 
