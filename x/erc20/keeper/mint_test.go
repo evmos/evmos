@@ -277,8 +277,6 @@ func (suite *KeeperTestSuite) TestBurnCoins() {
 	amount := big.NewInt(1000000)
 	id := expPair.GetID()
 
-	
-
 	testcases := []struct {
 		name        string
 		malleate    func()
@@ -287,8 +285,8 @@ func (suite *KeeperTestSuite) TestBurnCoins() {
 		errContains string
 	}{
 		{
-			name:        "fail - token pair not found",
-			malleate:    func() {
+			name: "fail - token pair not found",
+			malleate: func() {
 				params := types.DefaultParams()
 				params.EnableErc20 = true
 				suite.network.App.Erc20Keeper.SetParams(ctx, params) //nolint:errcheck

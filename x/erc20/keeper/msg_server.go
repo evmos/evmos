@@ -334,7 +334,6 @@ func (k Keeper) Burn(goCtx context.Context, msg *types.MsgBurn) (*types.MsgBurnR
 		return nil, err
 	}
 
-
 	return &types.MsgBurnResponse{}, nil
 }
 

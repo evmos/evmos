@@ -223,7 +223,6 @@ func (suite *KeeperTestSuite) TestOwnerAddress() {
 			suite.SetupTest() // reset
 
 			sdkCtx = suite.network.GetContext()
-			ctx = sdk.WrapSDKContext(sdkCtx)
 			tc.malleate()
 
 			res, err := suite.queryClient.OwnerAddress(ctx, &types.QueryOwnerAddressRequest{
