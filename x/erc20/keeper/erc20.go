@@ -101,11 +101,6 @@ func (k Keeper) MintCoins(ctx sdk.Context, sender, to sdk.AccAddress, amount mat
 		return err
 	}
 
-	// if p.tokenPair.Denom == utils.BaseDenom {
-	// 	p.SetBalanceChangeEntries(
-	// 		cmn.NewBalanceChangeEntry(to, coins.AmountOf(utils.BaseDenom).BigInt(), cmn.Add))
-	// }
-
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
@@ -141,11 +136,6 @@ func (k Keeper) BurnCoins(ctx sdk.Context, sender sdk.AccAddress, amount math.In
 	if err != nil {
 		return err
 	}
-
-	// if p.tokenPair.Denom == utils.BaseDenom {
-	// 	p.SetBalanceChangeEntries(
-	// 		cmn.NewBalanceChangeEntry(burnerAddr, coins.AmountOf(utils.BaseDenom).BigInt(), cmn.Sub))
-	// }
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

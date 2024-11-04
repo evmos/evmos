@@ -228,8 +228,6 @@ func (p Precompile) Owner(
 		return nil, ConvertErrToERC20Error(errorsmod.Wrapf(err, "contract owner not found"))
 	}
 
-	p.tokenPair.SetOwnerAddress(ownerAddr.String())
-
 	return method.Outputs.Pack(common.Address(ownerAddr.Bytes()))
 }
 

@@ -325,7 +325,7 @@ func (s *PrecompileTestSuite) TestMint() {
 			},
 			func() {},
 			true,
-			"execution reverted",
+			erc20types.ErrMinterIsNotOwner.Error(),
 		},
 		{
 			"pass",
@@ -397,7 +397,6 @@ func (s *PrecompileTestSuite) TestBurn() {
 		{
 			"pass",
 			func() []interface{} {
-				// s.precompile.SetContractOwnerAddress(s.network.GetContext(), from.AccAddr)
 				return []interface{}{big.NewInt(100)}
 			},
 			func() {
@@ -479,11 +478,7 @@ func (s *PrecompileTestSuite) TestTransferOwnership() {
 			malleate: func() []interface{} {
 				return []interface{}{newOwner}
 			},
-			postCheck: func(precompile *erc20.Precompile) {
-				// owner, err := precompile.GetContractOwnerAddress(s.network.GetContext())
-				// s.Require().NoError(err)
-				// s.Require().Equal(sdk.AccAddress(newOwner.Bytes()), owner)
-			},
+			postCheck: func(precompile *erc20.Precompile) {},
 		},
 	}
 
