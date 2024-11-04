@@ -22,10 +22,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
-	evmoskr "github.com/evmos/evmos/v19/crypto/keyring"
+	evmoskr "github.com/evmos/evmos/v20/crypto/keyring"
 
-	vestingcli "github.com/evmos/evmos/v19/x/vesting/client/cli"
-	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
+	vestingcli "github.com/evmos/evmos/v20/x/vesting/client/cli"
+	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
 )
 
 const (
@@ -185,7 +185,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 				}
 
 				// Check if account balance is aligned with vesting schedule
-				if !vestingCoins.IsEqual(coins) {
+				if !vestingCoins.Equal(coins) {
 					return fmt.Errorf("vestingCoins (%s) and coin balance (%s) amounts must be equal",
 						vestingCoins, coins,
 					)

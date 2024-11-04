@@ -1,6 +1,7 @@
 #!/bin/bash
 
-CHAINID="${CHAIN_ID:-evmos_9000-1}"
+CHAINID="${CHAIN_ID:-evmos_9002-1}"
+BASE_DENOM="aevmos"
 MONIKER="localtestnet"
 KEYRING="test"          # remember to change to other types of keyring like 'file' in-case exposing to outside world, otherwise your balance will be wiped quickly. The keyring test does not require private key to steal tokens from you
 KEYALGO="eth_secp256k1" #gitleaks:allow
@@ -42,22 +43,26 @@ USER4_MNEMONIC="doll midnight silk carpet brush boring pluck office gown inquiry
 
 # validate dependencies are installed
 command -v jq >/dev/null 2>&1 || {
-  echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"
-  exit 1
+	echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"
+	exit 1
 }
 
 # used to exit on first error (any non-zero exit code)
 set -e
 
-# Set client config
-evmosd config keyring-backend "$KEYRING"
-evmosd config chain-id "$CHAINID"
+# Check evmosd version to decide how to set the client configuration
+# the older versions of evmosd accept less arguments
+sdk_version=$(evmosd version --long | grep 'cosmos_sdk_version' | awk '{print $2}')
+if [[ $sdk_version == *v0.4* ]]; then
+	evmosd config chain-id "$CHAINID"
+	evmosd config keyring-backend "$KEYRING"
+else
+	evmosd config set client chain-id "$CHAINID"
+	evmosd config set client keyring-backend "$KEYRING"
+fi
 
 # Import keys from mnemonics
 echo "$VAL_MNEMONIC" | evmosd keys add "$VAL_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO"
-
-# Store the validator address in a variable to use it later
-node_address=$(evmosd keys show -a "$VAL_KEY")
 
 echo "$USER1_MNEMONIC" | evmosd keys add "$USER1_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO"
 echo "$USER2_MNEMONIC" | evmosd keys add "$USER2_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO"
@@ -67,23 +72,25 @@ echo "$USER4_MNEMONIC" | evmosd keys add "$USER4_KEY" --recover --keyring-backen
 # Set moniker and chain-id for Evmos (Moniker can be anything, chain-id must be an integer)
 evmosd init "$MONIKER" --chain-id "$CHAINID"
 
-# Change parameter token denominations to aevmos
-jq '.app_state.staking.params.bond_denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-jq '.app_state.crisis.constant_fee.denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-jq '.app_state.gov.deposit_params.min_deposit[0].denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-jq '.app_state.evm.params.evm_denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-jq '.app_state.inflation.params.mint_denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+# Change parameter token denominations to $BASE_DENOM
+jq --arg base_denom "$BASE_DENOM" '.app_state["staking"]["params"]["bond_denom"]=$base_denom' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+jq --arg base_denom "$BASE_DENOM" '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]=$base_denom' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+# When upgrade to cosmos-sdk v0.47, use gov.params to edit the deposit params
+jq --arg base_denom "$BASE_DENOM" '.app_state["gov"]["params"]["min_deposit"][0]["denom"]=$base_denom' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+# jq '.app_state["evm"]["params"]["evm_denom"]="$BASE_DENOM"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+jq --arg base_denom "$BASE_DENOM" '.app_state["inflation"]["params"]["mint_denom"]=$base_denom' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 # set gov proposing && voting period
 jq '.app_state.gov.deposit_params.max_deposit_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 jq '.app_state.gov.voting_params.voting_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+sed -i.bak 's/"expedited_voting_period": "86400s"/"expedited_voting_period": "5s"/g' "$GENESIS"
 
 # When upgrade to cosmos-sdk v0.47, use gov.params to edit the deposit params
 # check if the 'params' field exists in the genesis file
 if jq '.app_state.gov.params != null' "$GENESIS" | grep -q "true"; then
-  jq '.app_state.gov.params.min_deposit[0].denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-  jq '.app_state.gov.params.max_deposit_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-  jq '.app_state.gov.params.voting_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq --arg base_denom "$BASE_DENOM" '.app_state.gov.params.min_deposit[0].denom=$base_denom' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq '.app_state.gov.params.max_deposit_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq '.app_state.gov.params.voting_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 fi
 
 # Set gas limit in genesis
@@ -93,18 +100,6 @@ jq '.consensus_params.block.max_gas="10000000"' "$GENESIS" >"$TMP_GENESIS" && mv
 current_date=$(date -u +"%Y-%m-%dT%TZ")
 jq -r --arg current_date "$current_date" '.app_state.claims.params.airdrop_start_time=$current_date' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
-# Set claims records for validator account
-amount_to_claim=10000
-jq -r --arg node_address "$node_address" --arg amount_to_claim "$amount_to_claim" '.app_state.claims.claims_records=[{"initial_claimable_amount":$amount_to_claim, "actions_completed":[false, false, false, false],"address":$node_address}]' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-
-# Set claims decay
-jq '.app_state.claims.params.duration_of_decay="1000000s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-jq '.app_state.claims.params.duration_until_decay="100000s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-
-# Claim module account:
-# 0xA61808Fe40fEb8B3433778BBC2ecECCAA47c8c47 || evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz
-jq -r --arg amount_to_claim "$amount_to_claim" '.app_state.bank.balances += [{"address":"evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz","coins":[{"denom":"aevmos", "amount":$amount_to_claim}]}]' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-
 # Set base fee in genesis
 jq '.app_state["feemarket"]["params"]["base_fee"]="'${BASEFEE}'"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
@@ -112,23 +107,23 @@ jq '.app_state["feemarket"]["params"]["base_fee"]="'${BASEFEE}'"' "$GENESIS" >"$
 sed -i.bak 's/create_empty_blocks = true/create_empty_blocks = false/g' "$CONFIG_TOML"
 
 # Allocate genesis accounts (cosmos formatted addresses)
-evmosd add-genesis-account "$(evmosd keys show "$VAL_KEY" -a --keyring-backend "$KEYRING")" 100000000000000000000000000aevmos --keyring-backend "$KEYRING"
-evmosd add-genesis-account "$(evmosd keys show "$USER1_KEY" -a --keyring-backend "$KEYRING")" 1000000000000000000000aevmos --keyring-backend "$KEYRING"
-evmosd add-genesis-account "$(evmosd keys show "$USER2_KEY" -a --keyring-backend "$KEYRING")" 1000000000000000000000aevmos --keyring-backend "$KEYRING"
-evmosd add-genesis-account "$(evmosd keys show "$USER3_KEY" -a --keyring-backend "$KEYRING")" 1000000000000000000000aevmos --keyring-backend "$KEYRING"
-evmosd add-genesis-account "$(evmosd keys show "$USER4_KEY" -a --keyring-backend "$KEYRING")" 1000000000000000000000aevmos --keyring-backend "$KEYRING"
+evmosd add-genesis-account "$(evmosd keys show "$VAL_KEY" -a --keyring-backend "$KEYRING")" 100000000000000000000000000$BASE_DENOM --keyring-backend "$KEYRING"
+evmosd add-genesis-account "$(evmosd keys show "$USER1_KEY" -a --keyring-backend "$KEYRING")" 1000000000000000000000$BASE_DENOM --keyring-backend "$KEYRING"
+evmosd add-genesis-account "$(evmosd keys show "$USER2_KEY" -a --keyring-backend "$KEYRING")" 1000000000000000000000$BASE_DENOM --keyring-backend "$KEYRING"
+evmosd add-genesis-account "$(evmosd keys show "$USER3_KEY" -a --keyring-backend "$KEYRING")" 1000000000000000000000$BASE_DENOM --keyring-backend "$KEYRING"
+evmosd add-genesis-account "$(evmosd keys show "$USER4_KEY" -a --keyring-backend "$KEYRING")" 1000000000000000000000$BASE_DENOM --keyring-backend "$KEYRING"
 
 # Update total supply with claim values
 # Bc is required to add this big numbers
-# total_supply=$(bc <<< "$amount_to_claim+$validators_supply")
-total_supply=100004000000000000000010000
+# total_supply=$(bc <<< "$validators_supply")
+total_supply=100004000000000000000000000
 jq -r --arg total_supply "$total_supply" '.app_state.bank.supply[0].amount=$total_supply' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 # set custom pruning settings
 if [ "$PRUNING" = "custom" ]; then
-  sed -i.bak 's/pruning = "default"/pruning = "custom"/g' "$APP_TOML"
-  sed -i.bak 's/pruning-keep-recent = "0"/pruning-keep-recent = "2"/g' "$APP_TOML"
-  sed -i.bak 's/pruning-interval = "0"/pruning-interval = "10"/g' "$APP_TOML"
+	sed -i.bak 's/pruning = "default"/pruning = "custom"/g' "$APP_TOML"
+	sed -i.bak 's/pruning-keep-recent = "0"/pruning-keep-recent = "2"/g' "$APP_TOML"
+	sed -i.bak 's/pruning-interval = "0"/pruning-interval = "10"/g' "$APP_TOML"
 fi
 
 # make sure the localhost IP is 0.0.0.0
@@ -139,7 +134,7 @@ sed -i.bak 's/127.0.0.1/0.0.0.0/g' "$APP_TOML"
 sed -i.bak 's/timeout_commit = "3s"/timeout_commit = "1s"/g' "$CONFIG_TOML"
 
 # Sign genesis transaction
-evmosd gentx "$VAL_KEY" 1000000000000000000000aevmos --gas-prices ${BASEFEE}aevmos --keyring-backend "$KEYRING" --chain-id "$CHAINID"
+evmosd gentx "$VAL_KEY" 1000000000000000000000$BASE_DENOM --gas-prices ${BASEFEE}$BASE_DENOM --keyring-backend "$KEYRING" --chain-id "$CHAINID"
 ## In case you want to create multiple validators at genesis
 ## 1. Back to `evmosd keys add` step, init more keys
 ## 2. Back to `evmosd add-genesis-account` step, add balance for those
@@ -149,9 +144,12 @@ evmosd gentx "$VAL_KEY" 1000000000000000000000aevmos --gas-prices ${BASEFEE}aevm
 
 # Enable the APIs for the tests to be successful
 sed -i.bak 's/enable = false/enable = true/g' "$APP_TOML"
-
+# Don't enable Rosetta API by default
+grep -q -F '[rosetta]' "$APP_TOML" && sed -i.bak '/\[rosetta\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"
 # Don't enable memiavl by default
 grep -q -F '[memiavl]' "$APP_TOML" && sed -i.bak '/\[memiavl\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"
+# Don't enable versionDB by default
+grep -q -F '[versiondb]' "$APP_TOML" && sed -i.bak '/\[versiondb\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"
 
 # Collect genesis tx
 evmosd collect-gentxs
@@ -161,7 +159,7 @@ evmosd validate-genesis
 
 # Start the node
 evmosd start "$TRACE" \
-  --log_level $LOGLEVEL \
-  --minimum-gas-prices=0.0001aevmos \
-  --json-rpc.api eth,txpool,personal,net,debug,web3 \
-  --chain-id "$CHAINID"
+	--log_level $LOGLEVEL \
+	--minimum-gas-prices=0.0001$BASE_DENOM \
+	--json-rpc.api eth,txpool,personal,net,debug,web3 \
+	--chain-id "$CHAINID"

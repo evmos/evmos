@@ -5,22 +5,22 @@ package keeper
 import (
 	"math/big"
 
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	evmostypes "github.com/evmos/evmos/v19/types"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	"github.com/evmos/evmos/v19/x/evm/types"
+	evmostypes "github.com/evmos/evmos/v20/types"
+	"github.com/evmos/evmos/v20/x/evm/statedb"
+	"github.com/evmos/evmos/v20/x/evm/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
-	evmoscore "github.com/evmos/evmos/v19/x/evm/core/core"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	evmoscore "github.com/evmos/evmos/v20/x/evm/core/core"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
 
 // NewEVM generates a go-ethereum VM from the provided Message fields and the chain parameters
@@ -31,7 +31,6 @@ import (
 // NOTE: the RANDOM opcode is currently not supported since it requires
 // RANDAO implementation. See https://github.com/evmos/ethermint/pull/1520#pullrequestreview-1200504697
 // for more information.
-
 func (k *Keeper) NewEVM(
 	ctx sdk.Context,
 	msg core.Message,
@@ -97,7 +96,7 @@ func (k Keeper) GetHashFn(ctx sdk.Context) vm.GetHashFunc {
 
 			// only recompute the hash if not set (eg: checkTxState)
 			contextBlockHeader := ctx.BlockHeader()
-			header, err := tmtypes.HeaderFromProto(&contextBlockHeader)
+			header, err := cmttypes.HeaderFromProto(&contextBlockHeader)
 			if err != nil {
 				k.Logger(ctx).Error("failed to cast tendermint header from proto", "error", err)
 				return common.Hash{}
@@ -109,13 +108,13 @@ func (k Keeper) GetHashFn(ctx sdk.Context) vm.GetHashFunc {
 		case ctx.BlockHeight() > h:
 			// Case 2: if the chain is not the current height we need to retrieve the hash from the store for the
 			// current chain epoch. This only applies if the current height is greater than the requested height.
-			histInfo, found := k.stakingKeeper.GetHistoricalInfo(ctx, h)
-			if !found {
-				k.Logger(ctx).Debug("historical info not found", "height", h)
+			histInfo, err := k.stakingKeeper.GetHistoricalInfo(ctx, h)
+			if err != nil {
+				k.Logger(ctx).Debug("error while getting historical info", "height", h, "error", err.Error())
 				return common.Hash{}
 			}
 
-			header, err := tmtypes.HeaderFromProto(&histInfo.Header)
+			header, err := cmttypes.HeaderFromProto(&histInfo.Header)
 			if err != nil {
 				k.Logger(ctx).Error("failed to cast tendermint header from proto", "error", err)
 				return common.Hash{}
@@ -149,7 +148,7 @@ func (k Keeper) GetHashFn(ctx sdk.Context) vm.GetHashFunc {
 func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction) (*types.MsgEthereumTxResponse, error) {
 	var bloom *big.Int
 
-	cfg, err := k.EVMConfig(ctx, sdk.ConsAddress(ctx.BlockHeader().ProposerAddress), k.eip155ChainID)
+	cfg, err := k.EVMConfig(ctx, sdk.ConsAddress(ctx.BlockHeader().ProposerAddress))
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to load evm config")
 	}
@@ -188,8 +187,10 @@ func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction) (*t
 		commit()
 	}
 
+	evmDenom := types.GetEVMCoinDenom()
+
 	// refund gas in order to match the Ethereum gas consumption instead of the default SDK one.
-	if err = k.RefundGas(ctx, msg, msg.Gas()-res.GasUsed, cfg.Params.EvmDenom); err != nil {
+	if err = k.RefundGas(ctx, msg, msg.Gas()-res.GasUsed, evmDenom); err != nil {
 		return nil, errorsmod.Wrapf(err, "failed to refund gas leftover gas to sender %s", msg.From())
 	}
 
@@ -213,7 +214,7 @@ func (k *Keeper) ApplyTransaction(ctx sdk.Context, tx *ethtypes.Transaction) (*t
 
 // ApplyMessage calls ApplyMessageWithConfig with an empty TxConfig.
 func (k *Keeper) ApplyMessage(ctx sdk.Context, msg core.Message, tracer vm.EVMLogger, commit bool) (*types.MsgEthereumTxResponse, error) {
-	cfg, err := k.EVMConfig(ctx, sdk.ConsAddress(ctx.BlockHeader().ProposerAddress), k.eip155ChainID)
+	cfg, err := k.EVMConfig(ctx, sdk.ConsAddress(ctx.BlockHeader().ProposerAddress))
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to load evm config")
 	}
@@ -356,7 +357,7 @@ func (k *Keeper) ApplyMessageWithConfig(
 	// calculate a minimum amount of gas to be charged to sender if GasLimit
 	// is considerably higher than GasUsed to stay more aligned with Tendermint gas mechanics
 	// for more info https://github.com/evmos/ethermint/issues/1085
-	gasLimit := math.LegacyNewDec(int64(msg.Gas()))
+	gasLimit := math.LegacyNewDec(int64(msg.Gas())) //#nosec G115
 	minGasMultiplier := k.GetMinGasMultiplier(ctx)
 	minimumGasUsed := gasLimit.Mul(minGasMultiplier)
 
@@ -368,7 +369,7 @@ func (k *Keeper) ApplyMessageWithConfig(
 		return nil, errorsmod.Wrapf(types.ErrGasOverflow, "message gas limit < leftover gas (%d < %d)", msg.Gas(), leftoverGas)
 	}
 
-	gasUsed := math.LegacyMaxDec(minimumGasUsed, math.LegacyNewDec(int64(temporaryGasUsed))).TruncateInt().Uint64()
+	gasUsed := math.LegacyMaxDec(minimumGasUsed, math.LegacyNewDec(int64(temporaryGasUsed))).TruncateInt().Uint64() //#nosec G115
 	// reset leftoverGas, to be used by the tracer
 	leftoverGas = msg.Gas() - gasUsed
 

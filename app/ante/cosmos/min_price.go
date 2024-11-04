@@ -9,7 +9,7 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
-	evmante "github.com/evmos/evmos/v19/app/ante/evm"
+	evmante "github.com/evmos/evmos/v20/app/ante/evm"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
@@ -21,14 +21,14 @@ import (
 // If fee is high enough, then call next AnteHandler
 // CONTRACT: Tx must implement FeeTx to use MinGasPriceDecorator
 type MinGasPriceDecorator struct {
-	feesKeeper evmante.FeeMarketKeeper
-	evmKeeper  evmante.EVMKeeper
+	feemarketKeeper evmante.FeeMarketKeeper
+	evmKeeper       evmante.EVMKeeper
 }
 
 // NewMinGasPriceDecorator creates a new MinGasPriceDecorator instance used only for
 // Cosmos transactions.
 func NewMinGasPriceDecorator(fk evmante.FeeMarketKeeper, ek evmante.EVMKeeper) MinGasPriceDecorator {
-	return MinGasPriceDecorator{feesKeeper: fk, evmKeeper: ek}
+	return MinGasPriceDecorator{feemarketKeeper: fk, evmKeeper: ek}
 }
 
 func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
@@ -37,17 +37,19 @@ func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 		return ctx, errorsmod.Wrapf(errortypes.ErrInvalidType, "invalid transaction type %T, expected sdk.FeeTx", tx)
 	}
 
-	minGasPrice := mpd.feesKeeper.GetParams(ctx).MinGasPrice
+	minGasPrice := mpd.feemarketKeeper.GetParams(ctx).MinGasPrice
 
 	feeCoins := feeTx.GetFee()
-	evmParams := mpd.evmKeeper.GetParams(ctx)
-	evmDenom := evmParams.GetEvmDenom()
+	baseDenom, err := sdk.GetBaseDenom()
+	if err != nil {
+		return ctx, err
+	}
 
-	// only allow user to pass in aevmos and stake native token as transaction fees
+	// only allow user to pass in the base denom as transaction fees
 	// allow use stake native tokens for fees is just for unit tests to pass
-	validFees := len(feeCoins) == 0 || (len(feeCoins) == 1 && slices.Contains([]string{evmDenom, sdk.DefaultBondDenom}, feeCoins.GetDenomByIndex(0)))
+	validFees := len(feeCoins) == 0 || (len(feeCoins) == 1 && slices.Contains([]string{baseDenom}, feeCoins.GetDenomByIndex(0)))
 	if !validFees && !simulate {
-		return ctx, fmt.Errorf("expected only use native token %s for fee, but got %s", evmDenom, feeCoins.String())
+		return ctx, fmt.Errorf("expected only use native token %s for fee, but got %s", baseDenom, feeCoins.String())
 	}
 
 	// Short-circuit if min gas price is 0 or if simulating
@@ -57,7 +59,7 @@ func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 
 	minGasPrices := sdk.DecCoins{
 		{
-			Denom:  evmDenom,
+			Denom:  baseDenom,
 			Amount: minGasPrice,
 		},
 	}

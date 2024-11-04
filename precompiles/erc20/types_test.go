@@ -3,8 +3,8 @@ package erc20_test
 import (
 	"math/big"
 
-	"github.com/evmos/evmos/v19/precompiles/erc20"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v20/precompiles/erc20"
+	utiltx "github.com/evmos/evmos/v20/testutil/tx"
 )
 
 //nolint:dupl // these tests are not duplicates
@@ -52,7 +52,6 @@ func (s *PrecompileTestSuite) TestParseTransferArgs() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			to, amount, err := erc20.ParseTransferArgs(tc.args)
 			if tc.expPass {
@@ -124,7 +123,6 @@ func (s *PrecompileTestSuite) TestParseTransferFromArgs() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			from, to, amount, err := erc20.ParseTransferFromArgs(tc.args)
 			if tc.expPass {
@@ -185,7 +183,6 @@ func (s *PrecompileTestSuite) TestParseApproveArgs() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			spender, amount, err := erc20.ParseApproveArgs(tc.args)
 			if tc.expPass {
@@ -244,7 +241,6 @@ func (s *PrecompileTestSuite) TestParseAllowanceArgs() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			owner, spender, err := erc20.ParseAllowanceArgs(tc.args)
 			if tc.expPass {
@@ -292,7 +288,6 @@ func (s *PrecompileTestSuite) TestParseBalanceOfArgs() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			account, err := erc20.ParseBalanceOfArgs(tc.args)
 			if tc.expPass {

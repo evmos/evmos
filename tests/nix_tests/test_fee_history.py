@@ -42,40 +42,41 @@ def test_basic(cluster):
     send_transaction(w3, tx)
     size = 4
     # size of base fee + next fee
-    max = size + 1
+    max_size = size + 1
     # only 1 base fee + next fee
-    min = 2
+    min_size = 2
     method = "eth_feeHistory"
     field = "baseFeePerGas"
     percentiles = [100]
     height = w3.eth.block_number
     latest = dict(
         blocks=["latest", hex(height)],
-        expect=max,
+        expect=max_size,
     )
     earliest = dict(
         blocks=["earliest", "0x0"],
-        expect=min,
+        expect=min_size,
     )
     for tc in [latest, earliest]:
         res = []
-        with ThreadPoolExecutor(len(tc["blocks"])) as exec:
+        with ThreadPoolExecutor(len(tc["blocks"])) as executor:
             tasks = [
-                exec.submit(call, method, [size, b, percentiles]) for b in tc["blocks"]
+                executor.submit(call, method, [size, b, percentiles])
+                for b in tc["blocks"]
             ]
             res = [future.result()["result"][field] for future in as_completed(tasks)]
         assert len(res) == len(tc["blocks"])
         assert res[0] == res[1]
         assert len(res[0]) == tc["expect"]
 
-    for x in range(max):
+    for x in range(max_size):
         i = x + 1
         fee_history = call(method, [size, hex(i), percentiles])
         # start to reduce diff on i <= size - min
-        diff = size - min - i
+        diff = size - min_size - i
         reduce = size - diff
-        target = reduce if diff >= 0 else max
+        target = reduce if diff >= 0 else max_size
         res = fee_history["result"]
         assert len(res[field]) == target
-        oldest = i + min - max
+        oldest = i + min_size - max_size
         assert res["oldestBlock"] == hex(oldest if oldest > 0 else 0)

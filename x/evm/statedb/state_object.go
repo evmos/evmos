@@ -7,9 +7,10 @@ import (
 	"math/big"
 	"sort"
 
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // Account is the Ethereum consensus representation of accounts.
@@ -99,6 +100,7 @@ func (s *stateObject) markSuicided() {
 // AddBalance adds amount to s's balance.
 // It is used to add funds to the destination account of a transfer.
 func (s *stateObject) AddBalance(amount *big.Int) {
+	amount = types.AdjustExtraDecimalsBigInt(amount)
 	if amount.Sign() == 0 {
 		return
 	}
@@ -108,6 +110,7 @@ func (s *stateObject) AddBalance(amount *big.Int) {
 // SubBalance removes amount from s's balance.
 // It is used to remove funds from the origin account of a transfer.
 func (s *stateObject) SubBalance(amount *big.Int) {
+	amount = types.AdjustExtraDecimalsBigInt(amount)
 	if amount.Sign() == 0 {
 		return
 	}
@@ -126,7 +129,7 @@ func (s *stateObject) SetBalance(amount *big.Int) {
 // AddPrecompileFn appends to the journal an entry
 // with a snapshot of the multi-store and events
 // previous to the precompile call
-func (s *stateObject) AddPrecompileFn(cms sdk.CacheMultiStore, events sdk.Events) {
+func (s *stateObject) AddPrecompileFn(cms storetypes.CacheMultiStore, events sdk.Events) {
 	s.db.journal.append(precompileCallChange{
 		multiStore: cms,
 		events:     events,

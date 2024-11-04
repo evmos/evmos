@@ -5,6 +5,8 @@ package tx
 import (
 	"math"
 
+	protov2 "google.golang.org/protobuf/proto"
+
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -12,14 +14,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	evmostypes "github.com/evmos/evmos/v20/types"
 
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v20/app"
 )
 
 var (
 	feeAmt     = math.Pow10(16)
-	DefaultFee = sdk.NewCoin(utils.BaseDenom, sdkmath.NewIntFromUint64(uint64(feeAmt))) // 0.01 EVMOS
+	DefaultFee = sdk.NewCoin(evmostypes.BaseDenom, sdkmath.NewIntFromUint64(uint64(feeAmt))) // 0.01 EVMOS
 )
 
 // CosmosTxArgs contains the params to create a cosmos tx
@@ -55,7 +57,7 @@ func PrepareCosmosTx(
 
 	var fees sdk.Coins
 	if args.GasPrice != nil {
-		fees = sdk.Coins{{Denom: utils.BaseDenom, Amount: args.GasPrice.MulRaw(int64(args.Gas))}}
+		fees = sdk.Coins{{Denom: evmostypes.BaseDenom, Amount: args.GasPrice.MulRaw(int64(args.Gas))}} //#nosec G115
 	} else {
 		fees = sdk.Coins{DefaultFee}
 	}
@@ -89,12 +91,17 @@ func signCosmosTx(
 		return nil, err
 	}
 
+	signMode, err := authsigning.APISignModeToInternal(args.TxCfg.SignModeHandler().DefaultMode())
+	if err != nil {
+		return nil, err
+	}
+
 	// First round: we gather all the signer infos. We use the "set empty
 	// signature" hack to do that.
 	sigV2 := signing.SignatureV2{
 		PubKey: args.Priv.PubKey(),
 		Data: &signing.SingleSignatureData{
-			SignMode:  args.TxCfg.SignModeHandler().DefaultMode(),
+			SignMode:  signMode,
 			Signature: nil,
 		},
 		Sequence: seq,
@@ -114,7 +121,8 @@ func signCosmosTx(
 		Sequence:      seq,
 	}
 	sigV2, err = tx.SignWithPrivKey(
-		args.TxCfg.SignModeHandler().DefaultMode(),
+		ctx,
+		signMode,
 		signerData,
 		txBuilder, args.Priv, args.TxCfg,
 		seq,
@@ -138,6 +146,7 @@ var _ sdk.Tx = &InvalidTx{}
 // NOTE: This is used for testing purposes, to serve the edge case of invalid data being passed to functions.
 type InvalidTx struct{}
 
-func (InvalidTx) GetMsgs() []sdk.Msg { return []sdk.Msg{nil} }
+func (InvalidTx) GetMsgs() []sdk.Msg                    { return nil }
+func (InvalidTx) GetMsgsV2() ([]protov2.Message, error) { return nil, nil }
 
 func (InvalidTx) ValidateBasic() error { return nil }

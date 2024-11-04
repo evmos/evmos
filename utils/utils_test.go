@@ -10,7 +10,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v20/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/require"
 )
 
@@ -217,7 +217,7 @@ func TestAccAddressFromBech32(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
+		tc := tc //nolint:copyloopvar // Needed to work correctly with concurrent tests
 
 		t.Run(tc.address, func(t *testing.T) {
 			t.Parallel()

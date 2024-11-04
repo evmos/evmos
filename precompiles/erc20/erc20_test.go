@@ -6,8 +6,8 @@ package erc20_test
 import (
 	"math/big"
 
-	auth "github.com/evmos/evmos/v19/precompiles/authorization"
-	"github.com/evmos/evmos/v19/precompiles/erc20"
+	auth "github.com/evmos/evmos/v20/precompiles/authorization"
+	"github.com/evmos/evmos/v20/precompiles/erc20"
 )
 
 func (s *PrecompileTestSuite) TestIsTransaction() {
@@ -153,8 +153,6 @@ func (s *PrecompileTestSuite) TestRequiredGas() {
 
 	for _, tc := range testcases {
 		s.Run(tc.name, func() {
-			tc := tc
-
 			input := tc.malleate()
 
 			s.Require().Equal(tc.expGas, s.precompile.RequiredGas(input))

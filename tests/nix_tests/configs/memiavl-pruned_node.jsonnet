@@ -1,7 +1,7 @@
 local config = import 'default.jsonnet';
 
 config {
-  'evmos_9000-1'+: {
+  'evmos_9002-1'+: {
     cmd: 'evmosd-rocksdb',    
     'app-config'+: {
       'app-db-backend': 'rocksdb',      
@@ -14,8 +14,8 @@ config {
         'snapshot-keep-recent': 0,
         'snapshot-interval': 1,
       },
-      'store'+: {
-        streamers: [],
+      'versiondb'+: {
+        enable: false,
       },
     },
     config+: {

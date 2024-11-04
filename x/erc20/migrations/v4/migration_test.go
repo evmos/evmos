@@ -3,16 +3,15 @@ package v4_test
 import (
 	"testing"
 
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	storetypes "cosmossdk.io/store/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/encoding"
+	"github.com/evmos/evmos/v20/encoding"
 	"github.com/stretchr/testify/require"
 
-	v3types "github.com/evmos/evmos/v19/x/erc20/migrations/v3/types"
-	v4 "github.com/evmos/evmos/v19/x/erc20/migrations/v4"
+	v3types "github.com/evmos/evmos/v20/x/erc20/migrations/v3/types"
+	v4 "github.com/evmos/evmos/v20/x/erc20/migrations/v4"
 
-	"github.com/evmos/evmos/v19/x/erc20/types"
+	"github.com/evmos/evmos/v20/x/erc20/types"
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -33,14 +32,14 @@ func (ms mockSubspace) GetParamSet(_ sdk.Context, ps types.LegacyParams) {
 }
 
 func (ms mockSubspace) WithKeyTable(keyTable paramtypes.KeyTable) paramtypes.Subspace {
-	encCfg := encoding.MakeConfig(app.ModuleBasics)
+	encCfg := encoding.MakeConfig()
 	cdc := encCfg.Codec
 	return paramtypes.NewSubspace(cdc, encCfg.Amino, ms.storeKey, ms.transientKey, "test").WithKeyTable(keyTable)
 }
 
 func TestMigrate(t *testing.T) {
-	storeKey := sdk.NewKVStoreKey(types.ModuleName)
-	tKey := sdk.NewTransientStoreKey("transient_test")
+	storeKey := storetypes.NewKVStoreKey(types.ModuleName)
+	tKey := storetypes.NewTransientStoreKey("transient_test")
 	ctx := testutil.DefaultContext(storeKey, tKey)
 	store := ctx.KVStore(storeKey)
 

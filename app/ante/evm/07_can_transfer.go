@@ -11,8 +11,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // CanTransfer checks if the sender is allowed to transfer funds according to the EVM block
@@ -41,7 +41,7 @@ func CanTransfer(
 		BaseFee:     baseFee,
 	}
 
-	stateDB := statedb.New(ctx, evmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash().Bytes())))
+	stateDB := statedb.New(ctx, evmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash())))
 	evm := evmKeeper.NewEVM(ctx, msg, cfg, evmtypes.NewNoOpTracer(), stateDB)
 
 	// check that caller has enough balance to cover asset transfer for **topmost** call

@@ -10,8 +10,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/evmos/v19/x/evm/keeper"
-	"github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/x/evm/keeper"
+	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // InitGenesis initializes genesis state based on exported genesis
@@ -21,8 +21,6 @@ func InitGenesis(
 	accountKeeper types.AccountKeeper,
 	data types.GenesisState,
 ) []abci.ValidatorUpdate {
-	k.WithChainID(ctx)
-
 	err := k.SetParams(ctx, data.Params)
 	if err != nil {
 		panic(fmt.Errorf("error setting params %s", err))

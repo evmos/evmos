@@ -4,9 +4,9 @@ package v2
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	accounttypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	v1vestingtypes "github.com/evmos/evmos/v19/x/vesting/migrations/types"
-	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
+
+	v1vestingtypes "github.com/evmos/evmos/v20/x/vesting/migrations/types"
+	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
 )
 
 // MigrateStore migrates the x/vesting module state from the consensus version 1 to
@@ -15,7 +15,7 @@ func MigrateStore(
 	ctx sdk.Context,
 	ak vestingtypes.AccountKeeper,
 ) error {
-	ak.IterateAccounts(ctx, func(account accounttypes.AccountI) bool {
+	ak.IterateAccounts(ctx, func(account sdk.AccountI) bool {
 		if oldAccount, ok := account.(*v1vestingtypes.ClawbackVestingAccount); ok {
 			newAccount := &vestingtypes.ClawbackVestingAccount{
 				BaseVestingAccount: oldAccount.BaseVestingAccount,

@@ -5,9 +5,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/cmd/config"
-	"github.com/evmos/evmos/v19/precompiles/bech32"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/evmos/v20/cmd/config"
+	"github.com/evmos/evmos/v20/precompiles/bech32"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
 
 func (s *PrecompileTestSuite) TestNewPrecompile() {
@@ -130,9 +130,12 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			"pass - hex to bech32 validator operator (evmosvaloper)",
 			func() *vm.Contract {
+				valAddrCodec := s.network.App.StakingKeeper.ValidatorAddressCodec()
+				valAddrBz, err := valAddrCodec.StringToBytes(s.network.GetValidators()[0].GetOperator())
+				s.Require().NoError(err, "failed to convert string to bytes")
 				input, err := s.precompile.Pack(
 					bech32.HexToBech32Method,
-					common.BytesToAddress(s.network.GetValidators()[0].GetOperator().Bytes()),
+					common.BytesToAddress(valAddrBz),
 					config.Bech32PrefixValAddr,
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -207,12 +210,16 @@ func (s *PrecompileTestSuite) TestRun() {
 				return contract
 			},
 			func(data []byte) {
+				valAddrCodec := s.network.App.StakingKeeper.ValidatorAddressCodec()
+				valAddrBz, err := valAddrCodec.StringToBytes(s.network.GetValidators()[0].GetOperator())
+				s.Require().NoError(err, "failed to convert string to bytes")
+
 				args, err := s.precompile.Unpack(bech32.Bech32ToHexMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
 				s.Require().Len(args, 1)
 				addr, ok := args[0].(common.Address)
 				s.Require().True(ok)
-				s.Require().Equal(common.BytesToAddress(s.network.GetValidators()[0].GetOperator().Bytes()), addr)
+				s.Require().Equal(common.BytesToAddress(valAddrBz), addr)
 			},
 			true,
 			"",

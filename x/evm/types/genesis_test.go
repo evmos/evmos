@@ -6,7 +6,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v20/crypto/ethsecp256k1"
 )
 
 type GenesisTestSuite struct {
@@ -72,7 +72,6 @@ func (suite *GenesisTestSuite) TestValidateGenesisAccount() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		err := tc.genesisAccount.Validate()
 		if tc.expPass {
 			suite.Require().NoError(err, tc.name)
@@ -111,25 +110,9 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			expPass: true,
 		},
 		{
-			name:     "empty genesis",
-			genState: &GenesisState{},
-			expPass:  false,
-		},
-		{
 			name:     "copied genesis",
 			genState: NewGenesisState(DefaultGenesisState().Params, DefaultGenesisState().Accounts),
 			expPass:  true,
-		},
-		{
-			name: "invalid genesis",
-			genState: &GenesisState{
-				Accounts: []GenesisAccount{
-					{
-						Address: common.Address{}.String(),
-					},
-				},
-			},
-			expPass: false,
 		},
 		{
 			name: "invalid genesis account",
@@ -172,49 +155,9 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			},
 			expPass: false,
 		},
-		{
-			name: "duplicated tx log",
-			genState: &GenesisState{
-				Accounts: []GenesisAccount{
-					{
-						Address: suite.address,
-
-						Code: suite.code,
-						Storage: Storage{
-							{Key: suite.hash.String()},
-						},
-					},
-				},
-			},
-			expPass: false,
-		},
-		{
-			name: "invalid tx log",
-			genState: &GenesisState{
-				Accounts: []GenesisAccount{
-					{
-						Address: suite.address,
-
-						Code: suite.code,
-						Storage: Storage{
-							{Key: suite.hash.String()},
-						},
-					},
-				},
-			},
-			expPass: false,
-		},
-		{
-			name: "invalid params",
-			genState: &GenesisState{
-				Params: Params{},
-			},
-			expPass: false,
-		},
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		err := tc.genState.Validate()
 		if tc.expPass {
 			suite.Require().NoError(err, tc.name)

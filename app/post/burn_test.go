@@ -6,9 +6,9 @@ package post_test
 import (
 	sdkmath "cosmossdk.io/math"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/evmos/evmos/v19/app/post"
+	"github.com/evmos/evmos/v20/app/post"
 
-	// "github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
+	// "github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -166,7 +166,7 @@ func (s *PostTestSuite) TestPostHandle() {
 
 			// In the execution of the PostHandle method, simulate, success, and next have been
 			// hard-coded because they are not influencing the behavior of the BurnDecorator.
-			terminator := sdk.ChainPostDecorators(sdk.Terminator{})
+			terminator := sdk.ChainPostDecorators(sdk.Terminator{}) //nolint:staticcheck
 			_, err = burnDecorator.PostHandle(
 				s.unitNetwork.GetContext(),
 				tc.tx(),

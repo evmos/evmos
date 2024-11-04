@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/evmos/evmos/v19/utils"
-
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -16,8 +14,9 @@ import (
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/cmd/config"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/evmos/v20/cmd/config"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	evmostypes "github.com/evmos/evmos/v20/types"
 )
 
 // EventSetWithdrawAddress defines the event data for the SetWithdrawAddress transaction.
@@ -97,10 +96,6 @@ func NewMsgSetWithdrawAddress(args []interface{}) (*distributiontypes.MsgSetWith
 		WithdrawAddress:  withdrawerAddress,
 	}
 
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
-	}
-
 	return msg, delegatorAddress, nil
 }
 
@@ -122,10 +117,6 @@ func NewMsgWithdrawDelegatorReward(args []interface{}) (*distributiontypes.MsgWi
 		ValidatorAddress: validatorAddress,
 	}
 
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
-	}
-
 	return msg, delegatorAddress, nil
 }
 
@@ -139,10 +130,6 @@ func NewMsgWithdrawValidatorCommission(args []interface{}) (*distributiontypes.M
 
 	msg := &distributiontypes.MsgWithdrawValidatorCommission{
 		ValidatorAddress: validatorAddress,
-	}
-
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
 	}
 
 	validatorHexAddr, err := cmn.HexAddressFromBech32String(msg.ValidatorAddress)
@@ -171,11 +158,7 @@ func NewMsgFundCommunityPool(args []interface{}) (*distributiontypes.MsgFundComm
 
 	msg := &distributiontypes.MsgFundCommunityPool{
 		Depositor: sdk.AccAddress(depositorAddress.Bytes()).String(),
-		Amount:    sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewIntFromBigInt(amount)}},
-	}
-
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
+		Amount:    sdk.Coins{sdk.Coin{Denom: evmostypes.BaseDenom, Amount: math.NewIntFromBigInt(amount)}},
 	}
 
 	return msg, depositorAddress, nil

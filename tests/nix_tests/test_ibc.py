@@ -33,7 +33,8 @@ def test_ibc_transfer_with_hermes(ibc):
     test ibc transfer tokens with hermes cli
     """
     amt = hermes_transfer(ibc)
-    dst_denom = "ibc/6411AE2ADA1E73DB59DB151A8988F9B7D5E7E233D8414DB6817F8F1A01611F86"  # ibc denom of the basecro sent
+    # ibc denom of the basecro sent
+    dst_denom = "ibc/6411AE2ADA1E73DB59DB151A8988F9B7D5E7E233D8414DB6817F8F1A01611F86"
     dst_addr = ibc.chains["evmos"].cosmos_cli().address("signer2")
     old_dst_balance = get_balance(ibc.chains["evmos"], dst_addr, dst_denom)
     new_dst_balance = 0
@@ -49,7 +50,7 @@ def test_ibc_transfer_with_hermes(ibc):
     # assert that the relayer transactions do enables the
     # dynamic fee extension option.
     cli = ibc.chains["evmos"].cosmos_cli()
-    criteria = "message.action=/ibc.core.channel.v1.MsgChannelOpenInit"
+    criteria = "message.action='/ibc.core.channel.v1.MsgChannelOpenInit'"
     tx = cli.tx_search(criteria)["txs"][0]
     events = parse_events_rpc(tx["events"])
     fee = int(events["tx"]["fee"].removesuffix("aevmos"))

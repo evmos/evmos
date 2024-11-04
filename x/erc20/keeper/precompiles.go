@@ -9,9 +9,9 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/precompiles/erc20"
-	"github.com/evmos/evmos/v19/x/erc20/types"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/evmos/v20/precompiles/erc20"
+	"github.com/evmos/evmos/v20/x/erc20/types"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
 
 // GetERC20PrecompileInstance returns the precompile instance for the given address.
@@ -20,7 +20,6 @@ func (k Keeper) GetERC20PrecompileInstance(
 	address common.Address,
 ) (contract vm.PrecompiledContract, found bool, err error) {
 	params := k.GetParams(ctx)
-
 	if k.IsAvailableERC20Precompile(&params, address) {
 		precompile, err := k.InstantiateERC20Precompile(ctx, address)
 		if err != nil {

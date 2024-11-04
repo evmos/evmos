@@ -15,11 +15,10 @@ import (
 	"github.com/cometbft/cometbft/abci/types"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 
-	"github.com/evmos/evmos/v19/rpc/backend/mocks"
-	rpc "github.com/evmos/evmos/v19/rpc/types"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+	"github.com/evmos/evmos/v20/rpc/backend/mocks"
+	rpc "github.com/evmos/evmos/v20/rpc/types"
+	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 func (suite *BackendTestSuite) TestBaseFee() {
@@ -46,7 +45,7 @@ func (suite *BackendTestSuite) TestBaseFee() {
 			"fail - grpc BaseFee error - with non feemarket block event",
 			&tmrpctypes.ResultBlockResults{
 				Height: 1,
-				BeginBlockEvents: []types.Event{
+				FinalizeBlockEvents: []types.Event{
 					{
 						Type: evmtypes.EventTypeBlockBloom,
 					},
@@ -63,9 +62,9 @@ func (suite *BackendTestSuite) TestBaseFee() {
 			"fail - grpc BaseFee error - with feemarket block event",
 			&tmrpctypes.ResultBlockResults{
 				Height: 1,
-				BeginBlockEvents: []types.Event{
+				FinalizeBlockEvents: []types.Event{
 					{
-						Type: feemarkettypes.EventTypeFeeMarket,
+						Type: evmtypes.EventTypeFeeMarket,
 					},
 				},
 			},
@@ -80,9 +79,9 @@ func (suite *BackendTestSuite) TestBaseFee() {
 			"fail - grpc BaseFee error - with feemarket block event with wrong attribute value",
 			&tmrpctypes.ResultBlockResults{
 				Height: 1,
-				BeginBlockEvents: []types.Event{
+				FinalizeBlockEvents: []types.Event{
 					{
-						Type: feemarkettypes.EventTypeFeeMarket,
+						Type: evmtypes.EventTypeFeeMarket,
 						Attributes: []types.EventAttribute{
 							{Value: "/1"},
 						},
@@ -100,9 +99,9 @@ func (suite *BackendTestSuite) TestBaseFee() {
 			"fail - grpc baseFee error - with feemarket block event with baseFee attribute value",
 			&tmrpctypes.ResultBlockResults{
 				Height: 1,
-				BeginBlockEvents: []types.Event{
+				FinalizeBlockEvents: []types.Event{
 					{
-						Type: feemarkettypes.EventTypeFeeMarket,
+						Type: evmtypes.EventTypeFeeMarket,
 						Attributes: []types.EventAttribute{
 							{Value: baseFee.String()},
 						},
@@ -291,17 +290,17 @@ func (suite *BackendTestSuite) TestGlobalMinGasPrice() {
 	testCases := []struct {
 		name           string
 		registerMock   func()
-		expMinGasPrice math.LegacyDec
+		expMinGasPrice *big.Int
 		expPass        bool
 	}{
 		{
-			"fail - Can't get FeeMarket params",
+			"pass - get GlobalMinGasPrice",
 			func() {
-				feeMarketCleint := suite.backend.queryClient.FeeMarket.(*mocks.FeeMarketQueryClient)
-				RegisterFeeMarketParamsError(feeMarketCleint, int64(1))
+				qc := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+				RegisterGlobalMinGasPrice(qc, 1)
 			},
-			math.LegacyZeroDec(),
-			false,
+			big.NewInt(1),
+			true,
 		},
 	}
 
@@ -424,7 +423,6 @@ func (suite *BackendTestSuite) TestFeeHistory() {
 				RegisterValidatorAccount(queryClient, validator)
 				RegisterConsensusParams(client, 1)
 				RegisterParams(queryClient, &header, 1)
-				RegisterParamsWithoutHeader(queryClient, 1)
 			},
 			1,
 			1,

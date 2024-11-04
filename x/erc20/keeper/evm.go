@@ -12,10 +12,10 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 
-	"github.com/evmos/evmos/v19/contracts"
-	"github.com/evmos/evmos/v19/x/erc20/types"
+	"github.com/evmos/evmos/v20/contracts"
+	"github.com/evmos/evmos/v20/x/erc20/types"
 )
 
 // DeployERC20Contract creates and deploys an ERC20 contract on the EVM with the
@@ -27,7 +27,7 @@ func (k Keeper) DeployERC20Contract(
 	decimals := uint8(0)
 	if len(coinMetadata.DenomUnits) > 0 {
 		decimalsIdx := len(coinMetadata.DenomUnits) - 1
-		decimals = uint8(coinMetadata.DenomUnits[decimalsIdx].Exponent)
+		decimals = uint8(coinMetadata.DenomUnits[decimalsIdx].Exponent) //#nosec G115
 	}
 	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack(
 		"",

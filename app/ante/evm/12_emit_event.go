@@ -9,7 +9,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // EthEmitEventDecorator emit events in ante handler in case of tx execution failed (out of block gas limit).
@@ -28,13 +28,18 @@ func (eeed EthEmitEventDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 	// we need to emit some basic events at the very end of ante handler to be indexed by tendermint.
 	blockTxIndex := eeed.evmKeeper.GetTxIndexTransient(ctx)
 
-	for i, msg := range tx.GetMsgs() {
+	msgs := tx.GetMsgs()
+	if msgs == nil {
+		return ctx, errorsmod.Wrap(errortypes.ErrUnknownRequest, "invalid transaction. Transaction without messages")
+	}
+
+	for i, msg := range msgs {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
 		if !ok {
 			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmtypes.MsgEthereumTx)(nil))
 		}
 
-		txIdx := uint64(i) // nosec: G701
+		txIdx := uint64(i) //nolint:gosec // G115 G701
 		EmitTxHashEvent(ctx, msgEthTx, blockTxIndex, txIdx)
 	}
 

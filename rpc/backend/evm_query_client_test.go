@@ -13,10 +13,10 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/rpc/backend/mocks"
-	rpc "github.com/evmos/evmos/v19/rpc/types"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/rpc/backend/mocks"
+	rpc "github.com/evmos/evmos/v20/rpc/types"
+	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	mock "github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -274,4 +274,10 @@ func RegisterBalanceNegative(queryClient *mocks.EVMQueryClient, addr common.Addr
 func RegisterBalanceError(queryClient *mocks.EVMQueryClient, addr common.Address, height int64) {
 	queryClient.On("Balance", rpc.ContextWithHeight(height), &evmtypes.QueryBalanceRequest{Address: addr.String()}).
 		Return(nil, errortypes.ErrInvalidRequest)
+}
+
+// GlobalMinGasPrice
+func RegisterGlobalMinGasPrice(queryClient *mocks.EVMQueryClient, height int64) {
+	queryClient.On("GlobalMinGasPrice", rpc.ContextWithHeight(height), &evmtypes.QueryGlobalMinGasPriceRequest{}).
+		Return(&evmtypes.QueryGlobalMinGasPriceResponse{MinGasPrice: math.OneInt()}, nil)
 }

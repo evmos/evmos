@@ -10,8 +10,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/x/erc20/types"
+	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	"github.com/evmos/evmos/v20/x/erc20/types"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -35,7 +35,6 @@ func (suite *MsgsTestSuite) TestMsgConvertERC20Getters() {
 	suite.Require().Equal(types.RouterKey, msg.Route())
 	suite.Require().Equal(types.TypeMsgConvertERC20, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
-	suite.Require().NotNil(msg.GetSigners())
 }
 
 func (suite *MsgsTestSuite) TestMsgConvertERC20New() {

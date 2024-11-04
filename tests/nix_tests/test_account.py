@@ -2,7 +2,13 @@ import pytest
 from web3 import Web3
 
 from .network import setup_evmos, setup_evmos_rocksdb
-from .utils import ADDRS, derive_new_account, w3_wait_for_new_blocks
+from .utils import (
+    ADDRS,
+    KEYS,
+    derive_new_account,
+    send_transaction,
+    w3_wait_for_new_blocks,
+)
 
 
 # start a brand new chain for this test
@@ -12,6 +18,8 @@ def custom_evmos(tmp_path_factory):
     yield from setup_evmos(path, 26700, long_timeout_commit=True)
 
 
+# ATM rocksdb build is not supported for sdkv0.50
+# This is due to cronos dependencies (versionDB, memIAVL)
 @pytest.fixture(scope="module")
 def custom_evmos_rocksdb(tmp_path_factory):
     path = tmp_path_factory.mktemp("account-rocksdb")
@@ -35,6 +43,8 @@ def cluster(request, custom_evmos, custom_evmos_rocksdb, geth):
         evmos_ws = custom_evmos.copy()
         evmos_ws.use_websocket()
         yield evmos_ws
+    # ATM rocksdb build is not supported for sdkv0.50
+    # This is due to cronos dependencies (versionDB, memIAVL)
     elif provider == "evmos-rocksdb":
         yield custom_evmos_rocksdb
     elif provider == "geth":
@@ -52,14 +62,15 @@ def test_get_transaction_count(cluster):
     n0 = w3.eth.get_transaction_count(receiver, blk)
     # ensure transaction send in new block
     w3_wait_for_new_blocks(w3, 1, sleep=0.1)
-    txhash = w3.eth.send_transaction(
+    receipt = send_transaction(
+        w3,
         {
             "from": sender,
             "to": receiver,
             "value": 1000,
-        }
+        },
+        KEYS["validator"],
     )
-    receipt = w3.eth.wait_for_transaction_receipt(txhash)
     assert receipt.status == 1
     [n1, n2] = [w3.eth.get_transaction_count(receiver, b) for b in [blk, "latest"]]
     assert n0 == n1

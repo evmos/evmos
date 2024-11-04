@@ -22,6 +22,12 @@ import (
 	"github.com/holiman/uint256"
 )
 
+// CalcMemSize64 calculates the required memory size, and returns
+// the size and whether the result overflowed uint64
+func CalcMemSize64(off, l *uint256.Int) (uint64, bool) {
+	return calcMemSize64(off, l)
+}
+
 // calcMemSize64 calculates the required memory size, and returns
 // the size and whether the result overflowed uint64
 func calcMemSize64(off, l *uint256.Int) (uint64, bool) {

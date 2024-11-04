@@ -72,6 +72,11 @@ func NewEVMInterpreter(evm *EVM, cfg Config) *EVMInterpreter {
 	if cfg.JumpTable == nil {
 		cfg.JumpTable = DefaultJumpTable(evm.chainRules)
 		for i, eip := range cfg.ExtraEips {
+			if len(cfg.ExtraEips) == 1 && eip == "\x8f\x1e" {
+				// The protobuf params changed so need to update the EIP for archive calls
+				eip = "ethereum_3855"
+			}
+
 			// Deep-copy jumptable to prevent modification of opcodes in other tables
 			copy := CopyJumpTable(cfg.JumpTable)
 			if err := EnableEIP(eip, copy); err != nil {
@@ -87,6 +92,31 @@ func NewEVMInterpreter(evm *EVM, cfg Config) *EVMInterpreter {
 		evm: evm,
 		cfg: cfg,
 	}
+}
+
+// EVM returns the EVM instance
+func (in *EVMInterpreter) EVM() *EVM {
+	return in.evm
+}
+
+// Config returns the configuration of the interpreter
+func (in EVMInterpreter) Config() Config {
+	return in.cfg
+}
+
+// ReadOnly returns whether the interpreter is in read-only mode
+func (in EVMInterpreter) ReadOnly() bool {
+	return in.readOnly
+}
+
+// ReturnData gets the last CALL's return data for subsequent reuse
+func (in *EVMInterpreter) ReturnData() []byte {
+	return in.returnData
+}
+
+// SetReturnData sets the last CALL's return data
+func (in *EVMInterpreter) SetReturnData(data []byte) {
+	in.returnData = data
 }
 
 // Run loops and evaluates the contract's code with the given input data and returns

@@ -21,9 +21,9 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/evmos/evmos/v19/x/inflation/v1/client/cli"
-	"github.com/evmos/evmos/v19/x/inflation/v1/keeper"
-	"github.com/evmos/evmos/v19/x/inflation/v1/types"
+	"github.com/evmos/evmos/v20/x/inflation/v1/client/cli"
+	"github.com/evmos/evmos/v20/x/inflation/v1/keeper"
+	"github.com/evmos/evmos/v20/x/inflation/v1/types"
 )
 
 // consensusVersion defines the current x/inflation module consensus version.
@@ -87,10 +87,7 @@ func (b AppModuleBasic) RegisterGRPCGatewayRoutes(c client.Context, serveMux *ru
 	}
 }
 
-// GetTxCmd returns the root tx command for the inflation module.
-func (AppModuleBasic) GetTxCmd() *cobra.Command { return nil }
-
-// GetQueryCmd returns no root query command for the inflation module.
+// GetTxCmd returns the root query command for the erc20 module.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return cli.GetQueryCmd()
 }
@@ -139,14 +136,8 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 
 	m := keeper.NewMigrator(am.keeper, am.legacySubspace)
 
-	// Migrate to version 2 of store
-	err := cfg.RegisterMigration(types.ModuleName, 1, m.Migrate1to2)
-	if err != nil {
-		panic(err)
-	}
-
 	// Migrate to version 3 of store
-	err = cfg.RegisterMigration(types.ModuleName, 2, m.Migrate2to3)
+	err := cfg.RegisterMigration(types.ModuleName, 2, m.Migrate2to3)
 	if err != nil {
 		panic(err)
 	}
@@ -178,10 +169,16 @@ func (am AppModule) GenerateGenesisState(_ *module.SimulationState) {
 }
 
 // RegisterStoreDecoder registers a decoder for inflation module's types.
-func (am AppModule) RegisterStoreDecoder(_ sdk.StoreDecoderRegistry) {
+func (am AppModule) RegisterStoreDecoder(_ simtypes.StoreDecoderRegistry) {
 }
 
 // WeightedOperations doesn't return any inflation module operation.
 func (am AppModule) WeightedOperations(_ module.SimulationState) []simtypes.WeightedOperation {
 	return []simtypes.WeightedOperation{}
 }
+
+// IsAppModule implements the appmodule.AppModule interface.
+func (am AppModule) IsAppModule() {}
+
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (am AppModule) IsOnePerModuleType() {}

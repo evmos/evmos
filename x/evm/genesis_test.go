@@ -4,17 +4,18 @@ import (
 	"math/big"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v19/contracts"
-	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
-	testfactory "github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
-	testhandler "github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	testnetwork "github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v19/x/evm"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	"github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/contracts"
+	"github.com/evmos/evmos/v20/crypto/ethsecp256k1"
+	testfactory "github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
+	testhandler "github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
+	testnetwork "github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v20/x/evm"
+	"github.com/evmos/evmos/v20/x/evm/statedb"
+	"github.com/evmos/evmos/v20/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -47,7 +48,10 @@ func TestInitGenesis(t *testing.T) {
 
 	address := common.HexToAddress(privkey.PubKey().Address().String())
 
-	var vmdb *statedb.StateDB
+	var (
+		vmdb *statedb.StateDB
+		ctx  sdk.Context
+	)
 
 	testCases := []struct {
 		name     string
@@ -96,7 +100,6 @@ func TestInitGenesis(t *testing.T) {
 		{
 			name: "ignore empty account code checking",
 			malleate: func(network *testnetwork.UnitTestNetwork) {
-				ctx := network.GetContext()
 				acc := network.App.AccountKeeper.NewAccountWithAddress(ctx, address.Bytes())
 				network.App.AccountKeeper.SetAccount(ctx, acc)
 			},
@@ -114,7 +117,6 @@ func TestInitGenesis(t *testing.T) {
 		{
 			name: "valid account with code",
 			malleate: func(network *testnetwork.UnitTestNetwork) {
-				ctx := network.GetContext()
 				acc := network.App.AccountKeeper.NewAccountWithAddress(ctx, address.Bytes())
 				network.App.AccountKeeper.SetAccount(ctx, acc)
 			},
@@ -134,12 +136,12 @@ func TestInitGenesis(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			ts := SetupTest()
-			ctx := ts.network.GetContext()
+			ctx = ts.network.GetContext()
 
 			vmdb = statedb.New(
 				ctx,
 				ts.network.App.EvmKeeper,
-				statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash().Bytes())),
+				statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash())),
 			)
 
 			tc.malleate(ts.network)

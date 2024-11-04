@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/evmos/v19/precompiles/authorization"
+	"github.com/evmos/evmos/v20/precompiles/authorization"
 
 	"github.com/ethereum/go-ethereum/common"
 
@@ -15,8 +15,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 
 	cosmosvestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	vestingtypes "github.com/evmos/evmos/v20/x/vesting/types"
 )
 
 // LockupPeriods is a struct used to parse the LockupPeriods parameter
@@ -100,7 +100,7 @@ func NewMsgFundVestingAccount(args []interface{}, method *abi.Method) (*vestingt
 		return nil, common.Address{}, common.Address{}, nil, nil, fmt.Errorf(cmn.ErrInvalidType, "startTime", uint64(0), args[2])
 	}
 
-	startTimeTimestamp := time.Unix(int64(startTime), 0)
+	startTimeTimestamp := time.Unix(int64(startTime), 0) //#nosec G115
 
 	var lockupPeriodsInput LockupPeriods
 	lockupPeriod := abi.Arguments{method.Inputs[3]}

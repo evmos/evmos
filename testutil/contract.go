@@ -18,9 +18,9 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/testutil/tx"
-	evm "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/app"
+	"github.com/evmos/evmos/v20/testutil/tx"
+	evm "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // ContractArgs are the params used for calling a smart contract.
@@ -59,7 +59,7 @@ func DeployContract(
 	contract evm.CompiledContract,
 	constructorArgs ...interface{},
 ) (common.Address, error) {
-	chainID := evmosApp.EvmKeeper.ChainID()
+	chainID := evm.GetEthChainConfig().ChainID
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := evmosApp.EvmKeeper.GetNonce(ctx, from)
 
@@ -74,11 +74,20 @@ func DeployContract(
 		return common.Address{}, err
 	}
 
+	baseFeeRes, err := evmosApp.EvmKeeper.BaseFee(ctx, &evm.QueryBaseFeeRequest{})
+	if err != nil {
+		return common.Address{}, err
+	}
+	baseFee := baseFeeRes.BaseFee.BigInt()
+	if baseFee.Uint64() == 0 {
+		baseFee = big.NewInt(1)
+	}
+
 	msgEthereumTx := evm.NewTx(&evm.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		GasLimit:  gas,
-		GasFeeCap: evmosApp.FeeMarketKeeper.GetBaseFee(ctx),
+		GasFeeCap: baseFee,
 		GasTipCap: big.NewInt(1),
 		Input:     data,
 		Accesses:  &ethtypes.AccessList{},
@@ -104,8 +113,8 @@ func DeployContractWithFactory(
 	evmosApp *app.Evmos,
 	priv cryptotypes.PrivKey,
 	factoryAddress common.Address,
-) (common.Address, abci.ResponseDeliverTx, error) {
-	chainID := evmosApp.EvmKeeper.ChainID()
+) (common.Address, abci.ExecTxResult, error) {
+	chainID := evm.GetEthChainConfig().ChainID
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	factoryNonce := evmosApp.EvmKeeper.GetNonce(ctx, factoryAddress)
 	nonce := evmosApp.EvmKeeper.GetNonce(ctx, from)
@@ -121,18 +130,18 @@ func DeployContractWithFactory(
 
 	res, err := DeliverEthTx(evmosApp, priv, msgEthereumTx)
 	if err != nil {
-		return common.Address{}, abci.ResponseDeliverTx{}, err
+		return common.Address{}, abci.ExecTxResult{}, err
 	}
 
 	if _, err := CheckEthTxResponse(res, evmosApp.AppCodec()); err != nil {
-		return common.Address{}, abci.ResponseDeliverTx{}, err
+		return common.Address{}, abci.ExecTxResult{}, err
 	}
 
 	return crypto.CreateAddress(factoryAddress, factoryNonce), res, err
 }
 
 // CheckEthTxResponse checks that the transaction was executed successfully
-func CheckEthTxResponse(r abci.ResponseDeliverTx, cdc codec.Codec) ([]*evm.MsgEthereumTxResponse, error) {
+func CheckEthTxResponse(r abci.ExecTxResult, cdc codec.Codec) ([]*evm.MsgEthereumTxResponse, error) {
 	if !r.IsOK() {
 		return nil, fmt.Errorf("tx failed. Code: %d, Logs: %s", r.Code, r.Log)
 	}

@@ -23,6 +23,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -140,7 +141,7 @@ type (
 		slot    *common.Hash
 	}
 	precompileCallChange struct {
-		multiStore sdk.CacheMultiStore
+		multiStore storetypes.CacheMultiStore
 		events     sdk.Events
 	}
 )

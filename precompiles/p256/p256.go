@@ -20,9 +20,9 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/crypto/secp256r1"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/crypto/secp256r1"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -36,7 +36,7 @@ const (
 
 // Precompile secp256r1 (P256) signature verification
 // implemented as a native contract as per EIP-7212.
-// See https://eips.ethereum.org/EIPS/eip-7212 for details
+// See https://github.com/ethereum/RIPs/blob/master/RIPS/rip-7212.md for details
 type Precompile struct{}
 
 // Address defines the address of the p256 precompiled contract.

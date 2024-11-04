@@ -5,11 +5,13 @@ package grpc
 
 import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
-	commongrpc "github.com/evmos/evmos/v19/testutil/integration/common/grpc"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+	commongrpc "github.com/evmos/evmos/v20/testutil/integration/common/grpc"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
+	infltypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
 )
 
 // Handler is an interface that defines the methods that are used to query
@@ -21,6 +23,7 @@ type Handler interface {
 	GetEvmAccount(address common.Address) (*evmtypes.QueryAccountResponse, error)
 	EstimateGas(args []byte, GasCap uint64) (*evmtypes.EstimateGasResponse, error)
 	GetEvmParams() (*evmtypes.QueryParamsResponse, error)
+	GetEvmBaseFee() (*evmtypes.QueryBaseFeeResponse, error)
 
 	// FeeMarket methods
 	GetBaseFee() (*feemarkettypes.QueryBaseFeeResponse, error)
@@ -29,6 +32,17 @@ type Handler interface {
 	// Gov methods
 	GetProposal(proposalID uint64) (*govtypes.QueryProposalResponse, error)
 	GetGovParams(paramsType string) (*govtypes.QueryParamsResponse, error)
+
+	// Inflation methods
+	GetPeriod() (*infltypes.QueryPeriodResponse, error)
+	GetEpochMintProvision() (*infltypes.QueryEpochMintProvisionResponse, error)
+	GetSkippedEpochs() (*infltypes.QuerySkippedEpochsResponse, error)
+	GetCirculatingSupply() (*infltypes.QueryCirculatingSupplyResponse, error)
+	GetInflationRate() (*infltypes.QueryInflationRateResponse, error)
+	GetInflationParams() (*infltypes.QueryParamsResponse, error)
+
+	// Staking methods
+	GetStakingParams() (*stakingtypes.QueryParamsResponse, error)
 }
 
 var _ Handler = (*IntegrationHandler)(nil)

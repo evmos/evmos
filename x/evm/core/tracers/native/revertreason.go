@@ -26,8 +26,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v19/x/evm/core/tracers"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/evmos/v20/x/evm/core/tracers"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
 
 func init() {

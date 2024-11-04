@@ -4,6 +4,7 @@
 package staking
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -11,11 +12,12 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/evmos/v20/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
 
-	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	stakingkeeper "github.com/evmos/evmos/v20/x/staking/keeper"
 )
 
 const (
@@ -57,7 +59,11 @@ func (p Precompile) CreateValidator(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, validatorHexAddr, err := NewMsgCreateValidator(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	msg, validatorHexAddr, err := NewMsgCreateValidator(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +82,7 @@ func (p Precompile) CreateValidator(
 	// and MsgEditValidator (source: https://github.com/cosmos/cosmos-sdk/blob/4bd73b667f8aed50ad4602ddf862a4ed6e1450a8/x/staking/proto/cosmos/staking/v1beta1/authz.proto#L39-L50)
 	// so, for the time being, we won't allow calls from smart contracts
 	if contract.CallerAddress != origin {
-		return nil, fmt.Errorf(ErrCannotCallFromContract)
+		return nil, errors.New(ErrCannotCallFromContract)
 	}
 
 	// we only allow the tx signer "origin" to create their own validator.
@@ -86,7 +92,7 @@ func (p Precompile) CreateValidator(
 
 	// Execute the transaction using the message server
 	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
-	if _, err = msgSrv.CreateValidator(sdk.WrapSDKContext(ctx), msg); err != nil {
+	if _, err = msgSrv.CreateValidator(ctx, msg); err != nil {
 		return nil, err
 	}
 
@@ -127,7 +133,7 @@ func (p Precompile) EditValidator(
 	// and MsgEditValidator (source: https://github.com/cosmos/cosmos-sdk/blob/4bd73b667f8aed50ad4602ddf862a4ed6e1450a8/x/staking/proto/cosmos/staking/v1beta1/authz.proto#L39-L50)
 	// so, for the time being, we won't allow calls from smart contracts
 	if contract.CallerAddress != origin {
-		return nil, fmt.Errorf(ErrCannotCallFromContract)
+		return nil, errors.New(ErrCannotCallFromContract)
 	}
 
 	// we only allow the tx signer "origin" to edit their own validator.
@@ -137,7 +143,7 @@ func (p Precompile) EditValidator(
 
 	// Execute the transaction using the message server
 	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
-	if _, err = msgSrv.EditValidator(sdk.WrapSDKContext(ctx), msg); err != nil {
+	if _, err = msgSrv.EditValidator(ctx, msg); err != nil {
 		return nil, err
 	}
 
@@ -158,7 +164,11 @@ func (p *Precompile) Delegate(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, delegatorHexAddr, err := NewMsgDelegate(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	msg, delegatorHexAddr, err := NewMsgDelegate(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +218,7 @@ func (p *Precompile) Delegate(
 
 	// Execute the transaction using the message server
 	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
-	if _, err = msgSrv.Delegate(sdk.WrapSDKContext(ctx), msg); err != nil {
+	if _, err = msgSrv.Delegate(ctx, msg); err != nil {
 		return nil, err
 	}
 
@@ -224,14 +234,17 @@ func (p *Precompile) Delegate(
 		return nil, err
 	}
 
-	if !isCallerOrigin {
+	if !isCallerOrigin && msg.Amount.Denom == evmtypes.GetEVMCoinDenom() {
 		// get the delegator address from the message
 		delAccAddr := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 		delHexAddr := common.BytesToAddress(delAccAddr)
 		// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB
 		// when calling the precompile from a smart contract
 		// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(delHexAddr, msg.Amount.Amount.BigInt(), cmn.Sub))
+
+		// Need to scale the amount to 18 decimals for the EVM balance change entry
+		scaledAmt := evmtypes.ConvertAmountTo18DecimalsBigInt(msg.Amount.Amount.BigInt())
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(delHexAddr, scaledAmt, cmn.Sub))
 	}
 
 	return method.Outputs.Pack(true)
@@ -247,7 +260,11 @@ func (p Precompile) Undelegate(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, delegatorHexAddr, err := NewMsgUndelegate(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	msg, delegatorHexAddr, err := NewMsgUndelegate(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -297,7 +314,7 @@ func (p Precompile) Undelegate(
 
 	// Execute the transaction using the message server
 	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
-	res, err := msgSrv.Undelegate(sdk.WrapSDKContext(ctx), msg)
+	res, err := msgSrv.Undelegate(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -328,7 +345,11 @@ func (p Precompile) Redelegate(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, delegatorHexAddr, err := NewMsgRedelegate(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	msg, delegatorHexAddr, err := NewMsgRedelegate(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -378,7 +399,7 @@ func (p Precompile) Redelegate(
 	}
 
 	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
-	res, err := msgSrv.BeginRedelegate(sdk.WrapSDKContext(ctx), msg)
+	res, err := msgSrv.BeginRedelegate(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -408,7 +429,11 @@ func (p Precompile) CancelUnbondingDelegation(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, delegatorHexAddr, err := NewMsgCancelUnbondingDelegation(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	msg, delegatorHexAddr, err := NewMsgCancelUnbondingDelegation(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -458,7 +483,7 @@ func (p Precompile) CancelUnbondingDelegation(
 	}
 
 	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
-	if _, err = msgSrv.CancelUnbondingDelegation(sdk.WrapSDKContext(ctx), msg); err != nil {
+	if _, err = msgSrv.CancelUnbondingDelegation(ctx, msg); err != nil {
 		return nil, err
 	}
 

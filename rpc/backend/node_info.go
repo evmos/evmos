@@ -9,7 +9,7 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdkcrypto "github.com/cosmos/cosmos-sdk/crypto"
@@ -22,11 +22,11 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
-	rpctypes "github.com/evmos/evmos/v19/rpc/types"
-	"github.com/evmos/evmos/v19/server/config"
-	"github.com/evmos/evmos/v19/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/crypto/ethsecp256k1"
+	rpctypes "github.com/evmos/evmos/v20/rpc/types"
+	"github.com/evmos/evmos/v20/server/config"
+	"github.com/evmos/evmos/v20/types"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // Accounts returns the list of accounts available to this node.
@@ -73,8 +73,8 @@ func (b *Backend) Syncing() (interface{}, error) {
 	}
 
 	return map[string]interface{}{
-		"startingBlock": hexutil.Uint64(status.SyncInfo.EarliestBlockHeight),
-		"currentBlock":  hexutil.Uint64(status.SyncInfo.LatestBlockHeight),
+		"startingBlock": hexutil.Uint64(status.SyncInfo.EarliestBlockHeight), //nolint:gosec // G115
+		"currentBlock":  hexutil.Uint64(status.SyncInfo.LatestBlockHeight),   //nolint:gosec // G115
 		// "highestBlock":  nil, // NA
 		// "pulledStates":  nil, // NA
 		// "knownStates":   nil, // NA
@@ -96,11 +96,6 @@ func (b *Backend) SetEtherbase(etherbase common.Address) bool {
 
 	withdrawAddr := sdk.AccAddress(etherbase.Bytes())
 	msg := distributiontypes.NewMsgSetWithdrawAddress(delAddr, withdrawAddr)
-
-	if err := msg.ValidateBasic(); err != nil {
-		b.logger.Debug("tx failed basic validation", "error", err.Error())
-		return false
-	}
 
 	// Assemble transaction from fields
 	builder, ok := b.clientCtx.TxConfig.NewTxBuilder().(authtx.ExtensionOptionsTxBuilder)
@@ -158,7 +153,7 @@ func (b *Backend) SetEtherbase(etherbase common.Address) bool {
 		return false
 	}
 
-	if err := tx.Sign(txFactory, keyInfo.Name, builder, false); err != nil {
+	if err := tx.Sign(b.clientCtx.CmdContext, txFactory, keyInfo.Name, builder, false); err != nil {
 		b.logger.Debug("failed to sign tx", "error", err.Error())
 		return false
 	}
@@ -171,7 +166,7 @@ func (b *Backend) SetEtherbase(etherbase common.Address) bool {
 		return false
 	}
 
-	tmHash := common.BytesToHash(tmtypes.Tx(txBytes).Hash())
+	tmHash := common.BytesToHash(cmttypes.Tx(txBytes).Hash())
 
 	// Broadcast transaction in sync mode (default)
 	// NOTE: If error is encountered on the node, the broadcast will not return an error
@@ -273,28 +268,31 @@ func (b *Backend) SetGasPrice(gasPrice hexutil.Big) bool {
 		b.logger.Debug("could not get the server config", "error", err.Error())
 		return false
 	}
-
-	var unit string
-	minGasPrices := appConf.GetMinGasPrices()
-
-	// fetch the base denom from the sdk Config in case it's not currently defined on the node config
-	if len(minGasPrices) == 0 || minGasPrices.Empty() {
-		var err error
-		unit, err = sdk.GetBaseDenom()
-		if err != nil {
-			b.logger.Debug("could not get the denom of smallest unit registered", "error", err.Error())
-			return false
-		}
-	} else {
-		unit = minGasPrices[0].Denom
-	}
-
-	c := sdk.NewDecCoin(unit, sdkmath.NewIntFromBigInt(gasPrice.ToInt()))
+	c := b.GenerateMinGasCoin(gasPrice, appConf)
 
 	appConf.SetMinGasPrices(sdk.DecCoins{c})
 	sdkconfig.WriteConfigFile(b.clientCtx.Viper.ConfigFileUsed(), appConf)
 	b.logger.Info("Your configuration file was modified. Please RESTART your node.", "gas-price", c.String())
 	return true
+}
+
+func (b *Backend) GenerateMinGasCoin(gasPrice hexutil.Big, appConf config.Config) sdk.DecCoin {
+	var unit string
+	minGasPrices := appConf.GetMinGasPrices()
+
+	// fetch the base denom from the sdk Config in case it's not currently defined on the node config
+	if len(minGasPrices) == 0 || minGasPrices.Empty() {
+		unit = evmtypes.GetEVMCoinDenom()
+	} else {
+		unit = minGasPrices[0].Denom
+	}
+
+	// The provided gasPrice has 18 decimals.
+	// We need to update to the denom's real precision
+	scaledAmt := evmtypes.ConvertBigIntFrom18DecimalsToLegacyDec(gasPrice.ToInt())
+	c := sdk.DecCoin{Denom: unit, Amount: scaledAmt}
+
+	return c
 }
 
 // UnprotectedAllowed returns the node configuration value for allowing
@@ -340,18 +338,14 @@ func (b *Backend) RPCBlockRangeCap() int32 {
 
 // RPCMinGasPrice returns the minimum gas price for a transaction obtained from
 // the node config. If set value is 0, it will default to 20.
-
-func (b *Backend) RPCMinGasPrice() int64 {
-	evmParams, err := b.queryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
-	if err != nil {
-		return types.DefaultGasPrice
-	}
+func (b *Backend) RPCMinGasPrice() *big.Int {
+	baseDenom := evmtypes.GetEVMCoinDenom()
 
 	minGasPrice := b.cfg.GetMinGasPrices()
-	amt := minGasPrice.AmountOf(evmParams.Params.EvmDenom).TruncateInt64()
-	if amt == 0 {
-		return types.DefaultGasPrice
+	amt := minGasPrice.AmountOf(baseDenom)
+	if amt.IsNil() || amt.IsZero() {
+		return big.NewInt(types.DefaultGasPrice)
 	}
 
-	return amt
+	return evmtypes.ConvertAmountTo18DecimalsLegacy(amt).TruncateInt().BigInt()
 }

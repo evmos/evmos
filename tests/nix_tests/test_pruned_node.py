@@ -148,7 +148,7 @@ def test_pruned_node(pruned_cluster):
             "value": 0,
             "type": 2,
             "accessList": [],
-            "chainId": 9000,
+            "chainId": 9002,
         }
     )
     assert tx1 == tx2

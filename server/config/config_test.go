@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 
-	evmostypes "github.com/evmos/evmos/v19/types"
+	evmostypes "github.com/evmos/evmos/v20/types"
 )
 
 func TestDefaultConfig(t *testing.T) {
@@ -29,12 +29,12 @@ func TestGetConfig(t *testing.T) {
 			"test unmarshal embedded structs",
 			func() *viper.Viper {
 				v := viper.New()
-				v.Set("minimum-gas-prices", fmt.Sprintf("100%s", evmostypes.AttoEvmos))
+				v.Set("minimum-gas-prices", fmt.Sprintf("100%s", evmostypes.BaseDenom))
 				return v
 			},
 			func() Config {
 				cfg := DefaultConfig()
-				cfg.MinGasPrices = fmt.Sprintf("100%s", evmostypes.AttoEvmos)
+				cfg.MinGasPrices = fmt.Sprintf("100%s", evmostypes.BaseDenom)
 				return *cfg
 			},
 			false,

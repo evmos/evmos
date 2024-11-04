@@ -9,7 +9,7 @@ import (
 	"slices"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/types"
+	"github.com/evmos/evmos/v20/types"
 )
 
 const (

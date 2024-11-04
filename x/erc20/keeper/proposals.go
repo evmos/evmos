@@ -9,12 +9,12 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v19/x/erc20/types"
+	"github.com/evmos/evmos/v20/x/erc20/types"
 )
 
 // RegisterERC20 creates a Cosmos coin and registers the token pair between the
 // coin and the ERC20
-func (k Keeper) RegisterERC20(
+func (k Keeper) registerERC20(
 	ctx sdk.Context,
 	contract common.Address,
 ) (*types.TokenPair, error) {
@@ -92,7 +92,7 @@ func (k Keeper) CreateCoinMetadata(
 			metadata.DenomUnits,
 			&banktypes.DenomUnit{
 				Denom:    nameSanitized,
-				Exponent: uint32(erc20Data.Decimals),
+				Exponent: uint32(erc20Data.Decimals), //#nosec G115
 			},
 		)
 		metadata.Display = nameSanitized
@@ -109,8 +109,8 @@ func (k Keeper) CreateCoinMetadata(
 	return &metadata, nil
 }
 
-// ToggleConversion toggles conversion for a given token pair
-func (k Keeper) ToggleConversion(
+// toggleConversion toggles conversion for a given token pair
+func (k Keeper) toggleConversion(
 	ctx sdk.Context,
 	token string,
 ) (types.TokenPair, error) {

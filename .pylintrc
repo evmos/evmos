@@ -11,6 +11,8 @@
 # --disable=W".
 disable=raw-checker-failed,
         bad-inline-option,
+        broad-exception-caught,
+        consider-using-f-string,
         locally-disabled,
         file-ignored,
         suppressed-message,
@@ -25,6 +27,7 @@ disable=raw-checker-failed,
         too-few-public-methods,
         too-many-public-methods,
         too-many-arguments,
+        too-many-instance-attributes,
         too-many-lines,
         too-many-locals,
         too-many-branches,
@@ -36,3 +39,5 @@ disable=raw-checker-failed,
         import-error,
         use-dict-literal,
         fixme
+
+max-line-length=120

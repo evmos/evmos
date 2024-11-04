@@ -5,13 +5,13 @@ package keeper
 import (
 	"math/big"
 
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/evmos/evmos/v19/x/feemarket/types"
+	"github.com/evmos/evmos/v20/x/feemarket/types"
 )
 
 // KeyPrefixBaseFeeV1 TODO: Temporary will be removed with params refactor PR
@@ -69,22 +69,13 @@ func (k Keeper) SetBlockGasWanted(ctx sdk.Context, gas uint64) {
 // GetBlockGasWanted returns the last block gas wanted value from the store.
 func (k Keeper) GetBlockGasWanted(ctx sdk.Context) uint64 {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.KeyPrefixBlockGasWanted)
-	if len(bz) == 0 {
-		return 0
-	}
-
-	return sdk.BigEndianToUint64(bz)
+	return sdk.BigEndianToUint64(store.Get(types.KeyPrefixBlockGasWanted))
 }
 
 // GetTransientGasWanted returns the gas wanted in the current block from transient store.
 func (k Keeper) GetTransientGasWanted(ctx sdk.Context) uint64 {
 	store := ctx.TransientStore(k.transientKey)
-	bz := store.Get(types.KeyPrefixTransientBlockGasWanted)
-	if len(bz) == 0 {
-		return 0
-	}
-	return sdk.BigEndianToUint64(bz)
+	return sdk.BigEndianToUint64(store.Get(types.KeyPrefixTransientBlockGasWanted))
 }
 
 // SetTransientBlockGasWanted sets the block gas wanted to the transient store.

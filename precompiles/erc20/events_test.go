@@ -5,10 +5,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v19/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	erc20precompile "github.com/evmos/evmos/v19/precompiles/erc20"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/evmos/v20/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	erc20precompile "github.com/evmos/evmos/v20/precompiles/erc20"
+	utiltx "github.com/evmos/evmos/v20/testutil/tx"
 )
 
 //nolint:dupl // this is not a duplicate of the approval events test
@@ -28,7 +28,6 @@ func (s *PrecompileTestSuite) TestEmitTransferEvent() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			stateDB := s.network.GetStateDB()
@@ -44,7 +43,7 @@ func (s *PrecompileTestSuite) TestEmitTransferEvent() {
 			// Check event signature matches the one emitted
 			event := s.precompile.ABI.Events[erc20precompile.EventTypeTransfer]
 			s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-			s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
+			s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight())) //nolint:gosec // G115
 
 			// Check the fully unpacked event matches the one emitted
 			var transferEvent erc20precompile.EventTransfer
@@ -75,7 +74,6 @@ func (s *PrecompileTestSuite) TestEmitApprovalEvent() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
@@ -92,7 +90,7 @@ func (s *PrecompileTestSuite) TestEmitApprovalEvent() {
 			// Check event signature matches the one emitted
 			event := s.precompile.ABI.Events[authorization.EventTypeApproval]
 			s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-			s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
+			s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight())) //nolint:gosec // G115
 
 			// Check the fully unpacked event matches the one emitted
 			var approvalEvent erc20precompile.EventApproval

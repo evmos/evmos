@@ -2,9 +2,11 @@
 pragma solidity >=0.8.17;
 
 import "../../distribution/DistributionI.sol" as distribution;
+import "../../staking/StakingI.sol" as staking;
 import "../../common/Types.sol" as types;
 
 contract DistributionCaller {
+    string[] private delegateMethod = [staking.MSG_DELEGATE];
     int64 public counter;
 
     function testSetWithdrawAddressFromContract(
@@ -220,6 +222,27 @@ contract DistributionCaller {
             (bool sent, ) = depositor.call{value: 15}("");
             require(sent, "Failed to send Ether to delegator");
         }
+    }
+
+    /// @dev This function calls the staking precompile's delegate method.
+    /// @param _validatorAddr The validator address to delegate to.
+    /// @param _amount The amount to delegate.
+    function testDelegateFromContract(
+        string memory _validatorAddr,
+        uint256 _amount
+    ) public {
+        // Create approval
+        bool success = staking.STAKING_CONTRACT.approve(
+            address(this),
+            _amount,
+            delegateMethod
+        );
+        require(success, "Failed to approve staking methods");
+        staking.STAKING_CONTRACT.delegate(
+            address(this),
+            _validatorAddr,
+            _amount
+        );
     }
 
     function getValidatorDistributionInfo(

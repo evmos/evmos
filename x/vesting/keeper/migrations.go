@@ -5,8 +5,8 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	v2 "github.com/evmos/evmos/v19/x/vesting/migrations/v2"
-	v3 "github.com/evmos/evmos/v19/x/vesting/migrations/v3"
+	v2 "github.com/evmos/evmos/v20/x/vesting/migrations/v2"
+	v3 "github.com/evmos/evmos/v20/x/vesting/migrations/v3"
 )
 
 var (

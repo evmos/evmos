@@ -13,15 +13,15 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
-	"github.com/cosmos/ibc-go/v7/testing/mock"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	ibcgotesting "github.com/cosmos/ibc-go/v8/testing"
+	"github.com/cosmos/ibc-go/v8/testing/mock"
 
-	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
-	evmostypes "github.com/evmos/evmos/v19/types"
-	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v20/crypto/ethsecp256k1"
+	evmostypes "github.com/evmos/evmos/v20/types"
+	"github.com/evmos/evmos/v20/utils"
 )
 
 // ChainIDPrefix defines the default chain ID prefix for Evmos test chains
@@ -50,9 +50,9 @@ func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string)
 	require.NoError(t, err)
 
 	// create validator set with single validator
-	validator := tmtypes.NewValidator(pubKey, 1)
-	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
-	signers := make(map[string]tmtypes.PrivValidator)
+	validator := cmttypes.NewValidator(pubKey, 1)
+	valSet := cmttypes.NewValidatorSet([]*cmttypes.Validator{validator})
+	signers := make(map[string]cmttypes.PrivValidator)
 	signers[pubKey.Address().String()] = privVal
 
 	// generate genesis account
@@ -67,7 +67,7 @@ func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string)
 
 	balance := banktypes.Balance{
 		Address: baseAcc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amount)),
+		Coins:   sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, amount)),
 	}
 
 	app := SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{baseAcc}, chainID, balance)
@@ -83,7 +83,7 @@ func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string)
 
 	// create an account to send transactions from
 	chain := &ibcgotesting.TestChain{
-		T:             t,
+		TB:            t,
 		Coordinator:   coord,
 		ChainID:       chainID,
 		App:           app,

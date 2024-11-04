@@ -7,6 +7,7 @@ import (
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/codec/address"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -14,13 +15,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/cmd/config"
-	"github.com/evmos/evmos/v19/encoding"
-	"github.com/evmos/evmos/v19/ethereum/eip712"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/types"
-	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v20/cmd/config"
+	"github.com/evmos/evmos/v20/encoding"
+	"github.com/evmos/evmos/v20/ethereum/eip712"
+	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	"github.com/evmos/evmos/v20/types"
+	"github.com/evmos/evmos/v20/utils"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -28,7 +29,7 @@ import (
 var (
 	chainID = utils.TestnetChainID + "-1"
 	ctx     = client.Context{}.WithTxConfig(
-		encoding.MakeConfig(app.ModuleBasics).TxConfig,
+		encoding.MakeConfig().TxConfig,
 	)
 )
 var feePayerAddress = "evmos17xpfvakm2amg962yls6f84z3kell8c5ljcjw34"
@@ -93,9 +94,16 @@ func TestLedgerPreprocessing(t *testing.T) {
 		// Verify tx fields are unchanged
 		tx := tc.txBuilder.GetTx()
 
-		require.Equal(t, tx.FeePayer().String(), tc.expectedFeePayer)
+		addrCodec := address.Bech32Codec{
+			Bech32Prefix: sdk.GetConfig().GetBech32AccountAddrPrefix(),
+		}
+
+		txFeePayer, err := addrCodec.BytesToString(tx.FeePayer())
+		require.NoError(t, err)
+
+		require.Equal(t, txFeePayer, tc.expectedFeePayer)
 		require.Equal(t, tx.GetGas(), tc.expectedGas)
-		require.Equal(t, tx.GetFee().AmountOf(utils.BaseDenom), tc.expectedFee)
+		require.Equal(t, tx.GetFee().AmountOf(evmtypes.GetEVMCoinDenom()), tc.expectedFee)
 		require.Equal(t, tx.GetMemo(), tc.expectedMemo)
 
 		// Verify message is unchanged
@@ -189,7 +197,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 
 	gasLimit := uint64(200000)
 	memo := ""
-	denom := utils.BaseDenom
+	denom := types.BaseDenom
 	feeAmount := math.NewInt(2000)
 
 	txBuilder.SetFeeAmount(sdk.NewCoins(
@@ -206,7 +214,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 		ToAddress:   "evmos12luku6uxehhak02py4rcz65zu0swh7wjun6msa",
 		Amount: sdk.NewCoins(
 			sdk.NewCoin(
-				utils.BaseDenom,
+				denom,
 				math.NewInt(10000000),
 			),
 		),

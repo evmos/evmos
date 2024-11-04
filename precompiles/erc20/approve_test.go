@@ -9,11 +9,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/precompiles/erc20"
-	"github.com/evmos/evmos/v19/precompiles/testutil"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/evmos/v20/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	"github.com/evmos/evmos/v20/precompiles/erc20"
+	"github.com/evmos/evmos/v20/precompiles/testutil"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
 
 //nolint:dupl // tests are not duplicate between the functions
@@ -420,7 +420,6 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
@@ -719,7 +718,6 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 

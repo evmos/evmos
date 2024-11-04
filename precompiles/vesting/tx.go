@@ -9,10 +9,11 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+
+	"github.com/evmos/evmos/v20/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 const (
@@ -54,7 +55,7 @@ func (p *Precompile) CreateClawbackVestingAccount(
 		"args", fmt.Sprintf("{ from_address: %s, to_address: %s }", msg.FunderAddress, msg.VestingAddress),
 	)
 
-	_, err = p.vestingKeeper.CreateClawbackVestingAccount(sdk.WrapSDKContext(ctx), msg)
+	_, err = p.vestingKeeper.CreateClawbackVestingAccount(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +111,7 @@ func (p *Precompile) FundVestingAccount(
 		}
 	}
 
-	_, err = p.vestingKeeper.FundVestingAccount(sdk.WrapSDKContext(ctx), msg)
+	_, err = p.vestingKeeper.FundVestingAccount(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -122,12 +123,16 @@ func (p *Precompile) FundVestingAccount(
 			vestingCoins = lockedUpCoins
 		}
 
-		// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
-		amt := vestingCoins.AmountOf(utils.BaseDenom).BigInt()
-		p.SetBalanceChangeEntries(
-			cmn.NewBalanceChangeEntry(funderAddr, amt, cmn.Sub),
-			cmn.NewBalanceChangeEntry(vestingAddr, amt, cmn.Add),
-		)
+		evmDenomAmt := vestingCoins.AmountOf(evmtypes.GetEVMCoinDenom())
+		if evmDenomAmt.IsPositive() {
+			// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB.
+			// Need to scale the amount to 18 decimals for the EVM balance change entry
+			amt := evmtypes.ConvertAmountTo18DecimalsBigInt(evmDenomAmt.BigInt())
+			p.SetBalanceChangeEntries(
+				cmn.NewBalanceChangeEntry(funderAddr, amt, cmn.Sub),
+				cmn.NewBalanceChangeEntry(vestingAddr, amt, cmn.Add),
+			)
+		}
 	}
 
 	if err = p.EmitFundVestingAccountEvent(ctx, stateDB, msg, funderAddr, vestingAddr, lockupPeriods, vestingPeriods); err != nil {
@@ -182,15 +187,17 @@ func (p *Precompile) Clawback(
 		}
 	}
 
-	response, err := p.vestingKeeper.Clawback(sdk.WrapSDKContext(ctx), msg)
+	response, err := p.vestingKeeper.Clawback(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
 
-	if isContractCaller {
+	evmDenomAmt := response.Coins.AmountOf(evmtypes.GetEVMCoinDenom())
+	if isContractCaller && evmDenomAmt.IsPositive() {
 		// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB when calling
 		// the precompile from another contract.
-		clawbackAmt := response.Coins.AmountOf(utils.BaseDenom).BigInt()
+		// Need to scale the amount to 18 decimals for the EVM balance change entry
+		clawbackAmt := evmtypes.ConvertAmountTo18DecimalsBigInt(evmDenomAmt.BigInt())
 		p.SetBalanceChangeEntries(
 			cmn.NewBalanceChangeEntry(accountAddr, clawbackAmt, cmn.Sub),
 			cmn.NewBalanceChangeEntry(destAddr, clawbackAmt, cmn.Add),
@@ -249,7 +256,7 @@ func (p *Precompile) UpdateVestingFunder(
 		}
 	}
 
-	_, err = p.vestingKeeper.UpdateVestingFunder(sdk.WrapSDKContext(ctx), msg)
+	_, err = p.vestingKeeper.UpdateVestingFunder(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -279,7 +286,7 @@ func (p *Precompile) ConvertVestingAccount(
 		"args", fmt.Sprintf("{ vestingAddress: %s }", msg.VestingAddress),
 	)
 
-	_, err = p.vestingKeeper.ConvertVestingAccount(sdk.WrapSDKContext(ctx), msg)
+	_, err = p.vestingKeeper.ConvertVestingAccount(ctx, msg)
 	if err != nil {
 		return nil, err
 	}

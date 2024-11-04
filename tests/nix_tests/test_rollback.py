@@ -52,7 +52,7 @@ def test_rollback(custom_evmos):
     assert cli1.block_height() == 10
 
     print("stop node1")
-    supervisorctl(custom_evmos.base_dir / "../tasks.ini", "stop", "evmos_9000-1-node1")
+    supervisorctl(custom_evmos.base_dir / "../tasks.ini", "stop", "evmos_9002-1-node1")
 
     print("do rollback on node1")
     cli1.rollback()

@@ -11,8 +11,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
 
 const (
@@ -43,7 +43,11 @@ func (p Precompile) EmitClaimRewardsEvent(ctx sdk.Context, stateDB vm.StateDB, d
 		return err
 	}
 
-	totalAmount := totalCoins.AmountOf(p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return err
+	}
+	totalAmount := totalCoins.AmountOf(bondDenom)
 	// Pack the arguments to be used as the Data field
 	arguments := abi.Arguments{event.Inputs[1]}
 	packed, err := arguments.Pack(totalAmount.BigInt())
@@ -55,7 +59,7 @@ func (p Precompile) EmitClaimRewardsEvent(ctx sdk.Context, stateDB vm.StateDB, d
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        packed,
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -87,7 +91,7 @@ func (p Precompile) EmitSetWithdrawAddressEvent(ctx sdk.Context, stateDB vm.Stat
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        packed,
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -125,7 +129,7 @@ func (p Precompile) EmitWithdrawDelegatorRewardsEvent(ctx sdk.Context, stateDB v
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        b.Bytes(),
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -154,7 +158,7 @@ func (p Precompile) EmitWithdrawValidatorCommissionEvent(ctx sdk.Context, stateD
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        b.Bytes(),
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil
@@ -183,7 +187,7 @@ func (p Precompile) EmitFundCommunityPoolEvent(ctx sdk.Context, stateDB vm.State
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        b.Bytes(),
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil

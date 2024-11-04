@@ -14,11 +14,11 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/stretchr/testify/suite"
@@ -68,7 +68,8 @@ func TestPostTestSuite(t *testing.T) {
 }
 
 func (s *PostTestSuite) BuildEthTx() sdk.Tx {
-	chainID := s.unitNetwork.App.EvmKeeper.ChainID()
+	chainID := evmtypes.GetEthChainConfig().ChainID
+
 	nonce := s.unitNetwork.App.EvmKeeper.GetNonce(
 		s.unitNetwork.GetContext(),
 		common.BytesToAddress(s.from.Bytes()),

@@ -16,9 +16,9 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	rpctypes "github.com/evmos/evmos/v19/rpc/types"
-	"github.com/evmos/evmos/v19/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	rpctypes "github.com/evmos/evmos/v20/rpc/types"
+	"github.com/evmos/evmos/v20/types"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	"github.com/pkg/errors"
 )
 
@@ -47,7 +47,7 @@ func (b *Backend) GetTransactionByHash(txHash common.Hash) (*rpctypes.RPCTransac
 		return nil, errors.New("invalid ethereum tx")
 	}
 
-	blockRes, err := b.TendermintBlockResultByNumber(&block.Block.Height)
+	blockRes, err := b.rpcClient.BlockResults(b.ctx, &block.Block.Height)
 	if err != nil {
 		b.logger.Debug("block result not found", "height", block.Block.Height, "error", err.Error())
 		return nil, nil
@@ -61,7 +61,7 @@ func (b *Backend) GetTransactionByHash(txHash common.Hash) (*rpctypes.RPCTransac
 				if i > math.MaxInt32 {
 					return nil, errors.New("tx index overflow")
 				}
-				res.EthTxIndex = int32(i) //#nosec G701 -- checked for int overflow already
+				res.EthTxIndex = int32(i) //nolint:gosec // G115 G115 -- checked for int overflow already
 				break
 			}
 		}
@@ -77,8 +77,8 @@ func (b *Backend) GetTransactionByHash(txHash common.Hash) (*rpctypes.RPCTransac
 		b.logger.Error("failed to fetch Base Fee from prunned block. Check node prunning configuration", "height", blockRes.Height, "error", err)
 	}
 
-	height := uint64(res.Height)    //#nosec G701 -- checked for int overflow already
-	index := uint64(res.EthTxIndex) //#nosec G701 -- checked for int overflow already
+	height := uint64(res.Height)    //#nosec G701 G115 -- checked for int overflow already
+	index := uint64(res.EthTxIndex) //#nosec G701 G115 -- checked for int overflow already
 	return rpctypes.NewTransactionFromMsg(
 		msg,
 		common.BytesToHash(block.BlockID.Hash.Bytes()),
@@ -148,16 +148,19 @@ func (b *Backend) GetTransactionReceipt(hash common.Hash) (map[string]interface{
 		b.logger.Debug("tx not found", "hash", hexTx, "error", err.Error())
 		return nil, nil
 	}
+
 	resBlock, err := b.TendermintBlockByNumber(rpctypes.BlockNumber(res.Height))
 	if err != nil {
 		b.logger.Debug("block not found", "height", res.Height, "error", err.Error())
 		return nil, nil
 	}
+
 	tx, err := b.clientCtx.TxConfig.TxDecoder()(resBlock.Block.Txs[res.TxIndex])
 	if err != nil {
 		b.logger.Debug("decoding failed", "error", err.Error())
 		return nil, fmt.Errorf("failed to decode tx: %w", err)
 	}
+
 	ethMsg := tx.GetMsgs()[res.MsgIndex].(*evmtypes.MsgEthereumTx)
 
 	txData, err := evmtypes.UnpackTxData(ethMsg.Data)
@@ -167,14 +170,16 @@ func (b *Backend) GetTransactionReceipt(hash common.Hash) (map[string]interface{
 	}
 
 	cumulativeGasUsed := uint64(0)
-	blockRes, err := b.TendermintBlockResultByNumber(&res.Height)
+	blockRes, err := b.rpcClient.BlockResults(b.ctx, &res.Height)
 	if err != nil {
 		b.logger.Debug("failed to retrieve block results", "height", res.Height, "error", err.Error())
 		return nil, nil
 	}
+
 	for _, txResult := range blockRes.TxsResults[0:res.TxIndex] {
-		cumulativeGasUsed += uint64(txResult.GasUsed) // #nosec G701 -- checked for int overflow already
+		cumulativeGasUsed += uint64(txResult.GasUsed) //nolint:gosec // G115 -- checked for int overflow already
 	}
+
 	cumulativeGasUsed += res.CumulativeGasUsed
 
 	var status hexutil.Uint
@@ -183,6 +188,7 @@ func (b *Backend) GetTransactionReceipt(hash common.Hash) (map[string]interface{
 	} else {
 		status = hexutil.Uint(ethtypes.ReceiptStatusSuccessful)
 	}
+
 	chainID, err := b.ChainID()
 	if err != nil {
 		return nil, err
@@ -205,7 +211,7 @@ func (b *Backend) GetTransactionReceipt(hash common.Hash) (map[string]interface{
 		msgs := b.EthMsgsFromTendermintBlock(resBlock, blockRes)
 		for i := range msgs {
 			if msgs[i].Hash == hexTx {
-				res.EthTxIndex = int32(i) // #nosec G701
+				res.EthTxIndex = int32(i) //nolint:gosec // G115 G115
 				break
 			}
 		}
@@ -231,8 +237,8 @@ func (b *Backend) GetTransactionReceipt(hash common.Hash) (map[string]interface{
 		// Inclusion information: These fields provide information about the inclusion of the
 		// transaction corresponding to this receipt.
 		"blockHash":        common.BytesToHash(resBlock.Block.Header.Hash()).Hex(),
-		"blockNumber":      hexutil.Uint64(res.Height),
-		"transactionIndex": hexutil.Uint64(res.EthTxIndex),
+		"blockNumber":      hexutil.Uint64(res.Height),     //nolint:gosec // G115
+		"transactionIndex": hexutil.Uint64(res.EthTxIndex), //nolint:gosec // G115
 
 		// sender and receiver (contract or EOA) addreses
 		"from": from,
@@ -260,6 +266,32 @@ func (b *Backend) GetTransactionReceipt(hash common.Hash) (map[string]interface{
 	}
 
 	return receipt, nil
+}
+
+// GetTransactionLogs returns the transaction logs identified by hash.
+func (b *Backend) GetTransactionLogs(hash common.Hash) ([]*ethtypes.Log, error) {
+	hexTx := hash.Hex()
+
+	res, err := b.GetTxByEthHash(hash)
+	if err != nil {
+		b.logger.Debug("tx not found", "hash", hexTx, "error", err.Error())
+		return nil, nil
+	}
+
+	if res.Failed {
+		// failed, return empty logs
+		return nil, nil
+	}
+
+	resBlockResult, err := b.rpcClient.BlockResults(b.ctx, &res.Height)
+	if err != nil {
+		b.logger.Debug("block result not found", "number", res.Height, "error", err.Error())
+		return nil, nil
+	}
+
+	// parse tx logs from events
+	index := int(res.MsgIndex) // #nosec G701
+	return TxLogsFromEvents(resBlockResult.TxsResults[res.TxIndex].Events, index)
 }
 
 // GetTransactionByBlockHashAndIndex returns the transaction identified by hash and index.
@@ -323,7 +355,7 @@ func (b *Backend) GetTxByEthHash(hash common.Hash) (*types.TxResult, error) {
 
 // GetTxByTxIndex uses `/tx_query` to find transaction by tx index of valid ethereum txs
 func (b *Backend) GetTxByTxIndex(height int64, index uint) (*types.TxResult, error) {
-	int32Index := int32(index) // #nosec G701 -- checked for int overflow already
+	int32Index := int32(index) //nolint:gosec // G115 G115 -- checked for int overflow already
 	if b.indexer != nil {
 		return b.indexer.GetByBlockAndIndex(height, int32Index)
 	}
@@ -334,7 +366,7 @@ func (b *Backend) GetTxByTxIndex(height int64, index uint) (*types.TxResult, err
 		evmtypes.AttributeKeyTxIndex, index,
 	)
 	txResult, err := b.queryTendermintTxIndexer(query, func(txs *rpctypes.ParsedTxs) *rpctypes.ParsedTx {
-		return txs.GetTxByTxIndex(int(index)) // #nosec G701 -- checked for int overflow already
+		return txs.GetTxByTxIndex(int(index)) //#nosec G701 G115 -- checked for int overflow already
 	})
 	if err != nil {
 		return nil, errorsmod.Wrapf(err, "GetTxByTxIndex %d %d", height, index)
@@ -370,7 +402,7 @@ func (b *Backend) queryTendermintTxIndexer(query string, txGetter func(*rpctypes
 
 // GetTransactionByBlockAndIndex is the common code shared by `GetTransactionByBlockNumberAndIndex` and `GetTransactionByBlockHashAndIndex`.
 func (b *Backend) GetTransactionByBlockAndIndex(block *tmrpctypes.ResultBlock, idx hexutil.Uint) (*rpctypes.RPCTransaction, error) {
-	blockRes, err := b.TendermintBlockResultByNumber(&block.Block.Height)
+	blockRes, err := b.rpcClient.BlockResults(b.ctx, &block.Block.Height)
 	if err != nil {
 		return nil, nil
 	}
@@ -393,7 +425,7 @@ func (b *Backend) GetTransactionByBlockAndIndex(block *tmrpctypes.ResultBlock, i
 			return nil, nil
 		}
 	} else {
-		i := int(idx) // #nosec G701
+		i := int(idx) //#nosec G115 G701
 		ethMsgs := b.EthMsgsFromTendermintBlock(block, blockRes)
 		if i >= len(ethMsgs) {
 			b.logger.Debug("block txs index out of bound", "index", i)
@@ -409,7 +441,7 @@ func (b *Backend) GetTransactionByBlockAndIndex(block *tmrpctypes.ResultBlock, i
 		b.logger.Error("failed to fetch Base Fee from prunned block. Check node prunning configuration", "height", block.Block.Height, "error", err)
 	}
 
-	height := uint64(block.Block.Height) // #nosec G701 -- checked for int overflow already
+	height := uint64(block.Block.Height) //nolint:gosec // G115 -- checked for int overflow already
 	index := uint64(idx)                 // #nosec G701 -- checked for int overflow already
 	return rpctypes.NewTransactionFromMsg(
 		msg,

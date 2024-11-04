@@ -3,21 +3,19 @@
 package keeper
 
 import (
-	"math/big"
-
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	"github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
+	"github.com/evmos/evmos/v20/x/evm/statedb"
+	"github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // EVMConfig creates the EVMConfig based on current state
-func (k *Keeper) EVMConfig(ctx sdk.Context, proposerAddress sdk.ConsAddress, chainID *big.Int) (*statedb.EVMConfig, error) {
+func (k *Keeper) EVMConfig(ctx sdk.Context, proposerAddress sdk.ConsAddress) (*statedb.EVMConfig, error) {
 	params := k.GetParams(ctx)
-	ethCfg := params.ChainConfig.EthereumConfig(chainID)
+	ethCfg := types.GetEthChainConfig()
 
 	// get the coinbase address from the block proposer
 	coinbase, err := k.GetCoinbaseAddress(ctx, proposerAddress)
@@ -25,7 +23,7 @@ func (k *Keeper) EVMConfig(ctx sdk.Context, proposerAddress sdk.ConsAddress, cha
 		return nil, errorsmod.Wrap(err, "failed to obtain coinbase address")
 	}
 
-	baseFee := k.GetBaseFee(ctx, ethCfg)
+	baseFee := k.GetBaseFee(ctx)
 	return &statedb.EVMConfig{
 		Params:      params,
 		ChainConfig: ethCfg,
@@ -49,7 +47,7 @@ func (k *Keeper) TxConfig(ctx sdk.Context, txHash common.Hash) statedb.TxConfig 
 func (k Keeper) VMConfig(ctx sdk.Context, _ core.Message, cfg *statedb.EVMConfig, tracer vm.EVMLogger) vm.Config {
 	noBaseFee := true
 	if types.IsLondon(cfg.ChainConfig, ctx.BlockHeight()) {
-		noBaseFee = k.feeMarketKeeper.GetParams(ctx).NoBaseFee
+		noBaseFee = k.feeMarketWrapper.GetParams(ctx).NoBaseFee
 	}
 
 	var debug bool

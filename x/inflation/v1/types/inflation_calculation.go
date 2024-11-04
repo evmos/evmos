@@ -6,7 +6,7 @@ package types
 import (
 	"cosmossdk.io/math"
 
-	evmostypes "github.com/evmos/evmos/v19/types"
+	evmostypes "github.com/evmos/evmos/v20/types"
 )
 
 const (
@@ -60,7 +60,10 @@ func CalculateEpochMintProvision(
 	reducedPeriodProvision := periodProvision.Quo(math.LegacyNewDec(ReductionFactor))
 
 	// epochProvision = periodProvision / epochsPerPeriod
-	epochProvision := reducedPeriodProvision.Quo(math.LegacyNewDec(epochsPerPeriod))
+	epochProvision := math.LegacyZeroDec()
+	if epochsPerPeriod != 0 {
+		epochProvision = reducedPeriodProvision.Quo(math.LegacyNewDec(epochsPerPeriod))
+	}
 
 	// Multiply epochMintProvision with power reduction (10^18 for evmos) as the
 	// calculation is based on `evmos` and the issued tokens need to be given in

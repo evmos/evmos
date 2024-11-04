@@ -8,20 +8,16 @@ import (
 	"slices"
 
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v19/types"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/evmos/v20/types"
+	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
 
 var (
-	// DefaultEVMDenom defines the default EVM denomination on Evmos
-	DefaultEVMDenom = utils.BaseDenom
 	// DefaultAllowUnprotectedTxs rejects all unprotected txs (i.e false)
 	DefaultAllowUnprotectedTxs = false
 	// DefaultStaticPrecompiles defines the default active precompiles
@@ -33,6 +29,7 @@ var (
 		ICS20PrecompileAddress,        // ICS20 transfer precompile
 		VestingPrecompileAddress,      // Vesting precompile
 		BankPrecompileAddress,         // Bank precompile
+		GovPrecompileAddress,          // Gov precompile
 	}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled
@@ -58,19 +55,15 @@ var (
 
 // NewParams creates a new Params instance
 func NewParams(
-	evmDenom string,
 	allowUnprotectedTxs bool,
-	config ChainConfig,
 	extraEIPs []string,
 	activeStaticPrecompiles,
 	evmChannels []string,
 	accessControl AccessControl,
 ) Params {
 	return Params{
-		EvmDenom:                evmDenom,
 		AllowUnprotectedTxs:     allowUnprotectedTxs,
 		ExtraEIPs:               extraEIPs,
-		ChainConfig:             config,
 		ActiveStaticPrecompiles: activeStaticPrecompiles,
 		EVMChannels:             evmChannels,
 		AccessControl:           accessControl,
@@ -80,8 +73,6 @@ func NewParams(
 // DefaultParams returns default evm parameters
 func DefaultParams() Params {
 	return Params{
-		EvmDenom:                DefaultEVMDenom,
-		ChainConfig:             DefaultChainConfig(),
 		ExtraEIPs:               DefaultExtraEIPs,
 		AllowUnprotectedTxs:     DefaultAllowUnprotectedTxs,
 		ActiveStaticPrecompiles: DefaultStaticPrecompiles,
@@ -110,19 +101,11 @@ func validateChannels(i interface{}) error {
 
 // Validate performs basic validation on evm parameters.
 func (p Params) Validate() error {
-	if err := validateEVMDenom(p.EvmDenom); err != nil {
-		return err
-	}
-
 	if err := validateEIPs(p.ExtraEIPs); err != nil {
 		return err
 	}
 
 	if err := validateBool(p.AllowUnprotectedTxs); err != nil {
-		return err
-	}
-
-	if err := validateChainConfig(p.ChainConfig); err != nil {
 		return err
 	}
 
@@ -211,15 +194,6 @@ func validateAllowlistAddresses(i interface{}) error {
 	return nil
 }
 
-func validateEVMDenom(i interface{}) error {
-	denom, ok := i.(string)
-	if !ok {
-		return fmt.Errorf("invalid parameter EVM denom type: %T", i)
-	}
-
-	return sdk.ValidateDenom(denom)
-}
-
 func validateBool(i interface{}) error {
 	_, ok := i.(bool)
 	if !ok {
@@ -253,15 +227,6 @@ func validateEIPs(i interface{}) error {
 	}
 
 	return nil
-}
-
-func validateChainConfig(i interface{}) error {
-	cfg, ok := i.(ChainConfig)
-	if !ok {
-		return fmt.Errorf("invalid chain config type: %T", i)
-	}
-
-	return cfg.Validate()
 }
 
 // ValidatePrecompiles checks if the precompile addresses are valid and unique.

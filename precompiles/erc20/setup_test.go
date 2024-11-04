@@ -3,11 +3,11 @@ package erc20_test
 import (
 	"testing"
 
-	erc20precompile "github.com/evmos/evmos/v19/precompiles/erc20"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	erc20precompile "github.com/evmos/evmos/v20/precompiles/erc20"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -45,7 +45,8 @@ func (s *PrecompileTestSuite) SetupTest() {
 
 	ctx := integrationNetwork.GetContext()
 	sk := integrationNetwork.App.StakingKeeper
-	bondDenom := sk.BondDenom(ctx)
+	bondDenom, err := sk.BondDenom(ctx)
+	s.Require().NoError(err)
 	s.Require().NotEmpty(bondDenom, "bond denom cannot be empty")
 
 	s.bondDenom = bondDenom

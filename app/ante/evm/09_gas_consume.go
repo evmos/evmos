@@ -6,13 +6,12 @@ import (
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
-	sdkmath "cosmossdk.io/math"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
-	anteutils "github.com/evmos/evmos/v19/app/ante/utils"
-	"github.com/evmos/evmos/v19/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	anteutils "github.com/evmos/evmos/v20/app/ante/utils"
+	"github.com/evmos/evmos/v20/types"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // UpdateCumulativeGasWanted updates the cumulative gas wanted
@@ -68,7 +67,6 @@ func ConsumeFeesAndEmitEvent(
 }
 
 // deductFee checks if the fee payer has enough funds to pay for the fees and deducts them.
-// If the spendable balance is not enough, it tries to claim enough staking rewards to cover the fees.
 func deductFees(
 	ctx sdktypes.Context,
 	keepers *ConsumeGasKeepers,
@@ -133,18 +131,4 @@ func CheckBlockGasLimit(ctx sdktypes.Context, gasWanted uint64, minPriority int6
 		WithPriority(minPriority)
 
 	return ctx, nil
-}
-
-// UpdateCumulativeTxFee updates the cumulative transaction fee
-func UpdateCumulativeTxFee(
-	cumulativeTxFee sdktypes.Coins,
-	msgFee *big.Int,
-	denom string,
-) sdktypes.Coins {
-	return cumulativeTxFee.Add(
-		sdktypes.Coin{
-			Denom:  denom,
-			Amount: sdkmath.NewIntFromBigInt(msgFee),
-		},
-	)
 }

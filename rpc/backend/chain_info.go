@@ -5,20 +5,19 @@ package backend
 import (
 	"fmt"
 	"math/big"
-	"strconv"
 
 	"cosmossdk.io/math"
-	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
-	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
+	cmtrpcclient "github.com/cometbft/cometbft/rpc/client"
+	cmtrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
-	rpctypes "github.com/evmos/evmos/v19/rpc/types"
-	"github.com/evmos/evmos/v19/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+	rpctypes "github.com/evmos/evmos/v20/rpc/types"
+	"github.com/evmos/evmos/v20/types"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 	"github.com/pkg/errors"
 )
 
@@ -44,40 +43,38 @@ func (b *Backend) ChainID() (*hexutil.Big, error) {
 
 // ChainConfig returns the latest ethereum chain configuration
 func (b *Backend) ChainConfig() *params.ChainConfig {
-	params, err := b.queryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
-	if err != nil {
-		return nil
-	}
-
-	return params.Params.ChainConfig.EthereumConfig(b.chainID)
+	return evmtypes.GetEthChainConfig()
 }
 
 // GlobalMinGasPrice returns MinGasPrice param from FeeMarket
-func (b *Backend) GlobalMinGasPrice() (math.LegacyDec, error) {
-	res, err := b.queryClient.FeeMarket.Params(b.ctx, &feemarkettypes.QueryParamsRequest{})
+func (b *Backend) GlobalMinGasPrice() (*big.Int, error) {
+	res, err := b.queryClient.GlobalMinGasPrice(b.ctx, &evmtypes.QueryGlobalMinGasPriceRequest{})
 	if err != nil {
-		return math.LegacyZeroDec(), err
+		return nil, err
 	}
-	return res.Params.MinGasPrice, nil
+	if res == nil {
+		return nil, fmt.Errorf("GlobalMinGasPrice query returned a nil response")
+	}
+	return res.MinGasPrice.BigInt(), nil
 }
 
 // BaseFee returns the base fee tracked by the Fee Market module.
 // If the base fee is not enabled globally, the query returns nil.
 // If the London hard fork is not activated at the current height, the query will
 // return nil.
-func (b *Backend) BaseFee(blockRes *tmrpctypes.ResultBlockResults) (*big.Int, error) {
+func (b *Backend) BaseFee(blockRes *cmtrpctypes.ResultBlockResults) (*big.Int, error) {
 	// return BaseFee if London hard fork is activated and feemarket is enabled
 	res, err := b.queryClient.BaseFee(rpctypes.ContextWithHeight(blockRes.Height), &evmtypes.QueryBaseFeeRequest{})
 	if err != nil || res.BaseFee == nil {
 		// we can't tell if it's london HF not enabled or the state is pruned,
 		// in either case, we'll fallback to parsing from begin blocker event,
 		// faster to iterate reversely
-		for i := len(blockRes.BeginBlockEvents) - 1; i >= 0; i-- {
-			evt := blockRes.BeginBlockEvents[i]
-			if evt.Type == feemarkettypes.EventTypeFeeMarket && len(evt.Attributes) > 0 {
-				baseFee, err := strconv.ParseInt(evt.Attributes[0].Value, 10, 64)
-				if err == nil {
-					return big.NewInt(baseFee), nil
+		for i := len(blockRes.FinalizeBlockEvents) - 1; i >= 0; i-- {
+			evt := blockRes.FinalizeBlockEvents[i]
+			if evt.Type == evmtypes.EventTypeFeeMarket && len(evt.Attributes) > 0 {
+				baseFee, ok := math.NewIntFromString(evt.Attributes[0].Value)
+				if ok {
+					return baseFee.BigInt(), nil
 				}
 				break
 			}
@@ -102,7 +99,7 @@ func (b *Backend) CurrentHeader() (*ethtypes.Header, error) {
 // PendingTransactions returns the transactions that are in the transaction pool
 // and have a from address that is one of the accounts this node manages.
 func (b *Backend) PendingTransactions() ([]*sdk.Tx, error) {
-	mc, ok := b.clientCtx.Client.(tmrpcclient.MempoolClient)
+	mc, ok := b.clientCtx.Client.(cmtrpcclient.MempoolClient)
 	if !ok {
 		return nil, errors.New("invalid rpc client")
 	}
@@ -155,18 +152,18 @@ func (b *Backend) FeeHistory(
 	lastBlock rpc.BlockNumber, // the block to start search , to oldest
 	rewardPercentiles []float64, // percentiles to fetch reward
 ) (*rpctypes.FeeHistoryResult, error) {
-	blockEnd := int64(lastBlock) //#nosec G701 -- checked for int overflow already
+	blockEnd := int64(lastBlock) //#nosec G115 G701 -- checked for int overflow already
 
 	if blockEnd < 0 {
 		blockNumber, err := b.BlockNumber()
 		if err != nil {
 			return nil, err
 		}
-		blockEnd = int64(blockNumber) //#nosec G701 -- checked for int overflow already
+		blockEnd = int64(blockNumber) //#nosec G115 G701 -- checked for int overflow already
 	}
 
-	blocks := int64(userBlockCount)                     // #nosec G701 -- checked for int overflow already
-	maxBlockCount := int64(b.cfg.JSONRPC.FeeHistoryCap) // #nosec G701 -- checked for int overflow already
+	blocks := int64(userBlockCount)                     // #nosec G115 G701 -- checked for int overflow already
+	maxBlockCount := int64(b.cfg.JSONRPC.FeeHistoryCap) // #nosec G115 G701 -- checked for int overflow already
 	if blocks > maxBlockCount {
 		return nil, fmt.Errorf("FeeHistory user block count %d higher than %d", blocks, maxBlockCount)
 	}
@@ -193,7 +190,7 @@ func (b *Backend) FeeHistory(
 
 	// fetch block
 	for blockID := blockStart; blockID <= blockEnd; blockID++ {
-		index := int32(blockID - blockStart) // #nosec G701
+		index := int32(blockID - blockStart) // #nosec G701 G115
 		// tendermint block
 		tendermintblock, err := b.TendermintBlockByNumber(rpctypes.BlockNumber(blockID))
 		if tendermintblock == nil {
@@ -207,7 +204,7 @@ func (b *Backend) FeeHistory(
 		}
 
 		// tendermint block result
-		tendermintBlockResult, err := b.TendermintBlockResultByNumber(&tendermintblock.Block.Height)
+		tendermintBlockResult, err := b.rpcClient.BlockResults(b.ctx, &tendermintblock.Block.Height)
 		if tendermintBlockResult == nil {
 			b.logger.Debug("block result not found", "height", tendermintblock.Block.Height, "error", err.Error())
 			return nil, err

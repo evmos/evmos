@@ -11,11 +11,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	transferkeeper "github.com/evmos/evmos/v19/x/ibc/transfer/keeper"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	transferkeeper "github.com/evmos/evmos/v20/x/ibc/transfer/keeper"
 
-	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/evmos/v20/utils"
 )
 
 // GetTransferSenderRecipient returns the sender and recipient sdk.AccAddresses
@@ -144,7 +144,7 @@ func GetDenomTrace(
 	denom string,
 ) (transfertypes.DenomTrace, error) {
 	if !strings.HasPrefix(denom, "ibc/") {
-		return transfertypes.DenomTrace{}, errorsmod.Wrapf(ErrNoIBCVoucherDenom, denom)
+		return transfertypes.DenomTrace{}, errorsmod.Wrapf(ErrNoIBCVoucherDenom, "denom: %s", denom)
 	}
 
 	hash, err := transfertypes.ParseHexHash(denom[4:])
