@@ -249,7 +249,6 @@ func (suite *KeeperTestSuite) TestMintCoins() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
 
@@ -332,7 +331,6 @@ func (suite *KeeperTestSuite) TestBurnCoins() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
 
@@ -407,7 +405,6 @@ func (suite *KeeperTestSuite) TestTransferOwnership() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
 
