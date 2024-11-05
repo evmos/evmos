@@ -30,7 +30,6 @@ func (p Precompile) Deposit(ctx sdk.Context, contract *vm.Contract, stateDB vm.S
 	caller := contract.Caller()
 	depositedAmount := contract.Value()
 
-	// TODO: what if we have a user calling a contract that calls into this one?
 	callerAccAddress := sdk.AccAddress(caller.Bytes())
 	precompileAccAddr := sdk.AccAddress(p.Address().Bytes())
 
@@ -69,6 +68,7 @@ func (p Precompile) Withdraw(ctx sdk.Context, contract *vm.Contract, stateDB vm.
 	if !ok {
 		return nil, fmt.Errorf("invalid argument type: %T", args[0])
 	}
+	// TODO: check that the sender has enough balance for the withdraw.
 	if err := p.EmitWithdrawalEvent(ctx, stateDB, contract.Caller(), amount); err != nil {
 		return nil, err
 	}

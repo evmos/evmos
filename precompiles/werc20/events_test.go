@@ -136,8 +136,7 @@ func (s *PrecompileUnitTestSuite) TestEmitDepositEvent() {
 			copy(adddressTopic[common.HashLength-common.AddressLength:], caller[:])
 			s.Require().Equal(adddressTopic, log.Topics[1])
 
-			// Check on the block number
-			s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
+			s.Require().EqualValues(log.BlockNumber, s.network.GetContext().BlockHeight())
 
 			// Verify data
 			var depositEvent DepositEvent
@@ -196,8 +195,7 @@ func (s *PrecompileUnitTestSuite) TestEmitWithdrawalEvent() {
 			copy(adddressTopic[common.HashLength-common.AddressLength:], caller[:])
 			s.Require().Equal(adddressTopic, log.Topics[1])
 
-			// Check on the block number
-			s.Require().Equal(log.BlockNumber, uint64(s.network.GetContext().BlockHeight()))
+			s.Require().EqualValues(log.BlockNumber, s.network.GetContext().BlockHeight())
 
 			// Verify data
 			var withdrawalEvent WithdrawalEvent
