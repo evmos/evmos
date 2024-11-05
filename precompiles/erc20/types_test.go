@@ -346,7 +346,6 @@ func (s *PrecompileTestSuite) TestParseMintArgs() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			minter, amount, err := erc20.ParseMintArgs(tc.args)
 			if tc.expPass {
@@ -391,7 +390,6 @@ func (s *PrecompileTestSuite) TestParseBurnArgs() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			amount, err := erc20.ParseBurnArgs(tc.args)
 			if tc.expPass {
@@ -427,7 +425,6 @@ func (s *PrecompileTestSuite) TestParseOwnerArgs() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			err := erc20.ParseOwnerArgs(tc.args)
 			if tc.expPass {
@@ -473,7 +470,6 @@ func (s *PrecompileTestSuite) TestParseTransferOwnershipArgs() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			newOwner, err := erc20.ParseTransferOwnershipArgs(tc.args)
 			if tc.expPass {

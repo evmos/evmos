@@ -243,7 +243,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				mockBankKeeper.EXPECT().MintCoins(gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("failed to mint")).AnyTimes()
 				mockBankKeeper.EXPECT().SendCoinsFromModuleToAccount(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("failed to unescrow")).AnyTimes()
 				mockBankKeeper.EXPECT().BlockedAddr(gomock.Any()).Return(false).AnyTimes()
-				mockBankKeeper.EXPECT().GetBalance(gomock.Any(), gomock.Any(), gomock.Any()).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()}).AnyTimes()
+				mockBankKeeper.EXPECT().GetBalance(gomock.Any(), gomock.Any(), gomock.Any()).Return(sdk.Coin{Denom: cosmosTokenDisplay, Amount: math.OneInt()}).AnyTimes()
 			},
 			contractMinterBurner,
 			false,
@@ -268,7 +268,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				mockBankKeeper.EXPECT().MintCoins(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 				mockBankKeeper.EXPECT().SendCoinsFromModuleToAccount(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("failed to unescrow"))
 				mockBankKeeper.EXPECT().BlockedAddr(gomock.Any()).Return(false)
-				mockBankKeeper.EXPECT().GetBalance(gomock.Any(), gomock.Any(), gomock.Any()).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()})
+				mockBankKeeper.EXPECT().GetBalance(gomock.Any(), gomock.Any(), gomock.Any()).Return(sdk.Coin{Denom: cosmosTokenDisplay, Amount: math.OneInt()})
 			},
 			contractMinterBurner,
 			false,
@@ -469,7 +469,6 @@ func (suite *KeeperTestSuite) TestMint() {
 func (suite *KeeperTestSuite) TestBurn() {
 	var ctx sdk.Context
 	contractAddr := utiltx.GenerateAddress()
-	denom := "coin"
 	sender := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	testcases := []struct {
@@ -498,7 +497,7 @@ func (suite *KeeperTestSuite) TestBurn() {
 			func() {
 				expPair := types.NewTokenPair(
 					contractAddr,
-					denom,
+					cosmosTokenDisplay,
 					types.OWNER_MODULE,
 				)
 				suite.network.App.Erc20Keeper.SetTokenPair(ctx, expPair)
@@ -513,10 +512,10 @@ func (suite *KeeperTestSuite) TestBurn() {
 		suite.Run(tc.name, func() {
 			ctx = suite.network.GetContext()
 
-			err := suite.network.App.BankKeeper.MintCoins(ctx, types.ModuleName, sdk.Coins{sdk.NewCoin(denom, math.NewInt(100))})
+			err := suite.network.App.BankKeeper.MintCoins(ctx, types.ModuleName, sdk.Coins{sdk.NewCoin(cosmosTokenDisplay, math.NewInt(100))})
 			suite.Require().NoError(err)
 
-			err = suite.network.App.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sender, sdk.Coins{sdk.NewCoin(denom, math.NewInt(100))})
+			err = suite.network.App.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sender, sdk.Coins{sdk.NewCoin(cosmosTokenDisplay, math.NewInt(100))})
 			suite.Require().NoError(err)
 
 			tc.malleate()
@@ -535,7 +534,6 @@ func (suite *KeeperTestSuite) TestTransferContractOwnership() {
 	var ctx sdk.Context
 	sender := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	tokenAddr := utiltx.GenerateAddress()
-	denom := "coin"
 
 	testcases := []struct {
 		name     string
@@ -570,7 +568,7 @@ func (suite *KeeperTestSuite) TestTransferContractOwnership() {
 			func() {
 				expPair := types.NewTokenPair(
 					tokenAddr,
-					denom,
+					cosmosTokenDisplay,
 					types.OWNER_MODULE,
 				)
 				expPair.SetOwnerAddress(sender.String())
@@ -602,7 +600,6 @@ func (suite *KeeperTestSuite) TestTransferContractOwnershipProposal() {
 	var ctx sdk.Context
 
 	tokenAddr := utiltx.GenerateAddress()
-	denom := "coin"
 
 	testcases := []struct {
 		name     string
@@ -637,7 +634,7 @@ func (suite *KeeperTestSuite) TestTransferContractOwnershipProposal() {
 			func() {
 				expPair := types.NewTokenPair(
 					tokenAddr,
-					denom,
+					cosmosTokenDisplay,
 					types.OWNER_MODULE,
 				)
 				suite.network.App.Erc20Keeper.SetTokenPair(ctx, expPair)

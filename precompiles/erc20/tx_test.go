@@ -455,7 +455,7 @@ func (s *PrecompileTestSuite) TestTransferOwnership() {
 	testcases := []struct {
 		name        string
 		malleate    func() []interface{}
-		postCheck   func(precompile *erc20.Precompile)
+		postCheck   func()
 		expErr      bool
 		errContains string
 	}{
@@ -480,7 +480,7 @@ func (s *PrecompileTestSuite) TestTransferOwnership() {
 			malleate: func() []interface{} {
 				return []interface{}{newOwner}
 			},
-			postCheck: func(precompile *erc20.Precompile) {},
+			postCheck: func() {},
 		},
 	}
 
@@ -507,7 +507,7 @@ func (s *PrecompileTestSuite) TestTransferOwnership() {
 				s.Require().Contains(err.Error(), tc.errContains)
 			} else {
 				s.Require().NoError(err)
-				tc.postCheck(precompile)
+				tc.postCheck()
 			}
 		})
 	}
