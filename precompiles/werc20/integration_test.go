@@ -8,8 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	auth "github.com/evmos/evmos/v20/precompiles/authorization"
@@ -37,11 +35,7 @@ import (
 // Integration test suite
 // -------------------------------------------------------------------------------------------------
 
-var is *PrecompileIntegrationTestSuite
-
 type PrecompileIntegrationTestSuite struct {
-	suite.Suite
-
 	network     *network.UnitTestNetwork
 	factory     factory.TxFactory
 	grpcHandler grpc.Handler
@@ -55,60 +49,9 @@ type PrecompileIntegrationTestSuite struct {
 }
 
 func TestPrecompileIntegrationTestSuite(t *testing.T) {
-	is = new(PrecompileIntegrationTestSuite)
-	suite.Run(t, is)
-
 	// Run Ginkgo integration tests
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "WEVMOS precompile test suite")
-}
-
-func (is *PrecompileIntegrationTestSuite) SetupTest() {
-	keyring := keyring.New(2)
-
-	customGenesis := network.CustomGenesisState{}
-
-	// Set the base fee to zero to allow for zero cost tx. The final gas cost is
-	// not part of the logic tested here so this makes testing more easy.
-	feemarketGenesis := feemarkettypes.DefaultGenesisState()
-	feemarketGenesis.Params.NoBaseFee = true
-	customGenesis[feemarkettypes.ModuleName] = feemarketGenesis
-
-	integrationNetwork := network.NewUnitTestNetwork(
-		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-		network.WithCustomGenesis(customGenesis),
-	)
-	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
-	txFactory := factory.New(integrationNetwork, grpcHandler)
-
-	is.network = integrationNetwork
-	is.factory = txFactory
-	is.grpcHandler = grpcHandler
-	is.keyring = keyring
-
-	is.wrappedCoinDenom = evmtypes.GetEVMCoinDenom()
-
-	chainID := is.network.GetChainID()
-
-	is.precompileAddrHex = erc20types.GetWEVMOSContractHex(chainID)
-
-	ctx := integrationNetwork.GetContext()
-
-	// Check that WEVMOS is part of the native precompiles.
-	erc20Params := is.network.App.Erc20Keeper.GetParams(ctx)
-	Expect(erc20Params.NativePrecompiles).To(
-		ContainElement(is.precompileAddrHex),
-		"expected wevmos to be in the native precompiles",
-	)
-
-	_, found := is.network.App.BankKeeper.GetDenomMetaData(ctx, evmtypes.GetEVMCoinDenom())
-	Expect(found).To(BeTrue(), "expected native token metadata to be registered")
-
-	// Check that WEVMOS is registered in the token pairs map.
-	tokenPairID := is.network.App.Erc20Keeper.GetTokenPairID(ctx, is.wrappedCoinDenom)
-	tokenPair, found := is.network.App.Erc20Keeper.GetTokenPair(ctx, tokenPairID)
-	Expect(found).To(BeTrue(), "expected wevmos precompile to be registered in the tokens map")
-	Expect(tokenPair.Erc20Address).To(Equal(is.precompileAddrHex))
 }
 
 // checkAndReturnBalance check that the balance of the address is the same in
@@ -140,10 +83,9 @@ func (is *PrecompileIntegrationTestSuite) checkAndReturnBalance(
 
 var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 	var (
-		// callArgs factory.CallArgs
-		// txArgs   evmtypes.EvmTxArgs
-
-		passCheck, failCheck, transferCheck, depositCheck, withdrawCheck testutil.LogCheckArgs
+		is                                         *PrecompileIntegrationTestSuite
+		passCheck, failCheck                       testutil.LogCheckArgs
+		transferCheck, depositCheck, withdrawCheck testutil.LogCheckArgs
 
 		callsData CallsData
 
@@ -155,16 +97,56 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 	transferAmount := depositAmount
 
 	BeforeEach(func() {
-		is.SetupTest()
+		is = new(PrecompileIntegrationTestSuite)
+		keyring := keyring.New(2)
+
+		// Set the base fee to zero to allow for zero cost tx. The final gas cost is
+		// not part of the logic tested here so this makes testing more easy.
+		customGenesis := network.CustomGenesisState{}
+		feemarketGenesis := feemarkettypes.DefaultGenesisState()
+		feemarketGenesis.Params.NoBaseFee = true
+		customGenesis[feemarkettypes.ModuleName] = feemarketGenesis
+
+		integrationNetwork := network.NewUnitTestNetwork(
+			network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+			network.WithCustomGenesis(customGenesis),
+		)
+		grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
+		txFactory := factory.New(integrationNetwork, grpcHandler)
+
+		is.network = integrationNetwork
+		is.factory = txFactory
+		is.grpcHandler = grpcHandler
+		is.keyring = keyring
+
+		is.wrappedCoinDenom = evmtypes.GetEVMCoinDenom()
+		is.precompileAddrHex = erc20types.GetWEVMOSContractHex(is.network.GetChainID())
+
+		ctx := integrationNetwork.GetContext()
+
+		// Perform some check before adding the precompile to the suite.
+
+		// Check that WEVMOS is part of the native precompiles.
+		erc20Params := is.network.App.Erc20Keeper.GetParams(ctx)
+		Expect(erc20Params.NativePrecompiles).To(
+			ContainElement(is.precompileAddrHex),
+			"expected wevmos to be in the native precompiles",
+		)
+		_, found := is.network.App.BankKeeper.GetDenomMetaData(ctx, evmtypes.GetEVMCoinDenom())
+		Expect(found).To(BeTrue(), "expected native token metadata to be registered")
+
+		// Check that WEVMOS is registered in the token pairs map.
+		tokenPairID := is.network.App.Erc20Keeper.GetTokenPairID(ctx, is.wrappedCoinDenom)
+		tokenPair, found := is.network.App.Erc20Keeper.GetTokenPair(ctx, tokenPairID)
+		Expect(found).To(BeTrue(), "expected wevmos precompile to be registered in the tokens map")
+		Expect(tokenPair.Erc20Address).To(Equal(is.precompileAddrHex))
 
 		precompileAddr := common.HexToAddress(is.precompileAddrHex)
-		// TODO: is the denom correct for both mainnet and tesnet?
-		tokenPair := erc20types.NewTokenPair(
+		tokenPair = erc20types.NewTokenPair(
 			precompileAddr,
 			evmtypes.GetEVMCoinDenom(),
 			erc20types.OWNER_MODULE,
 		)
-
 		precompile, err := werc20.NewPrecompile(
 			tokenPair,
 			is.network.App.BankKeeper,
