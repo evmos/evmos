@@ -6,6 +6,7 @@ package werc20
 import (
 	"embed"
 	"fmt"
+	"slices"
 
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 
@@ -151,11 +152,13 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 // transaction. Returns false otherwise.
 // TODO: this should handle also fallback receiving the method, not only the
 // method name.
-func (p Precompile) IsTransaction(methodName string) bool {
-	switch methodName {
-	case DepositMethod, WithdrawMethod:
+func (p Precompile) IsTransaction(method *abi.Method) bool {
+	txMethodName := []string{DepositMethod, WithdrawMethod}
+	txMethodType := []abi.FunctionType{abi.Fallback, abi.Receive}
+
+	if slices.Contains(txMethodName, method.Name) || slices.Contains(txMethodType, method.Type) {
 		return true
-	default:
-		return p.Precompile.IsTransaction(methodName)
 	}
+
+	return p.Precompile.IsTransaction(method)
 }
