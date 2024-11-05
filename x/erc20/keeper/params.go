@@ -25,7 +25,7 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 
 // UpdateCodeHash takes in the updated parameters and
 // compares the new set of native and dynamic precompiles to the current
-// paramter set.
+// parameter set.
 //
 // If there is a diff, the ERC-20 code hash for all precompiles that are removed from the list
 // will be removed from the store. Meanwhile, for all newly added precompiles the code hash will be

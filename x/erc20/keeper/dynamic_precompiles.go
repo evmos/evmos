@@ -37,9 +37,7 @@ func (k Keeper) RegisterERC20Extension(ctx sdk.Context, denom string) (*types.To
 
 // RegisterERC20CodeHash sets the codehash for the erc20 precompile account
 // if the bytecode for the erc20 codehash does not exists, it stores it.
-//
-// TODO: move to another file, not necessarily related to only dynamic precompiles
-func (k Keeper) RegisterERC20CodeHash(ctx sdk.Context, address common.Address) error {
+func (k Keeper) RegisterERC20CodeHash(ctx sdk.Context, erc20Addr common.Address) error {
 	var (
 		// bytecode and codeHash is the same for all IBC coins
 		// cause they're all using the same contract
@@ -57,12 +55,12 @@ func (k Keeper) RegisterERC20CodeHash(ctx sdk.Context, address common.Address) e
 		balance = common.Big0
 	)
 	// keep balance and nonce if account exists
-	if acc := k.evmKeeper.GetAccount(ctx, address); acc != nil {
+	if acc := k.evmKeeper.GetAccount(ctx, erc20Addr); acc != nil {
 		nonce = acc.Nonce
 		balance = acc.Balance
 	}
 
-	return k.evmKeeper.SetAccount(ctx, address, statedb.Account{
+	return k.evmKeeper.SetAccount(ctx, erc20Addr, statedb.Account{
 		CodeHash: codeHash,
 		Nonce:    nonce,
 		Balance:  balance,
@@ -70,7 +68,7 @@ func (k Keeper) RegisterERC20CodeHash(ctx sdk.Context, address common.Address) e
 }
 
 // UnRegisterERC20CodeHash sets the codehash for the account to an empty one
-func (k Keeper) UnRegisterERC20CodeHash(ctx sdk.Context, contractAddr common.Address) error {
+func (k Keeper) UnRegisterERC20CodeHash(ctx sdk.Context, erc20Addr common.Address) error {
 	emptyCodeHash := crypto.Keccak256(nil)
 
 	var (
@@ -78,12 +76,12 @@ func (k Keeper) UnRegisterERC20CodeHash(ctx sdk.Context, contractAddr common.Add
 		balance = common.Big0
 	)
 	// keep balance and nonce if account exists
-	if acc := k.evmKeeper.GetAccount(ctx, contractAddr); acc != nil {
+	if acc := k.evmKeeper.GetAccount(ctx, erc20Addr); acc != nil {
 		nonce = acc.Nonce
 		balance = acc.Balance
 	}
 
-	return k.evmKeeper.SetAccount(ctx, contractAddr, statedb.Account{
+	return k.evmKeeper.SetAccount(ctx, erc20Addr, statedb.Account{
 		CodeHash: emptyCodeHash,
 		Nonce:    nonce,
 		Balance:  balance,
