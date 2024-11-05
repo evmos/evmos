@@ -1,6 +1,7 @@
 { lib
 , buildGoApplication
 , buildPackages
+, darwin
 , fetchFromGitHub
 , stdenv
 , rev ? "dirty"
@@ -20,7 +21,7 @@ let
     "-X github.com/cosmos/cosmos-sdk/version.Commit=${rev}"
     "-X github.com/cosmos/cosmos-sdk/types.DBBackend=${dbBackend}"
   ]);
-  buildInputs = lib.optionals (dbBackend == "rocksdb") [ rocksdb ];
+  buildInputs = lib.optionals (dbBackend == "rocksdb") [ rocksdb ] ++ lib.optionals stdenv.isDarwin ([ darwin.apple_sdk.frameworks.CoreServices ]);
   # use a newer version of nixpkgs to get go_1_22
   # We're not updating this on the whole setup because breaks other stuff
   # but we can import the needed packages from the newer version
