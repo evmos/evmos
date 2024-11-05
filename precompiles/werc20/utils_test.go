@@ -27,6 +27,8 @@ const (
 // ContractData is a helper struct to hold the addresses and ABIs for the
 // different contract instances that are subject to testing here.
 type CallsData struct {
+	// This field is used to perform transactions that are not relevant for
+	// testing purposes like query to the contract.
 	sender keyring.Key
 
 	erc20Addr common.Address

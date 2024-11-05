@@ -68,8 +68,16 @@ func (p Precompile) Withdraw(ctx sdk.Context, contract *vm.Contract, stateDB vm.
 	if !ok {
 		return nil, fmt.Errorf("invalid argument type: %T", args[0])
 	}
-	// TODO: check that the sender has enough balance for the withdraw.
-	if err := p.EmitWithdrawalEvent(ctx, stateDB, contract.Caller(), amount); err != nil {
+	amountInt := math.NewIntFromBigInt(amount)
+
+	caller := contract.Caller()
+	callerAccAddress := sdk.AccAddress(caller.Bytes())
+	nativeBalance := p.BankKeeper.GetBalance(ctx, callerAccAddress, evmtypes.GetEVMCoinDenom())
+	if nativeBalance.Amount.LT(amountInt) {
+		return nil, fmt.Errorf("account balance %v is lower than withdraw balance %v", nativeBalance.Amount, amountInt)
+	}
+
+	if err := p.EmitWithdrawalEvent(ctx, stateDB, caller, amount); err != nil {
 		return nil, err
 	}
 	return nil, nil
