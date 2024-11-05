@@ -616,7 +616,6 @@ func (s *PrecompileTestSuite) TestOwner() {
 	}
 
 	for _, tc := range testcases {
-
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
