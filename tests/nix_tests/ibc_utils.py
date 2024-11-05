@@ -113,7 +113,7 @@ def get_evmos_generator(
     elif is_6dec:
         file = evm6dec_ibc_config(tmp_path, file)
         gen = setup_custom_evmos(
-            tmp_path, 46710, Path(__file__).parent / file, chain_id=EVMOS_6DEC_CHAIN_ID
+            tmp_path, 56710, Path(__file__).parent / file, chain_id=EVMOS_6DEC_CHAIN_ID
         )
     else:
         file = f"configs/{file}.jsonnet"
