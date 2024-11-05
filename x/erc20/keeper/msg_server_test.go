@@ -533,6 +533,7 @@ func (suite *KeeperTestSuite) TestBurn() {
 
 func (suite *KeeperTestSuite) TestTransferContractOwnership() {
 	var ctx sdk.Context
+	sender := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	tokenAddr := utiltx.GenerateAddress()
 	denom := "coin"
 
@@ -543,9 +544,9 @@ func (suite *KeeperTestSuite) TestTransferContractOwnership() {
 		expPass  bool
 	}{
 		{
-			"fail - invalid authority address",
+			"fail - invalid sender address",
 			&types.MsgTransferOwnership{
-				Authority: "invalid",
+				Sender: "invalid",
 			},
 			func() {},
 			false,
@@ -553,8 +554,8 @@ func (suite *KeeperTestSuite) TestTransferContractOwnership() {
 		{
 			"fail - invalid new owner address",
 			&types.MsgTransferOwnership{
-				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				NewOwner:  "invalid",
+				Sender:   sender.String(),
+				NewOwner: "invalid",
 			},
 			func() {},
 			false,
@@ -562,9 +563,9 @@ func (suite *KeeperTestSuite) TestTransferContractOwnership() {
 		{
 			"pass - valid msg",
 			&types.MsgTransferOwnership{
-				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				NewOwner:  sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
-				Token:     tokenAddr.String(),
+				Sender:   sender.String(),
+				NewOwner: sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+				Token:    tokenAddr.String(),
 			},
 			func() {
 				expPair := types.NewTokenPair(
@@ -572,6 +573,7 @@ func (suite *KeeperTestSuite) TestTransferContractOwnership() {
 					denom,
 					types.OWNER_MODULE,
 				)
+				expPair.SetOwnerAddress(sender.String())
 				suite.network.App.Erc20Keeper.SetTokenPair(suite.network.GetContext(), expPair)
 				suite.network.App.Erc20Keeper.SetDenomMap(suite.network.GetContext(), expPair.Denom, expPair.GetID())
 				suite.network.App.Erc20Keeper.SetERC20Map(suite.network.GetContext(), expPair.GetERC20Contract(), expPair.GetID())
@@ -586,6 +588,71 @@ func (suite *KeeperTestSuite) TestTransferContractOwnership() {
 
 			tc.malleate()
 			res, err := suite.network.App.Erc20Keeper.TransferContractOwnership(ctx, tc.msg)
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().NotNil(res)
+			} else {
+				suite.Require().Error(err)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestTransferContractOwnershipProposal() {
+	var ctx sdk.Context
+
+	tokenAddr := utiltx.GenerateAddress()
+	denom := "coin"
+
+	testcases := []struct {
+		name     string
+		msg      *types.MsgTransferOwnershipProposal
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"fail - invalid authority address",
+			&types.MsgTransferOwnershipProposal{
+				Authority: "invalid",
+			},
+			func() {},
+			false,
+		},
+		{
+			"fail - invalid new owner address",
+			&types.MsgTransferOwnershipProposal{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				NewOwner:  "invalid",
+			},
+			func() {},
+			false,
+		},
+		{
+			"pass - valid msg",
+			&types.MsgTransferOwnershipProposal{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				NewOwner:  sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+				Token:     tokenAddr.String(),
+			},
+			func() {
+				expPair := types.NewTokenPair(
+					tokenAddr,
+					denom,
+					types.OWNER_MODULE,
+				)
+				suite.network.App.Erc20Keeper.SetTokenPair(ctx, expPair)
+				suite.network.App.Erc20Keeper.SetDenomMap(ctx, expPair.Denom, expPair.GetID())
+				suite.network.App.Erc20Keeper.SetERC20Map(ctx, expPair.GetERC20Contract(), expPair.GetID())
+			},
+			true,
+		},
+	}
+
+	for _, tc := range testcases {
+		suite.Run(tc.name, func() {
+			ctx = sdk.UnwrapSDKContext(suite.network.GetContext())
+			tc.malleate()
+			res, err := suite.network.App.Erc20Keeper.TransferContractOwnershipProposal(ctx, tc.msg)
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().NotNil(res)

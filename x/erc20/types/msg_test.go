@@ -293,32 +293,32 @@ func (suite *MsgsTestSuite) TestMsgTransferOwnershipValidateBasic() {
 		{
 			"fail - invalid authority address",
 			&types.MsgTransferOwnership{
-				Authority: "invalid",
+				Sender: "invalid",
 			},
 			false,
 		},
 		{
 			"fail - invalid contract address",
 			&types.MsgTransferOwnership{
-				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				Token:     "invalid",
+				Sender: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Token:  "invalid",
 			},
 			false,
 		},
 		{
 			"fail - invalid new owner address",
 			&types.MsgTransferOwnership{
-				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				NewOwner:  "invalid",
+				Sender:   authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				NewOwner: "invalid",
 			},
 			false,
 		},
 		{
 			"pass - valid msg",
 			&types.MsgTransferOwnership{
-				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				NewOwner:  sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
-				Token:     utiltx.GenerateAddress().String(),
+				Sender:   authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				NewOwner: sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+				Token:    utiltx.GenerateAddress().String(),
 			},
 			true,
 		},

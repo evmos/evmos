@@ -13,5 +13,5 @@ type Keeper interface {
 	// OwnerAddress returns the owner address of the token
 	GetTokenPairOwnerAddress(ctx sdk.Context, token string) (sdk.AccAddress, error)
 	// TransferOwnership transfers ownership of the token to the new owner
-	TransferOwnership(ctx sdk.Context, newOwner sdk.AccAddress, token string) error
+	TransferOwnership(ctx sdk.Context, sender sdk.AccAddress, newOwner sdk.AccAddress, token string) error
 }

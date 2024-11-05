@@ -30,6 +30,9 @@ service Msg {
     option (google.api.http).post = "/evmos/erc20/v1/tx/transfer_contract_ownership";
   };
 
+  // TransferContractOwnershipProposal defines a Msg to transfer the ownership of the ERC20 token pair to the new owner through a proposal
+  rpc TransferContractOwnershipProposal(MsgTransferOwnershipProposal) returns (MsgTransferOwnershipProposalResponse); 
+
   // Mint mints ERC20 tokens
   rpc Mint(MsgMint) returns (MsgMintResponse) {
     option (google.api.http).post = "/evmos/erc20/v1/tx/mint";
@@ -101,6 +104,22 @@ message MsgUpdateParamsResponse {}
 
 // MsgTransferOwnership defines a Msg to transfer the ownership of the ERC20 token pair to the new owner
 message MsgTransferOwnership {
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // token identifier can be either the hex contract address of the ERC20 or the
+  // Cosmos base denomination
+  string token = 1;
+  // new_owner is the hex address of the new owner
+  string new_owner = 2;
+  // sender is the address of the sender
+  string sender = 3;
+}
+
+// MsgTransferOwnershipResponse returns no fields
+message MsgTransferOwnershipResponse {}
+
+// MsgTransferOwnershipProposal defines a Msg to transfer the ownership of the ERC20 token pair to the new owner
+message MsgTransferOwnershipProposal {
   option (cosmos.msg.v1.signer) = "authority";
 
   string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
@@ -112,14 +131,15 @@ message MsgTransferOwnership {
   // Cosmos base denomination
   string token = 4;
   // new_owner is the hex address of the new owner
-  string new_owner = 5;
+  string new_owner = 5; 
 }
 
-// MsgTransferOwnershipResponse returns no fields
-message MsgTransferOwnershipResponse {}
+// MsgTransferOwnershipProposalResponse returns no fields
+message MsgTransferOwnershipProposalResponse {}
 
 // MsgMint defines a Msg to mint ERC20 tokens
 message MsgMint {
+  option (cosmos.msg.v1.signer) = "sender";
   // contract_address of an ERC20 token contract, that is registered in a token pair
   string contract_address = 1;
   // amount of ERC20 tokens to mint
@@ -134,6 +154,7 @@ message MsgMintResponse {}
 
 // MsgBurn defines a Msg to burn ERC20 tokens
 message MsgBurn {
+  option (cosmos.msg.v1.signer) = "sender";
   // contract_address of an ERC20 token contract, that is registered in a token pair
   string contract_address = 1;
   // amount of ERC20 tokens to burn

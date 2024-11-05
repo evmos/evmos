@@ -382,6 +382,7 @@ func (suite *KeeperTestSuite) TestTransferOwnership() {
 			"fail - pair is not native coin",
 			func() {
 				expPair.ContractOwner = types.OWNER_EXTERNAL
+				expPair.SetOwnerAddress(sender.String())
 				suite.network.App.Erc20Keeper.SetTokenPair(ctx, expPair)
 				suite.network.App.Erc20Keeper.SetDenomMap(ctx, expPair.Denom, id)
 				suite.network.App.Erc20Keeper.SetERC20Map(ctx, expPair.GetERC20Contract(), id)
@@ -414,7 +415,7 @@ func (suite *KeeperTestSuite) TestTransferOwnership() {
 
 			tc.malleate()
 
-			err := suite.network.App.Erc20Keeper.TransferOwnership(ctx, newOwner, expPair.Denom)
+			err := suite.network.App.Erc20Keeper.TransferOwnership(ctx, sender, newOwner, expPair.Erc20Address)
 			if tc.expErr {
 				suite.Require().Error(err, "expected transfer transaction to fail")
 				suite.Require().Contains(err.Error(), tc.errContains, "expected transfer transaction to fail with specific error")

@@ -22,13 +22,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Msg_ConvertERC20_FullMethodName              = "/evmos.erc20.v1.Msg/ConvertERC20"
-	Msg_UpdateParams_FullMethodName              = "/evmos.erc20.v1.Msg/UpdateParams"
-	Msg_TransferContractOwnership_FullMethodName = "/evmos.erc20.v1.Msg/TransferContractOwnership"
-	Msg_Mint_FullMethodName                      = "/evmos.erc20.v1.Msg/Mint"
-	Msg_Burn_FullMethodName                      = "/evmos.erc20.v1.Msg/Burn"
-	Msg_RegisterERC20_FullMethodName             = "/evmos.erc20.v1.Msg/RegisterERC20"
-	Msg_ToggleConversion_FullMethodName          = "/evmos.erc20.v1.Msg/ToggleConversion"
+	Msg_ConvertERC20_FullMethodName                      = "/evmos.erc20.v1.Msg/ConvertERC20"
+	Msg_UpdateParams_FullMethodName                      = "/evmos.erc20.v1.Msg/UpdateParams"
+	Msg_TransferContractOwnership_FullMethodName         = "/evmos.erc20.v1.Msg/TransferContractOwnership"
+	Msg_TransferContractOwnershipProposal_FullMethodName = "/evmos.erc20.v1.Msg/TransferContractOwnershipProposal"
+	Msg_Mint_FullMethodName                              = "/evmos.erc20.v1.Msg/Mint"
+	Msg_Burn_FullMethodName                              = "/evmos.erc20.v1.Msg/Burn"
+	Msg_RegisterERC20_FullMethodName                     = "/evmos.erc20.v1.Msg/RegisterERC20"
+	Msg_ToggleConversion_FullMethodName                  = "/evmos.erc20.v1.Msg/ToggleConversion"
 )
 
 // MsgClient is the client API for Msg service.
@@ -43,6 +44,8 @@ type MsgClient interface {
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
 	// TransferOwnership defines a Msg to transfer the ownership of the ERC20 token pair to the new owner
 	TransferContractOwnership(ctx context.Context, in *MsgTransferOwnership, opts ...grpc.CallOption) (*MsgTransferOwnershipResponse, error)
+	// TransferContractOwnershipProposal defines a Msg to transfer the ownership of the ERC20 token pair to the new owner through a proposal
+	TransferContractOwnershipProposal(ctx context.Context, in *MsgTransferOwnershipProposal, opts ...grpc.CallOption) (*MsgTransferOwnershipProposalResponse, error)
 	// Mint mints ERC20 tokens
 	Mint(ctx context.Context, in *MsgMint, opts ...grpc.CallOption) (*MsgMintResponse, error)
 	// Burn burns ERC20 tokens
@@ -84,6 +87,15 @@ func (c *msgClient) UpdateParams(ctx context.Context, in *MsgUpdateParams, opts 
 func (c *msgClient) TransferContractOwnership(ctx context.Context, in *MsgTransferOwnership, opts ...grpc.CallOption) (*MsgTransferOwnershipResponse, error) {
 	out := new(MsgTransferOwnershipResponse)
 	err := c.cc.Invoke(ctx, Msg_TransferContractOwnership_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) TransferContractOwnershipProposal(ctx context.Context, in *MsgTransferOwnershipProposal, opts ...grpc.CallOption) (*MsgTransferOwnershipProposalResponse, error) {
+	out := new(MsgTransferOwnershipProposalResponse)
+	err := c.cc.Invoke(ctx, Msg_TransferContractOwnershipProposal_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -138,6 +150,8 @@ type MsgServer interface {
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
 	// TransferOwnership defines a Msg to transfer the ownership of the ERC20 token pair to the new owner
 	TransferContractOwnership(context.Context, *MsgTransferOwnership) (*MsgTransferOwnershipResponse, error)
+	// TransferContractOwnershipProposal defines a Msg to transfer the ownership of the ERC20 token pair to the new owner through a proposal
+	TransferContractOwnershipProposal(context.Context, *MsgTransferOwnershipProposal) (*MsgTransferOwnershipProposalResponse, error)
 	// Mint mints ERC20 tokens
 	Mint(context.Context, *MsgMint) (*MsgMintResponse, error)
 	// Burn burns ERC20 tokens
@@ -163,6 +177,9 @@ func (UnimplementedMsgServer) UpdateParams(context.Context, *MsgUpdateParams) (*
 }
 func (UnimplementedMsgServer) TransferContractOwnership(context.Context, *MsgTransferOwnership) (*MsgTransferOwnershipResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TransferContractOwnership not implemented")
+}
+func (UnimplementedMsgServer) TransferContractOwnershipProposal(context.Context, *MsgTransferOwnershipProposal) (*MsgTransferOwnershipProposalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TransferContractOwnershipProposal not implemented")
 }
 func (UnimplementedMsgServer) Mint(context.Context, *MsgMint) (*MsgMintResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Mint not implemented")
@@ -239,6 +256,24 @@ func _Msg_TransferContractOwnership_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MsgServer).TransferContractOwnership(ctx, req.(*MsgTransferOwnership))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_TransferContractOwnershipProposal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgTransferOwnershipProposal)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).TransferContractOwnershipProposal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Msg_TransferContractOwnershipProposal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).TransferContractOwnershipProposal(ctx, req.(*MsgTransferOwnershipProposal))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -333,6 +368,10 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "TransferContractOwnership",
 			Handler:    _Msg_TransferContractOwnership_Handler,
+		},
+		{
+			MethodName: "TransferContractOwnershipProposal",
+			Handler:    _Msg_TransferContractOwnershipProposal_Handler,
 		},
 		{
 			MethodName: "Mint",

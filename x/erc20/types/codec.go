@@ -49,6 +49,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgUpdateParams{},
 		&MsgMint{},
 		&MsgBurn{},
+		&MsgTransferOwnership{},
 		&MsgRegisterERC20{},
 		&MsgToggleConversion{},
 	)

@@ -39,6 +39,7 @@ func NewTxCmd() *cobra.Command {
 		NewConvertERC20Cmd(),
 		NewMintCmd(),
 		NewBurnCmd(),
+		NewTransferOwnershipCmd(),
 	)
 
 	return txCmd
@@ -170,5 +171,40 @@ func NewBurnCmd() *cobra.Command {
 	}
 
 	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+// NewTransferOwnershipCmd implements the command to transfer ownership of an ERC20 token
+func NewTransferOwnershipCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "transfer-ownership CONTRACT_ADDRESS NEW_OWNER",
+		Args:  cobra.ExactArgs(2),
+		Short: "Transfer ownership of an ERC20 token",
+		Long:  "Transfer ownership of an ERC20 token",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			if !common.IsHexAddress(args[0]) {
+				return fmt.Errorf("invalid ERC20 contract address %s", args[0])
+			}
+
+			newOwner, err := sdk.AccAddressFromBech32(args[1])
+			if err != nil {
+				return err
+			}
+
+			msg := &types.MsgTransferOwnership{
+				Sender:   clientCtx.GetFromAddress().String(),
+				NewOwner: newOwner.String(),
+				Token:    args[0],
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
 	return cmd
 }

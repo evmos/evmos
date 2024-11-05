@@ -77,7 +77,7 @@ func (k Keeper) MintCoins(ctx sdk.Context, sender, to sdk.AccAddress, amount mat
 	}
 
 	if !pair.IsNativeCoin() {
-		return errorsmod.Wrapf(types.ErrNonNativeCoinMintingDisabled, token)
+		return errorsmod.Wrap(types.ErrNonNativeCoinMintingDisabled, token)
 	}
 
 	contractOwnerAddr, err := sdk.AccAddressFromBech32(pair.OwnerAddress)
@@ -120,7 +120,7 @@ func (k Keeper) BurnCoins(ctx sdk.Context, sender sdk.AccAddress, amount math.In
 	}
 
 	if !pair.IsNativeCoin() {
-		return errorsmod.Wrapf(types.ErrNonNativeCoinBurningDisabled, token)
+		return errorsmod.Wrap(types.ErrNonNativeCoinBurningDisabled, token)
 	}
 
 	coins := sdk.Coins{{Denom: pair.Denom, Amount: amount}}
@@ -147,18 +147,42 @@ func (k Keeper) BurnCoins(ctx sdk.Context, sender sdk.AccAddress, amount math.In
 	return nil
 }
 
-// TransferOwnership transfers ownership of the token to the new owner
-func (k Keeper) TransferOwnership(ctx sdk.Context, newOwner sdk.AccAddress, token string) error {
+// TransferOwnershipProposal transfers ownership of the token to the new owner through a proposal
+func (k Keeper) TransferOwnershipProposal(ctx sdk.Context, newOwner sdk.AccAddress, token string) error {
 	pair, found := k.GetTokenPair(ctx, k.GetTokenPairID(ctx, token))
 	if !found {
 		return errorsmod.Wrapf(types.ErrTokenPairNotFound, "token '%s' not registered", token)
 	}
 
-	if !pair.IsNativeCoin() {
-		return errorsmod.Wrapf(types.ErrNonNativeTransferOwnershipDisabled, token)
+	return k.transferOwnership(ctx, newOwner, pair)
+}
+
+// TransferOwnership transfers ownership of the token to the new owner
+func (k Keeper) TransferOwnership(ctx sdk.Context, sender, newOwner sdk.AccAddress, token string) error {
+	pair, found := k.GetTokenPair(ctx, k.GetTokenPairID(ctx, token))
+	if !found {
+		return errorsmod.Wrapf(types.ErrTokenPairNotFound, "token '%s' not registered", token)
 	}
 
-	k.SetTokenPairOwnerAddress(ctx, pair, newOwner.String())
+	ownerAddr, err := sdk.AccAddressFromBech32(pair.OwnerAddress)
+	if err != nil {
+		return errorsmod.Wrapf(err, "invalid owner address")
+	}
+
+	if !sender.Equals(ownerAddr) {
+		return errorsmod.Wrap(types.ErrMinterIsNotOwner, "sender is not the owner of the token")
+	}
+
+	return k.transferOwnership(ctx, newOwner, pair)
+}
+
+// transferOwnership transfers ownership of the token to the new owner
+func (k Keeper) transferOwnership(ctx sdk.Context, newOwner sdk.AccAddress, token types.TokenPair) error {
+	if !token.IsNativeCoin() {
+		return errorsmod.Wrap(types.ErrNonNativeTransferOwnershipDisabled, token.Erc20Address)
+	}
+
+	k.SetTokenPairOwnerAddress(ctx, token, newOwner.String())
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

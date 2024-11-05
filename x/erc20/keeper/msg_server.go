@@ -278,11 +278,11 @@ func (k *Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams)
 }
 
 // TransferOwnership implements the MsgServer interface for the ERC20 module.
-func (k Keeper) TransferContractOwnership(goCtx context.Context, msg *types.MsgTransferOwnership) (*types.MsgTransferOwnershipResponse, error) {
-	// Validate authority
-	if k.authority.String() != msg.Authority {
-		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", k.authority, msg.Authority)
+func (k Keeper) TransferContractOwnershipProposal(goCtx context.Context, msg *types.MsgTransferOwnershipProposal) (*types.MsgTransferOwnershipProposalResponse, error) {
+	if err := k.validateAuthority(msg.Authority); err != nil {
+		return nil, err
 	}
+
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	newOwner, err := sdk.AccAddressFromBech32(msg.NewOwner)
@@ -290,7 +290,28 @@ func (k Keeper) TransferContractOwnership(goCtx context.Context, msg *types.MsgT
 		return nil, err
 	}
 
-	err = k.TransferOwnership(ctx, newOwner, msg.Token)
+	err = k.TransferOwnershipProposal(ctx, newOwner, msg.Token)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgTransferOwnershipProposalResponse{}, nil
+}
+
+func (k Keeper) TransferContractOwnership(goCtx context.Context, msg *types.MsgTransferOwnership) (*types.MsgTransferOwnershipResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return nil, err
+	}
+
+	newOwner, err := sdk.AccAddressFromBech32(msg.NewOwner)
+	if err != nil {
+		return nil, err
+	}
+
+	err = k.TransferOwnership(ctx, sender, newOwner, msg.Token)
 	if err != nil {
 		return nil, err
 	}

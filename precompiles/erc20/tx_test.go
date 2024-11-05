@@ -357,7 +357,6 @@ func (s *PrecompileTestSuite) TestMint() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			stateDB := s.network.GetStateDB()
@@ -413,7 +412,6 @@ func (s *PrecompileTestSuite) TestBurn() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			stateDB := s.network.GetStateDB()
@@ -487,8 +485,6 @@ func (s *PrecompileTestSuite) TestTransferOwnership() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			stateDB := s.network.GetStateDB()

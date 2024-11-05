@@ -593,21 +593,21 @@ func (s *PrecompileTestSuite) TestOwner() {
 
 	testcases := []struct {
 		name        string
-		malleate    func(sdk.Context, *app.Evmos, common.Address) []interface{}
+		malleate    func() []interface{}
 		expPass     bool
 		errContains string
 		expOwner    common.Address
 	}{
 		{
 			name: "fail - invalid number of arguments",
-			malleate: func(_ sdk.Context, _ *app.Evmos, _ common.Address) []interface{} {
+			malleate: func() []interface{} {
 				return []interface{}{1}
 			},
 			errContains: "invalid number of arguments; expected 0; got: 1",
 		},
 		{
 			name: "pass - owner is the contract owner address",
-			malleate: func(ctx sdk.Context, _ *app.Evmos, owner common.Address) []interface{} {
+			malleate: func() []interface{} {
 				return []interface{}{}
 			},
 			expPass:  true,
@@ -616,7 +616,6 @@ func (s *PrecompileTestSuite) TestOwner() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 
 		s.Run(tc.name, func() {
 			s.SetupTest()
@@ -625,7 +624,7 @@ func (s *PrecompileTestSuite) TestOwner() {
 
 			var ownerArgs []interface{}
 			if tc.malleate != nil {
-				ownerArgs = tc.malleate(ctx, s.network.App, tc.expOwner)
+				ownerArgs = tc.malleate()
 			}
 
 			ownerAddr := tc.expOwner
