@@ -137,7 +137,7 @@ def setup_evmos(path, base_port, long_timeout_commit=False):
 def setup_evmos_6dec(path, base_port, long_timeout_commit=False):
     """
     setup_evmos_6dec returns an Evmos chain with
-    and EVM with 6 decimals and a "0.1" base fee.
+    an EVM with 6 decimals and a "0.1" base fee.
     """
     config = evm6dec_config(
         path, "default" if long_timeout_commit is False else "long_timeout_commit"
