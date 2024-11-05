@@ -106,8 +106,10 @@ def test_grpc_mode(evmos_cluster: Evmos):
         rsp = grpc_eth_call(api_port, msg)
         ret = rsp["ret"]
         valid = ret is not None
-        decoded_chain_id = int.from_bytes(base64.b64decode(ret.encode()), "big")
-        if valid and decoded_chain_id in (9000, 9002):
+        if valid and (
+            9002 == int.from_bytes(base64.b64decode(ret.encode()), "big")
+            or 9000 == int.from_bytes(base64.b64decode(ret.encode()), "big")
+        ):
             success = True
             break
         time.sleep(sleep)
