@@ -150,6 +150,7 @@ func (s *PrecompileUnitTestSuite) TestEmitDepositEvent() {
 	}
 }
 
+//nolint:dupl
 func (s *PrecompileUnitTestSuite) TestEmitWithdrawalEvent() {
 	testCases := []struct {
 		name    string

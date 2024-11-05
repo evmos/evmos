@@ -336,6 +336,7 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 					Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.WithdrawRequiredGas), "expected different gas used for withdraw")
 				})
 			})
+			//nolint:dupl
 			When("no calldata is provided", func() {
 				It("it should call the fallback which behave like deposit", func() {
 					// Store initial balance to verify withdraw is a no-op and sender

@@ -62,7 +62,7 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 				return data
 			},
 			false,
-			false,
+			true,
 		},
 		{
 			"pass",
@@ -82,7 +82,7 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 				return []byte{}
 			},
 			false,
-			false,
+			true,
 		},
 
 		{
