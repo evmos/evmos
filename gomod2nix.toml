@@ -170,8 +170,8 @@ schema = 3
     version = "v1.0.0"
     hash = "sha256-z/0E0NiEGo7zxM7d94ImgUf8P0/KG6hbP9T4Vuym4p0="
   [mod."github.com/cometbft/cometbft"]
-    version = "v0.38.13"
-    hash = "sha256-faMmyVlJUDpTl7dL1WKjEnGrQ56jxeCXPqPgbj/I1JY="
+    version = "v0.38.15"
+    hash = "sha256-C6is1uAdUlomFlo8vjiEl04mP5+lQvcHnG1eHkKkr/k="
   [mod."github.com/cometbft/cometbft-db"]
     version = "v0.14.1"
     hash = "sha256-QvWMRGsdgCsSfL+DHp3w1Bm4jXa14SeT7oRK3PiNGV0="
@@ -249,8 +249,8 @@ schema = 3
     version = "v1.8.0"
     hash = "sha256-ELJKphksU9AOYwV3BtjvwPtUpbZvX9YMmo7eIiauQSc="
   [mod."github.com/decred/dcrd/dcrec/secp256k1/v4"]
-    version = "v4.2.0"
-    hash = "sha256-Mw+axGW3RzaRFzcYc7/9/gpqZgWXZHeyT2c4USFtAQA="
+    version = "v4.3.0"
+    hash = "sha256-ADbhI5Ad+q3OxooIiYeLAq5mMONk1gPIAnTch9zKsIM="
   [mod."github.com/desertbit/timer"]
     version = "v0.0.0-20180107155436-c41aec40b27f"
     hash = "sha256-abLOtEcomAqCWLphd2X6WkD/ED764w6sa6unox4BXss="
@@ -550,8 +550,8 @@ schema = 3
     version = "v1.1.0"
     hash = "sha256-5OxW1ShHypLpzVu+BJivNlFX2JFPh9WKfJcMIgPZf4U="
   [mod."github.com/opencontainers/runc"]
-    version = "v1.1.13"
-    hash = "sha256-80rwpg3HoZ0FiVOZfLrMHjL3UqhMFs+IUCF4EZWQIJM="
+    version = "v1.1.14"
+    hash = "sha256-tJYzVucIlgNyN/+JFo5mcy3hNWgUzkJbRV/Gxusht0I="
   [mod."github.com/ory/dockertest/v3"]
     version = "v3.11.0"
     hash = "sha256-O3PNBvgpx9+9iPFu1s2a5kZxNOXBOa2mbFOnK13dLbY="
@@ -568,14 +568,14 @@ schema = 3
     version = "v1.0.1-0.20181226105442-5d4384ee4fb2"
     hash = "sha256-XA4Oj1gdmdV/F/+8kMI+DBxKPthZ768hbKsO3d9Gx90="
   [mod."github.com/prometheus/client_golang"]
-    version = "v1.20.4"
-    hash = "sha256-pdyQUDEkBwNmbT6IPtEVqmx7z0kBROvmOMMeeRVHAog="
+    version = "v1.20.5"
+    hash = "sha256-RbDZTBH+j2ZNLbHSMFxW0j8UStvkwc4IHTz3My9w4qo="
   [mod."github.com/prometheus/client_model"]
     version = "v0.6.1"
     hash = "sha256-rIDyUzNfxRA934PIoySR0EhuBbZVRK/25Jlc/r8WODw="
   [mod."github.com/prometheus/common"]
-    version = "v0.59.1"
-    hash = "sha256-PYoEunC2Rx1KP8vH2inTD7uBCfUlvcROfeeAGRRjXPY="
+    version = "v0.60.1"
+    hash = "sha256-6ZSm800o6QjFKi5QUs/Zsjqq3i+V8UFvkGqR7lWqJ2M="
   [mod."github.com/prometheus/procfs"]
     version = "v0.15.1"
     hash = "sha256-H+WXJemFFwdoglmD6p7JRjrJJZmIVAmJwYmLbZ8Q9sw="
@@ -737,8 +737,8 @@ schema = 3
     version = "v0.30.0"
     hash = "sha256-i1f6wJHfFq0nKtbuY7twZ7uPyUbRYHVjd3uy0SS06mU="
   [mod."golang.org/x/oauth2"]
-    version = "v0.22.0"
-    hash = "sha256-3gmmXfCcxYBMaXmKRzGBpX01h4lMenFPkqWT9TwqIBE="
+    version = "v0.23.0"
+    hash = "sha256-K1X4ROG88PprttNjZCikDlZw8YYiQIQRdtbZBH3GJgM="
   [mod."golang.org/x/sync"]
     version = "v0.8.0"
     hash = "sha256-usvF0z7gq1vsX58p4orX+8WHlv52pdXgaueXlwj2Wss="
