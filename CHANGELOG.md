@@ -62,7 +62,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [#2926](https://github.com/evmos/evmos/pull/2926) Staking: Add amount scaling on `balanceChange` entry to support different EVM denom precision.
 - (evm) [#2936](https://github.com/evmos/evmos/pull/2936) Add query for EVM config.
 - (app) [#2937](https://github.com/evmos/evmos/pull/2937) Fix conversion on the `CheckTxFee` ante handler and allow zero coins refunds.
-- (deps) [#2963](https://github.com/evmos/evmos/pull/2963) Bump CometBFT to `v0.38.15`.
+- (deps) [#2967](https://github.com/evmos/evmos/pull/2967) Bump CometBFT to `v0.38.15`.
 
 ### Bug Fixes
 
