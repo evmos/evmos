@@ -71,7 +71,7 @@ func (suite *KeeperTestSuite) TestRegisterERC20CodeHash() {
 			suite.Require().Equal(uint64(0), acc.Nonce)
 		}
 
-		err = suite.network.App.Erc20Keeper.UnRegisterERC20CodeHash(ctx, account.Hex())
+		err = suite.network.App.Erc20Keeper.UnRegisterERC20CodeHash(ctx, account)
 		suite.Require().NoError(err)
 
 		acc = suite.network.App.EvmKeeper.GetAccount(ctx, account)

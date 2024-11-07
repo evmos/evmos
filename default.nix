@@ -3,6 +3,7 @@
 , buildPackages
 , darwin
 , fetchFromGitHub
+, pkgs
 , stdenv
 , rev ? "dirty"
 , rocksdb

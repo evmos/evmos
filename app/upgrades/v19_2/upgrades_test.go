@@ -144,10 +144,6 @@ func TestAddCodeToERC20Extensions(t *testing.T) {
 
 			ctx := network.GetContext()
 
-			// check code does not exist
-			code := network.App.EvmKeeper.GetCode(ctx, expCodeHash)
-			require.Len(t, code, 0)
-
 			// seed the token pairs
 			for _, p := range tokenPairsSeed {
 				network.App.Erc20Keeper.SetToken(ctx, p)
@@ -159,7 +155,7 @@ func TestAddCodeToERC20Extensions(t *testing.T) {
 			err := v192.AddCodeToERC20Extensions(ctx, logger, network.App.Erc20Keeper)
 			require.NoError(t, err)
 
-			code = network.App.EvmKeeper.GetCode(ctx, expCodeHash)
+			code := network.App.EvmKeeper.GetCode(ctx, expCodeHash)
 			require.True(t, len(code) > 0)
 
 			pairs := network.App.Erc20Keeper.GetTokenPairs(ctx)
