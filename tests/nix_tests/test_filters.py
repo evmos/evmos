@@ -32,9 +32,16 @@ def evmos_indexer(tmp_path_factory):
 
 @pytest.fixture(
     scope="module",
-    params=["evmos", "geth", "evmos-ws", "evmos-rocksdb", "enable-indexer"],
+    params=[
+        "evmos",
+        "geth",
+        "evmos-ws",
+        "evmos-6dec",
+        "enable-indexer",
+        "evmos-rocksdb",
+    ],
 )
-def cluster(request, custom_evmos, evmos_rocksdb, evmos_indexer, geth):
+def cluster(request, custom_evmos, evmos_indexer, evmos_6dec, evmos_rocksdb, geth):
     """
     run on both evmos and geth
     """
@@ -49,6 +56,8 @@ def cluster(request, custom_evmos, evmos_rocksdb, evmos_indexer, geth):
         yield evmos_ws
     elif provider == "enable-indexer":
         yield evmos_indexer
+    elif provider == "evmos-6dec":
+        yield evmos_6dec
     elif provider == "evmos-rocksdb":
         yield evmos_rocksdb
     else:
@@ -57,7 +66,7 @@ def cluster(request, custom_evmos, evmos_rocksdb, evmos_indexer, geth):
 
 def test_basic(cluster):
     w3 = cluster.w3
-    assert w3.eth.chain_id == 9002
+    assert w3.eth.chain_id == 9002 or w3.eth.chain_id == 9000
 
 
 # Smart contract names
