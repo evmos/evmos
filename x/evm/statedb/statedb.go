@@ -428,17 +428,22 @@ func (s *StateDB) Suicide(addr common.Address) bool {
 //
 // This method should only be called if Yolov3/Berlin/2929+2930 is applicable at the current number.
 func (s *StateDB) PrepareAccessList(sender common.Address, dst *common.Address, precompiles []common.Address, list ethtypes.AccessList) {
+	fmt.Printf("Adding access list entries for sender: %v\n", sender)
 	s.AddAddressToAccessList(sender)
 	if dst != nil {
+		fmt.Printf("Adding access list entries for destination: %v\n", dst)
 		s.AddAddressToAccessList(*dst)
 		// If it's a create-tx, the destination will be added inside evm.create
 	}
 	for _, addr := range precompiles {
+		fmt.Printf("Adding access list entries for precompiles: %v\n", addr)
 		s.AddAddressToAccessList(addr)
 	}
 	for _, el := range list {
+		fmt.Printf("Adding access list entries for access list: %v\n", el)
 		s.AddAddressToAccessList(el.Address)
 		for _, key := range el.StorageKeys {
+			fmt.Printf("Adding access list entries for storage key: %v\n", key)
 			s.AddSlotToAccessList(el.Address, key)
 		}
 	}
@@ -484,6 +489,8 @@ func (s *StateDB) Snapshot() int {
 	id := s.nextRevisionID
 	s.nextRevisionID++
 	s.validRevisions = append(s.validRevisions, revision{id, s.journal.length()})
+	fmt.Printf("Number of valid revision %v\n", len(s.validRevisions))
+	fmt.Printf("Journal length %v\n", s.journal.length())
 	return id
 }
 

@@ -3,6 +3,8 @@
 package factory
 
 import (
+	"fmt"
+
 	errorsmod "cosmossdk.io/errors"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -90,6 +92,7 @@ func (tf *IntegrationTxFactory) CallContractAndCheckLogs(
 		return res, nil, CheckError(err, logCheckArgs)
 	}
 
+	fmt.Println("Decoding the response")
 	ethRes, err := evmtypes.DecodeTxResponse(res.Data)
 	if err != nil {
 		return res, nil, err

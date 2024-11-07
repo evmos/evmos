@@ -26,14 +26,10 @@ interface IWERC20 is IERC20MetadataAllowance {
     receive() external payable;
 
     /// @dev Deposits native tokens in exchange for wrapped ERC20 token.
-    /// @dev After execution of this function the SetBalance function
-    /// @dev burns the tokens and increases the contract balance of the ERC20 tokens.
     /// @dev Emits a Deposit Event.
     function deposit() external payable;
 
     /// @dev Withdraws native tokens from wrapped ERC20 token.
-    /// @dev After execution of this function the SetBalance function
-    /// @dev decreases the contract balance of the ERC20 tokens and mints the tokens.
     /// @dev Emits a Withdrawal Event.
     /// @param wad The amount of native tokens to be withdrawn.
     function withdraw(uint256 wad) external;

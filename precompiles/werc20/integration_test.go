@@ -15,11 +15,11 @@ import (
 	"github.com/evmos/evmos/v20/precompiles/erc20"
 	"github.com/evmos/evmos/v20/precompiles/testutil"
 	"github.com/evmos/evmos/v20/precompiles/werc20"
+	"github.com/evmos/evmos/v20/precompiles/werc20/testdata"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
-	evmosutiltx "github.com/evmos/evmos/v20/testutil/tx"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
 	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
@@ -64,6 +64,7 @@ func (is *PrecompileIntegrationTestSuite) checkAndReturnBalance(
 	address common.Address,
 ) *big.Int {
 	txArgs, balancesArgs := callsData.getTxAndCallArgs(directCall, erc20.BalanceOfMethod, address)
+	txArgs.GasLimit = 1_000_000_000_000
 
 	_, ethRes, err := is.factory.CallContractAndCheckLogs(callsData.sender.Priv, txArgs, balancesArgs, balanceCheck)
 	Expect(err).ToNot(HaveOccurred(), "failed to execute balanceOf")
@@ -101,6 +102,9 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 	BeforeEach(func() {
 		is = new(PrecompileIntegrationTestSuite)
 		keyring := keyring.New(2)
+
+		txSender = keyring.GetKey(0)
+		user = keyring.GetKey(1)
 
 		// Set the base fee to zero to allow for zero cost tx. The final gas cost is
 		// not part of the logic tested here so this makes testing more easy.
@@ -158,22 +162,44 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 		Expect(err).ToNot(HaveOccurred(), "failed to instantiate the werc20 precompile")
 		is.precompile = precompile
 
-		failCheck = testutil.LogCheckArgs{ABIEvents: is.precompile.Events}
-		passCheck = failCheck.WithExpPass(true)
+		// Setup of the contract calling into the precompile to tests revert
+		// edge cases and proper handling of snapshots.
+		revertCallerContract, err := testdata.LoadWEVMOS9TestCaller()
+		Expect(err).ToNot(HaveOccurred(), "failed to load werc20 reverter caller contract")
 
-		withdrawCheck = passCheck.WithExpEvents(werc20.EventTypeWithdrawal)
-		depositCheck = passCheck.WithExpEvents(werc20.EventTypeDeposit)
-		transferCheck = passCheck.WithExpEvents(erc20.EventTypeTransfer)
+		txArgs := evmtypes.EvmTxArgs{}
+		txArgs.GasTipCap = new(big.Int).SetInt64(0)
+		txArgs.GasLimit = 1_000_000_000_000
+		revertContractAddr, err := is.factory.DeployContract(
+			txSender.Priv,
+			txArgs,
+			factory.ContractDeploymentData{
+				Contract: revertCallerContract,
+				ConstructorArgs: []interface{}{
+					common.HexToAddress(is.precompileAddrHex),
+				},
+			},
+		)
+		Expect(err).ToNot(HaveOccurred(), "failed to deploy werc20 reverter contract")
+		Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
-		txSender = is.keyring.GetKey(0)
-		user = is.keyring.GetKey(1)
-
+		// Support struct used to simplify transactions creation.
 		callsData = CallsData{
 			sender: txSender,
 
 			precompileAddr: precompileAddr,
 			precompileABI:  precompile.ABI,
+
+			precompileReverterAddr: revertContractAddr,
+			precompileReverterABI:  revertCallerContract.ABI,
 		}
+
+		// Utility types used to check the different events emitted.
+		failCheck = testutil.LogCheckArgs{ABIEvents: is.precompile.Events}
+		passCheck = failCheck.WithExpPass(true)
+		withdrawCheck = passCheck.WithExpEvents(werc20.EventTypeWithdrawal)
+		depositCheck = passCheck.WithExpEvents(werc20.EventTypeDeposit)
+		transferCheck = passCheck.WithExpEvents(erc20.EventTypeTransfer)
 	})
 	Context("calling a specific wrapped coin method", func() {
 		Context("and funds are part of the transaction", func() {
@@ -421,6 +447,25 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 			})
 		})
 	})
+	Context("calling a reverter contract", func() {
+		When("to call the deposit", func() {
+			It("it should return funds to sender and emit the event", func() {
+				ctx := is.network.GetContext()
+
+				initBalance := is.network.App.BankKeeper.GetAllBalances(ctx, txSender.AccAddr)
+
+				txArgs, callArgs := callsData.getTxAndCallArgs(contractCall, "depositWithRevert", false, false)
+				txArgs.Amount = depositAmount
+
+				_, _, err := is.factory.CallContractAndCheckLogs(txSender.Priv, txArgs, callArgs, depositCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
+				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+
+				finalBalance := is.network.App.BankKeeper.GetAllBalances(ctx, txSender.AccAddr)
+				Expect(finalBalance.String()).To(Equal(initBalance.String()), "expected final balance equal to initial")
+			})
+		})
+	})
 	Context("calling an erc20 method", func() {
 		When("transferring tokens", func() {
 			It("it should transfer tokens to a receiver using `transfer`", func() {
@@ -477,7 +522,7 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 				})
 				It("should return 0 for a new account", func() {
 					// Query the balance
-					txArgs, balancesArgs := callsData.getTxAndCallArgs(directCall, erc20.BalanceOfMethod, evmosutiltx.GenerateAddress())
+					txArgs, balancesArgs := callsData.getTxAndCallArgs(directCall, erc20.BalanceOfMethod, utiltx.GenerateAddress())
 
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(txSender.Priv, txArgs, balancesArgs, passCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")

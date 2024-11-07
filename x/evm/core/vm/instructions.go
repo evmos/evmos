@@ -17,6 +17,7 @@
 package vm
 
 import (
+	"fmt"
 	"sync/atomic"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -673,6 +674,7 @@ func opCreate2(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]
 }
 
 func opCall(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]byte, error) {
+	fmt.Println("Yes baby, calling the prec!")
 	stack := scope.Stack
 	// Pop gas. The actual gas in interpreter.evm.callGasTemp.
 	// We can use this as a temporary value
@@ -697,6 +699,7 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]byt
 	}
 
 	ret, returnGas, err := interpreter.evm.Call(scope.Contract, toAddr, args, gas, bigVal)
+	fmt.Println("Nice, call went through easily!")
 
 	if err != nil {
 		temp.Clear()

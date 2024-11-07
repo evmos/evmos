@@ -31,17 +31,15 @@ type CallsData struct {
 	// testing purposes like query to the contract.
 	sender keyring.Key
 
-	erc20Addr common.Address
-	erc20ABI  abi.ABI
-
-	contractAddr common.Address
-	contractABI  abi.ABI
+	// precompileReverter is used to call into the werc20 interface and
+	precompileReverterAddr common.Address
+	precompileReverterABI  abi.ABI
 
 	precompileAddr common.Address
 	precompileABI  abi.ABI
 }
 
-// getCallArgs is a helper function to return the correct call arguments and
+// getTxCallArgs is a helper function to return the correct call arguments and
 // transaction data for a given call type.
 func (cd CallsData) getTxAndCallArgs(
 	callType callType,
@@ -56,11 +54,8 @@ func (cd CallsData) getTxAndCallArgs(
 		txArgs.To = &cd.precompileAddr
 		callArgs.ContractABI = cd.precompileABI
 	case contractCall:
-		txArgs.To = &cd.contractAddr
-		callArgs.ContractABI = cd.contractABI
-	case erc20Call:
-		txArgs.To = &cd.erc20Addr
-		callArgs.ContractABI = cd.erc20ABI
+		txArgs.To = &cd.precompileReverterAddr
+		callArgs.ContractABI = cd.precompileReverterABI
 	}
 
 	callArgs.MethodName = methodName
@@ -68,6 +63,9 @@ func (cd CallsData) getTxAndCallArgs(
 
 	// Setting gas tip cap to zero to have zero gas price.
 	txArgs.GasTipCap = new(big.Int).SetInt64(0)
+	// Gas limit is added only to skip the estimate gas call
+	// that makes debugging more complex.
+	txArgs.GasLimit = 1_000_000_000_000
 
 	return txArgs, callArgs
 }
