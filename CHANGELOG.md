@@ -44,6 +44,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (app) [#2878](https://github.com/evmos/evmos/pull/2878) Changed `x/feemarket` BaseFee to Decimal. `x/evm` uses `FeeMarketWrapper` to manage EVM coin with different decimals.
 - (precompiles) [#2929](https://github.com/evmos/evmos/pull/2929) Distribution: scale balance change entries to the statedb journal to support different EVM denom precision.
 - (precompiles) [#2927](https://github.com/evmos/evmos/pull/2927) Erc20: scale balance change entries to the statedb journal to support different EVM denom precision.
+- (erc20) [#2962](https://github.com/evmos/evmos/pull/2962) Register ERC-20 code hash also for native ERC-20 extensions.
 
 ### Improvements
 
@@ -62,6 +63,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [#2926](https://github.com/evmos/evmos/pull/2926) Staking: Add amount scaling on `balanceChange` entry to support different EVM denom precision.
 - (evm) [#2936](https://github.com/evmos/evmos/pull/2936) Add query for EVM config.
 - (app) [#2937](https://github.com/evmos/evmos/pull/2937) Fix conversion on the `CheckTxFee` ante handler and allow zero coins refunds.
+- (deps) [#2967](https://github.com/evmos/evmos/pull/2967) Bump CometBFT to `v0.38.15`.
 - (precompiles) [#2943](https://github.com/evmos/evmos/pull/2943) Add WERC-20 precompile.
 
 ### Bug Fixes
@@ -1036,9 +1038,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 - (erc20) [#169](https://github.com/evmos/evmos/pull/169) Fixes several testnet bugs:.
-  - Check if supply exists for a token before when submitting a `RegisterCoinProposal`, allowing users to create an ERC20 representation of an invalid Cosmos Coin.
-  - Sanitize the ERC20 token name when creating coin metadata on ER `RegisterERC20Proposal`.
-  - Fix coin metadata validation error when registering an ERC20 with 0 denom units.
+    - Check if supply exists for a token before when submitting a `RegisterCoinProposal`, allowing users to create an ERC20 representation of an invalid Cosmos Coin.
+    - Sanitize the ERC20 token name when creating coin metadata on ER `RegisterERC20Proposal`.
+    - Fix coin metadata validation error when registering an ERC20 with 0 denom units.
 - (erc20) [#191](https://github.com/evmos/evmos/pull/191) Add direct balance protection (IF-ETHERMINT-06).
 - (erc20) [#192](https://github.com/evmos/evmos/pull/192) Add delayed malicious effect protection (IF-ETHERMINT-06).
 - (erc20) [#200](https://github.com/evmos/evmos/pull/200) Match coin and token decimals for ERC-20 deployment during registerCoin.

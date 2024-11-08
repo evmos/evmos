@@ -7,12 +7,13 @@ from .utils import (
     ACCOUNTS,
     ADDRS,
     CONTRACTS,
-    DEFAULT_DENOM,
     KEYS,
+    SCALE_FACTOR_6DEC,
     decode_bech32,
     deploy_contract,
     eth_to_bech32,
     get_fees_from_tx_result,
+    get_scaling_factor,
     send_transaction,
     wait_for_cosmos_tx_receipt,
     wait_for_new_blocks,
@@ -27,6 +28,8 @@ def test_send_funds_to_distr_mod(evmos_cluster):
     cli = evmos_cluster.cosmos_cli()
     sender = eth_to_bech32(ADDRS["signer1"])
     amt = 1000
+    fee_denom = cli.evm_denom()
+    scaling_factor = get_scaling_factor(cli)
 
     mod_accs = cli.query_module_accounts()
 
@@ -37,13 +40,13 @@ def test_send_funds_to_distr_mod(evmos_cluster):
 
     assert receiver is not None
 
-    old_src_balance = cli.balance(sender)
+    old_src_balance = cli.balance(sender, fee_denom)
 
     tx = cli.transfer(
         sender,
         receiver,
-        f"{amt}{DEFAULT_DENOM}",
-        gas_prices=f"{cli.query_base_fee() + 100000}{DEFAULT_DENOM}",
+        f"{amt}{fee_denom}",
+        gas_prices=f"{cli.query_base_fee() + 100000/scaling_factor:.12f}{fee_denom}",
         generate_only=True,
     )
 
@@ -61,10 +64,10 @@ def test_send_funds_to_distr_mod(evmos_cluster):
         f"{receiver} is not allowed to receive funds: unauthorized"
         in receipt["tx_result"]["log"]
     )
-    fees = get_fees_from_tx_result(receipt["tx_result"])
+    fees = get_fees_from_tx_result(receipt["tx_result"], denom=fee_denom)
 
     # only fees should be deducted from sender balance
-    new_src_balance = cli.balance(sender)
+    new_src_balance = cli.balance(sender, fee_denom)
     assert old_src_balance - fees == new_src_balance
 
 
@@ -79,7 +82,8 @@ def test_send_funds_to_distr_mod_eth_tx(evmos_cluster):
 
     sender = ADDRS["signer1"]
     mod_accs = cli.query_module_accounts()
-    old_src_balance = cli.balance(eth_to_bech32(sender))
+    evm_denom = cli.evm_denom()
+    old_src_balance = cli.balance(eth_to_bech32(sender), evm_denom)
 
     for acc in mod_accs:
         if acc["value"]["name"] != "distribution":
@@ -93,7 +97,7 @@ def test_send_funds_to_distr_mod_eth_tx(evmos_cluster):
         {
             "from": sender,
             "to": receiver,
-            "value": 1000,
+            "value": int(1e18),
         },
         KEYS["signer1"],
     )
@@ -104,7 +108,13 @@ def test_send_funds_to_distr_mod_eth_tx(evmos_cluster):
     fees = receipt["gasUsed"] * receipt["effectiveGasPrice"]
     assert fees > 0
 
-    new_src_balance = cli.balance(eth_to_bech32(sender))
+    # check if evm has 6 dec,
+    # actual fees will have 6 dec
+    # instead of 18
+    scaling_factor = get_scaling_factor(cli)
+    fees = int(fees / scaling_factor)
+
+    new_src_balance = cli.balance(eth_to_bech32(sender), evm_denom)
     assert old_src_balance - fees == new_src_balance
 
 
@@ -282,13 +292,16 @@ def test_unvested_token_delegation(evmos_cluster):
     acc = cli.create_account("vesting_acc")
     address = acc["address"]
 
+    fee_denom = cli.evm_denom()
+    scaling_factor = get_scaling_factor(cli)
+
     # transfer some funds to pay for tx fees
     # when creating the vesting account
     tx = cli.transfer(
         funder,
         address,
-        f"{7000000000000000}{DEFAULT_DENOM}",
-        gas_prices=f"{cli.query_base_fee() + 100000}{DEFAULT_DENOM}",
+        f"{int(7000000000000000/scaling_factor)}{fee_denom}",
+        gas_prices=f"{cli.query_base_fee() + 100000/scaling_factor:.12f}{fee_denom}",
         generate_only=True,
     )
 
