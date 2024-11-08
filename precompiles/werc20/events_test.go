@@ -88,6 +88,7 @@ type WithdrawalEvent struct {
 	Wad *big.Int
 }
 
+//nolint:dupl
 func (s *PrecompileUnitTestSuite) TestEmitDepositEvent() {
 	testCases := []struct {
 		name    string

@@ -232,6 +232,7 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 					Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used for deposit")
 				})
 			})
+			//nolint:dupl
 			When("no calldata is provided", func() {
 				It("it should call the receive which behave like deposit", func() {
 					initBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
