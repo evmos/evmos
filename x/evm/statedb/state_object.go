@@ -190,7 +190,6 @@ func (s *stateObject) setCode(codeHash common.Hash, code []byte) {
 
 // SetCode set nonce to account
 func (s *stateObject) SetNonce(nonce uint64) {
-	println("setting the nonce")
 	s.db.journal.append(nonceChange{
 		account: &s.address,
 		prev:    s.account.Nonce,

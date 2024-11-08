@@ -21,7 +21,6 @@ type callType int
 const (
 	directCall callType = iota
 	contractCall
-	erc20Call
 )
 
 // ContractData is a helper struct to hold the addresses and ABIs for the

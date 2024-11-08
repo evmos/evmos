@@ -151,8 +151,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 // IsTransaction returns true if the given method name correspond to a
 // transaction. Returns false otherwise.
-// TODO: this should handle also fallback receiving the method, not only the
-// method name.
 func (p Precompile) IsTransaction(method *abi.Method) bool {
 	txMethodName := []string{DepositMethod, WithdrawMethod}
 	txMethodType := []abi.FunctionType{abi.Fallback, abi.Receive}

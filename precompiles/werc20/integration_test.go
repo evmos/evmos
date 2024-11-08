@@ -450,19 +450,20 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 	Context("calling a reverter contract", func() {
 		When("to call the deposit", func() {
 			It("it should return funds to sender and emit the event", func() {
-				ctx := is.network.GetContext()
+				panic("This tests has to be completed")
+				// ctx := is.network.GetContext()
 
-				initBalance := is.network.App.BankKeeper.GetAllBalances(ctx, txSender.AccAddr)
-
-				txArgs, callArgs := callsData.getTxAndCallArgs(contractCall, "depositWithRevert")
-				txArgs.Amount = depositAmount
-
-				_, _, err := is.factory.CallContractAndCheckLogs(txSender.Priv, txArgs, callArgs, depositCheck)
-				Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
-				Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
-
-				finalBalance := is.network.App.BankKeeper.GetAllBalances(ctx, txSender.AccAddr)
-				Expect(finalBalance.String()).To(Equal(initBalance.String()), "expected final balance equal to initial")
+				// initBalance := is.network.App.BankKeeper.GetAllBalances(ctx, txSender.AccAddr)
+				//
+				// txArgs, callArgs := callsData.getTxAndCallArgs(contractCall, "depositWithRevert")
+				// txArgs.Amount = depositAmount
+				//
+				// _, _, err := is.factory.CallContractAndCheckLogs(txSender.Priv, txArgs, callArgs, depositCheck)
+				// Expect(err).ToNot(HaveOccurred(), "unexpected error calling the precompile")
+				// Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+				//
+				// finalBalance := is.network.App.BankKeeper.GetAllBalances(ctx, txSender.AccAddr)
+				// Expect(finalBalance.String()).To(Equal(initBalance.String()), "expected final balance equal to initial")
 			})
 		})
 	})
