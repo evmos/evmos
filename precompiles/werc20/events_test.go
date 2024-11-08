@@ -23,8 +23,6 @@ import (
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
-var s *PrecompileUnitTestSuite
-
 type PrecompileUnitTestSuite struct {
 	suite.Suite
 
@@ -39,8 +37,7 @@ type PrecompileUnitTestSuite struct {
 }
 
 func TestPrecompileUnitTestSuite(t *testing.T) {
-	s = new(PrecompileUnitTestSuite)
-	suite.Run(t, s)
+	suite.Run(t, new(PrecompileUnitTestSuite))
 }
 
 // SetupTest allows to configure the testing suite embedding a network with a
