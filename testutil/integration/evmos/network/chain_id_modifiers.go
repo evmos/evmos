@@ -22,6 +22,8 @@ func updateBankGenesisStateForChainID(chainID string, bankGenesisState banktypes
 	return bankGenesisState
 }
 
+// generateBankGenesisMetadata generates the metadata
+// for the Evm coin depending on the chainID.
 func generateBankGenesisMetadata(chainID string) banktypes.Metadata {
 	if utils.IsTestnet(chainID) {
 		return banktypes.Metadata{
@@ -75,6 +77,8 @@ func updateErc20GenesisStateForChainID(chainID string, erc20GenesisState erc20ty
 	return erc20GenesisState
 }
 
+// updateErc20Params modifies the erc20 module params to use the correct
+// WEVMOS contract depending on ChainID
 func updateErc20Params(chainID string, params erc20types.Params) erc20types.Params {
 	mainnetAddress := erc20types.GetWEVMOSContractHex(utils.MainnetChainID)
 	testnetAddress := erc20types.GetWEVMOSContractHex(chainID)
@@ -91,6 +95,8 @@ func updateErc20Params(chainID string, params erc20types.Params) erc20types.Para
 	return params
 }
 
+// updateErc20TokenPairs modifies the erc20 token pairs to use the correct
+// WEVMOS depending on ChainID
 func updateErc20TokenPairs(chainID string, tokenPairs []erc20types.TokenPair) []erc20types.TokenPair {
 	testnetAddress := erc20types.GetWEVMOSContractHex(chainID)
 	coinInfo := evmtypes.ChainsCoinInfo[utils.MainnetChainID]

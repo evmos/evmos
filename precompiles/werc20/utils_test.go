@@ -23,7 +23,7 @@ const (
 	contractCall
 )
 
-// ContractData is a helper struct to hold the addresses and ABIs for the
+// CallsData is a helper struct to hold the addresses and ABIs for the
 // different contract instances that are subject to testing here.
 type CallsData struct {
 	// This field is used to perform transactions that are not relevant for
