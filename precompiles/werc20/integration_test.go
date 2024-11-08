@@ -330,7 +330,7 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 						Amount: math.NewIntFromBigInt(withdrawAmount).SubRaw(1),
 					}}
 					err := is.network.App.BankKeeper.SendCoins(is.network.GetContext(), user.AccAddr, newUserAcc, newUserBalance)
-					Expect(err).To(HaveOccurred(), "expected no error sending tokens")
+					Expect(err).ToNot(HaveOccurred(), "expected no error sending tokens")
 					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
 					txArgs, callArgs := callsData.getTxAndCallArgs(directCall, werc20.WithdrawMethod, withdrawAmount)
