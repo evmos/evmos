@@ -454,7 +454,7 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 
 				initBalance := is.network.App.BankKeeper.GetAllBalances(ctx, txSender.AccAddr)
 
-				txArgs, callArgs := callsData.getTxAndCallArgs(contractCall, "depositWithRevert", false, false)
+				txArgs, callArgs := callsData.getTxAndCallArgs(contractCall, "depositWithRevert")
 				txArgs.Amount = depositAmount
 
 				_, _, err := is.factory.CallContractAndCheckLogs(txSender.Priv, txArgs, callArgs, depositCheck)

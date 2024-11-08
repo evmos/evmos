@@ -191,7 +191,6 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 	}
 
 	snapshot := evm.StateDB.Snapshot()
-	fmt.Printf("Snapshot revision number %v\n", snapshot)
 	p, isPrecompile := evm.Precompile(addr)
 
 	if !evm.StateDB.Exist(addr) {

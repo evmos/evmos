@@ -138,6 +138,7 @@ func opEq(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]byte,
 }
 
 func opIszero(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]byte, error) {
+	fmt.Println("IS ZERO???")
 	x := scope.Stack.Peek()
 	if x.IsZero() {
 		x.SetOne()

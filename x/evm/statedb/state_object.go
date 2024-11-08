@@ -4,7 +4,6 @@ package statedb
 
 import (
 	"bytes"
-	"fmt"
 	"math/big"
 	"sort"
 
@@ -105,7 +104,6 @@ func (s *stateObject) AddBalance(amount *big.Int) {
 	if amount.Sign() == 0 {
 		return
 	}
-	fmt.Printf("Adding access list entries for add balance: %v\n", s.address)
 	s.SetBalance(new(big.Int).Add(s.Balance(), amount))
 }
 
@@ -116,7 +114,6 @@ func (s *stateObject) SubBalance(amount *big.Int) {
 	if amount.Sign() == 0 {
 		return
 	}
-	fmt.Printf("Adding access list entries for sub balance: %v\n", s.address)
 	s.SetBalance(new(big.Int).Sub(s.Balance(), amount))
 }
 

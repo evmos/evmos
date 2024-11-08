@@ -29,9 +29,6 @@ const (
 func (p Precompile) Deposit(ctx sdk.Context, contract *vm.Contract, stateDB vm.StateDB) ([]byte, error) {
 	caller := contract.Caller()
 	depositedAmount := contract.Value()
-	fmt.Println("-----------------------------------------------------------")
-	fmt.Printf("Message value inside the precompiles: %v\n", depositedAmount)
-	fmt.Println("-----------------------------------------------------------")
 
 	callerAccAddress := sdk.AccAddress(caller.Bytes())
 	precompileAccAddr := sdk.AccAddress(p.Address().Bytes())
@@ -46,7 +43,7 @@ func (p Precompile) Deposit(ctx sdk.Context, contract *vm.Contract, stateDB vm.S
 			Amount: math.NewIntFromBigInt(depositedAmount),
 		}),
 	); err != nil {
-		return []byte{}, err
+		return nil, err
 	}
 
 	// Add the entries to the statedb journal in 18 decimals.
@@ -57,11 +54,10 @@ func (p Precompile) Deposit(ctx sdk.Context, contract *vm.Contract, stateDB vm.S
 	)
 
 	if err := p.EmitDepositEvent(ctx, stateDB, caller, depositedAmount); err != nil {
-		return []byte{}, err
+		return nil, err
 	}
 
-	fmt.Println("SUCCESSFUL goooooooooooooooooooo")
-	return []byte{}, nil
+	return nil, nil
 }
 
 // Withdraw is a no-op and mock function that provides the same interface as the
