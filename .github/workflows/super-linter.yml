@@ -30,6 +30,7 @@ jobs:
           PROTOBUF_CONFIG_FILE: .protolint.yml
           VALIDATE_NATURAL_LANGUAGE: false
           VALIDATE_OPENAPI: false
+          VALIDATE_JAVASCRIPT_STANDARD: false
           VALIDATE_JSCPD: false
           VALIDATE_GO: false
           VALIDATE_GO_MODULES: false
@@ -37,3 +38,4 @@ jobs:
           DEFAULT_BRANCH: "main"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FILTER_REGEX_EXCLUDE: .*.jsonnet
+          
