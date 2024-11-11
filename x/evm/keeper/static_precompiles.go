@@ -126,7 +126,6 @@ func (k *Keeper) WithStaticPrecompiles(precompiles map[common.Address]vm.Precomp
 // GetStaticPrecompileInstance returns the instance of the given static precompile address.
 func (k *Keeper) GetStaticPrecompileInstance(params *types.Params, address common.Address) (vm.PrecompiledContract, bool, error) {
 	if k.IsAvailableStaticPrecompile(params, address) {
-		// TODO: when ethereum precompiles are added in the precompiles field?
 		precompile, found := k.precompiles[address]
 		// If the precompile is within params but not found in the precompiles map it means we have memory
 		// corruption.
