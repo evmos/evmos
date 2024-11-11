@@ -47,10 +47,9 @@ func (p Precompile) Deposit(ctx sdk.Context, contract *vm.Contract, stateDB vm.S
 	}
 
 	// Add the entries to the statedb journal in 18 decimals.
-	convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(depositedAmount)
 	p.SetBalanceChangeEntries(
-		cmn.NewBalanceChangeEntry(caller, convertedAmount, cmn.Add),
-		cmn.NewBalanceChangeEntry(p.Address(), convertedAmount, cmn.Sub),
+		cmn.NewBalanceChangeEntry(caller, depositedAmount, cmn.Add),
+		cmn.NewBalanceChangeEntry(p.Address(), depositedAmount, cmn.Sub),
 	)
 
 	if err := p.EmitDepositEvent(ctx, stateDB, caller, depositedAmount); err != nil {
