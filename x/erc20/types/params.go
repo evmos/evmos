@@ -29,7 +29,7 @@ var chainsWEVMOSHex = map[string]string{
 }
 
 // GetWEVMOSContractHex returns the hex format of address for the WEVMOS contract given the
-// chainID. If the chainID is not found, it fallback to the mainnet address.
+// chainID. If the chainID is not found, it defaults to the mainnet address.
 // TODO: wevmos addresses should be handled in the same struct for the chain
 // config used in the configurator.
 func GetWEVMOSContractHex(chainID string) string {
