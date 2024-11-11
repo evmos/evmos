@@ -57,6 +57,13 @@ struct TallyResultData {
 /// @title Gov Precompile Contract
 /// @dev The interface through which solidity contracts will interact with Gov
 interface IGov {
+    /// @dev SubmitProposal defines an Event emitted when a proposal submited.
+    /// @param proposer is the account address of the proposer
+    /// @param proposalId the proposal of id
+    event SubmitProposal(
+        address indexed proposer,
+        uint64 proposalId
+    );
 
     /// @dev Vote defines an Event emitted when a proposal voted.
     /// @param voter the address of the voter
@@ -71,6 +78,25 @@ interface IGov {
     event VoteWeighted(address indexed voter, uint64 proposalId, WeightedVoteOption[] options);
 
     /// TRANSACTIONS
+
+    /// @dev submitProposal defines a method to create new proposal given the messages.
+    /// @param messages are the arbitrary messages to be executed if proposal passes
+    /// @param initialDeposit is the deposit value that must be paid at proposal submission
+    /// @param proposer is the account address of the proposer
+    /// @param metadata is any arbitrary metadata attached to the proposal
+    /// @param title is the title of the proposal
+    /// @param summary is the summary of the proposal
+    /// @param expedited defines if the proposal is expedited or not
+    /// @return proposalId defines the unique id of the proposal
+    function submitProposal(
+        string memory messages,
+        uint256 initialDeposit,
+        address proposer,
+        string memory metadata,
+        string memory title,
+        string memory summary,
+        bool expedited
+    ) external returns (uint64 proposalId);
 
     /// @dev vote defines a method to add a vote on a specific proposal.
     /// @param voter The address of the voter

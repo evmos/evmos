@@ -16,11 +16,48 @@ import (
 )
 
 const (
+	// SubmitProposalMethod defines the ABI method name for the gov SubmitProposal transaction.
+	SubmitProposalMethod = "submitProposal"
 	// VoteMethod defines the ABI method name for the gov Vote transaction.
 	VoteMethod = "vote"
 	// VoteWeightedMethod defines the ABI method name for the gov VoteWeighted transaction.
 	VoteWeightedMethod = "voteWeighted"
 )
+
+
+// SubmitProposal defines a method to create new proposal given the messages.
+func (p Precompile) SubmitProposal(
+	ctx sdk.Context,
+	origin common.Address,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	msg, proposerHexAddr, err := NewMsgSubmitProposal(args)
+	if err != nil {
+		return nil, err
+	}
+
+	// If the contract is the proposer, we don't need an origin check
+	// Otherwise check if the origin matches the proposer address
+	isContractVoter := contract.CallerAddress == proposerHexAddr && contract.CallerAddress != origin
+	if !isContractVoter && origin != proposerHexAddr {
+		return nil, fmt.Errorf(ErrDifferentOrigin, origin.String(), proposerHexAddr.String())
+	}
+
+	msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)
+	res, err := msgSrv.SubmitProposal(ctx, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = p.EmitSubmitProposalEvent(ctx, stateDB, proposerHexAddr, res.ProposalId); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(res.ProposalId)
+}
 
 // Vote defines a method to add a vote on a specific proposal.
 func (p Precompile) Vote(
