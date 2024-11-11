@@ -1038,9 +1038,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 - (erc20) [#169](https://github.com/evmos/evmos/pull/169) Fixes several testnet bugs:.
-    - Check if supply exists for a token before when submitting a `RegisterCoinProposal`, allowing users to create an ERC20 representation of an invalid Cosmos Coin.
-    - Sanitize the ERC20 token name when creating coin metadata on ER `RegisterERC20Proposal`.
-    - Fix coin metadata validation error when registering an ERC20 with 0 denom units.
+  - Check if supply exists for a token before when submitting a `RegisterCoinProposal`, allowing users to create an ERC20 representation of an invalid Cosmos Coin.
+  - Sanitize the ERC20 token name when creating coin metadata on ER `RegisterERC20Proposal`.
+  - Fix coin metadata validation error when registering an ERC20 with 0 denom units.
 - (erc20) [#191](https://github.com/evmos/evmos/pull/191) Add direct balance protection (IF-ETHERMINT-06).
 - (erc20) [#192](https://github.com/evmos/evmos/pull/192) Add delayed malicious effect protection (IF-ETHERMINT-06).
 - (erc20) [#200](https://github.com/evmos/evmos/pull/200) Match coin and token decimals for ERC-20 deployment during registerCoin.
