@@ -65,6 +65,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (app) [#2937](https://github.com/evmos/evmos/pull/2937) Fix conversion on the `CheckTxFee` ante handler and allow zero coins refunds.
 - (deps) [#2967](https://github.com/evmos/evmos/pull/2967) Bump CometBFT to `v0.38.15`.
 - (precompiles) [#2943](https://github.com/evmos/evmos/pull/2943) Add WERC-20 precompile.
+- (precompiles) [#2966](https://github.com/evmos/evmos/pull/2966) Add safety check that ERC20 precompiles cannot receive funds.
 
 ### Bug Fixes
 
