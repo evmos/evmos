@@ -210,8 +210,6 @@ func (evm *EVM) WithPrecompiles(
 	precompiles map[common.Address]PrecompiledContract,
 	activePrecompiles []common.Address,
 ) {
-	// TODO: here we are not setting all precompiles correctly but is always
-	// equal to the active.
 	evm.precompiles = precompiles
 	evm.activePrecompiles = activePrecompiles
 }
