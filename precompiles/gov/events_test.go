@@ -47,7 +47,7 @@ func (s *PrecompileTestSuite) TestVoteEvent() {
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[gov.EventTypeVote]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight())) //nolint:gosec // G115
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
 
 				// Check the fully unpacked event matches the one emitted
 				var voteEvent gov.EventVote
@@ -117,7 +117,7 @@ func (s *PrecompileTestSuite) TestVoteWeightedEvent() {
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[gov.EventTypeVoteWeighted]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight())) //nolint:gosec // G115
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
 
 				// Check the fully unpacked event matches the one emitted
 				var voteWeightedEvent gov.EventVoteWeighted

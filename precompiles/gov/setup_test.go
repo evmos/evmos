@@ -58,12 +58,18 @@ func (s *PrecompileTestSuite) SetupTest() {
 		SubmitTime:      &now,
 		DepositEndTime:  &inOneHour,
 		VotingStartTime: &now,
-		VotingEndTime:   &inOneHour,
-		Metadata:        "ipfs://CID",
-		Title:           "test prop",
-		Summary:         "test prop",
-		Proposer:        keyring.GetAccAddr(0).String(),
-		Messages:        []*types.Any{anyMessage},
+		FinalTallyResult: &govv1.TallyResult{
+			YesCount:        "0",
+			AbstainCount:    "0",
+			NoCount:         "0",
+			NoWithVetoCount: "0",
+		},
+		VotingEndTime: &inOneHour,
+		Metadata:      "ipfs://CID",
+		Title:         "test prop",
+		Summary:       "test prop",
+		Proposer:      keyring.GetAccAddr(0).String(),
+		Messages:      []*types.Any{anyMessage},
 	}
 
 	bankGen := banktypes.DefaultGenesisState()

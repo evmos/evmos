@@ -37,7 +37,7 @@ func (p Precompile) EmitVoteEvent(ctx sdk.Context, stateDB vm.StateDB, voterAddr
 
 	// Prepare the event data
 	arguments := abi.Arguments{event.Inputs[1], event.Inputs[2]}
-	packed, err := arguments.Pack(proposalID, uint8(option)) //nolint:gosec // G115
+	packed, err := arguments.Pack(proposalID, uint8(option))
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func (p Precompile) EmitVoteEvent(ctx sdk.Context, stateDB vm.StateDB, voterAddr
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        packed,
-		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
+		BlockNumber: uint64(ctx.BlockHeight()),
 	})
 
 	return nil
@@ -78,7 +78,7 @@ func (p Precompile) EmitVoteWeightedEvent(ctx sdk.Context, stateDB vm.StateDB, v
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        packed,
-		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
+		BlockNumber: uint64(ctx.BlockHeight()),
 	})
 
 	return nil

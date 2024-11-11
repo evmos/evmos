@@ -53,6 +53,23 @@ struct TallyResultData {
     string noWithVeto;
 }
 
+/// @dev ProposalData represents a governance proposal
+struct ProposalData {
+    uint64 id;
+    string[] messages;
+    uint32 status;
+    TallyResultData finalTallyResult;
+    uint64 submitTime;
+    uint64 depositEndTime;
+    Coin[] totalDeposit;
+    uint64 votingStartTime;
+    uint64 votingEndTime;
+    string metadata;
+    string title;
+    string summary;
+    address proposer;
+}
+
 /// @author The Evmos Core Team
 /// @title Gov Precompile Contract
 /// @dev The interface through which solidity contracts will interact with Gov
@@ -151,4 +168,25 @@ interface IGov {
     function getTallyResult(
         uint64 proposalId
     ) external view returns (TallyResultData memory tallyResult);
+
+    /// @dev getProposal returns the proposal details based on proposal id.
+    /// @param proposalId The proposal id
+    /// @return proposal The proposal data
+    function getProposal(
+        uint64 proposalId
+    ) external view returns (ProposalData memory proposal);
+
+    /// @dev getProposals returns proposals with matching status.
+    /// @param proposalStatus The proposal status to filter by
+    /// @param voter The voter address to filter by, if any
+    /// @param depositor The depositor address to filter by, if any
+    /// @param pagination The pagination config
+    /// @return proposals The proposals matching the filter criteria
+    /// @return pageResponse The pagination information
+    function getProposals(
+        uint32 proposalStatus,
+        address voter,
+        address depositor,
+        PageRequest calldata pagination
+    ) external view returns (ProposalData[] memory proposals, PageResponse memory pageResponse);
 }
