@@ -9,6 +9,7 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
@@ -26,7 +27,12 @@ const (
 
 // Deposit handles the payable deposit function. It retrieves the deposited amount
 // and sends it back to the sender using the bank keeper.
-func (p Precompile) Deposit(ctx sdk.Context, contract *vm.Contract, stateDB vm.StateDB) ([]byte, error) {
+func (p Precompile) Deposit(
+	ctx sdk.Context,
+	origin common.Address,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+) ([]byte, error) {
 	caller := contract.Caller()
 	depositedAmount := contract.Value()
 
@@ -46,11 +52,14 @@ func (p Precompile) Deposit(ctx sdk.Context, contract *vm.Contract, stateDB vm.S
 		return nil, err
 	}
 
-	// Add the entries to the statedb journal in 18 decimals.
-	p.SetBalanceChangeEntries(
-		cmn.NewBalanceChangeEntry(caller, depositedAmount, cmn.Add),
-		cmn.NewBalanceChangeEntry(p.Address(), depositedAmount, cmn.Sub),
-	)
+	// Add the entries to the statedb journal only if the call is not a direct
+	// call.
+	if origin != caller {
+		p.SetBalanceChangeEntries(
+			cmn.NewBalanceChangeEntry(caller, depositedAmount, cmn.Add),
+			cmn.NewBalanceChangeEntry(p.Address(), depositedAmount, cmn.Sub),
+		)
+	}
 
 	if err := p.EmitDepositEvent(ctx, stateDB, caller, depositedAmount); err != nil {
 		return nil, err

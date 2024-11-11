@@ -124,7 +124,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	case method.Type == abi.Fallback,
 		method.Type == abi.Receive,
 		method.Name == DepositMethod:
-		bz, err = p.Deposit(ctx, contract, stateDB)
+		bz, err = p.Deposit(ctx, evm.Origin, contract, stateDB)
 	case method.Name == WithdrawMethod:
 		bz, err = p.Withdraw(ctx, contract, stateDB, args)
 	default:

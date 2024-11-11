@@ -24,11 +24,14 @@ func (k Keeper) GetERC20PrecompileInstance(
 	if !k.IsAvailableERC20Precompile(&params, address) {
 		return nil, false, nil
 	}
+
 	isNative := params.IsNativePrecompile(address)
+
 	precompile, err := k.InstantiateERC20Precompile(ctx, address, isNative)
 	if err != nil {
 		return nil, false, errorsmod.Wrapf(err, "precompiled contract not initialized: %s", address.String())
 	}
+
 	return precompile, true, nil
 }
 
