@@ -59,7 +59,7 @@ func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.
 
 // IsAvailableERC20Precompile returns true if the given precompile address
 // is contained in the params of the erc20 module.
-// Available precompiles are defined as the dynamic precompiles and the native
+// The available ERC-20 precompiles consist of the dynamic precompiles and the native
 // ones.
 func (k Keeper) IsAvailableERC20Precompile(params *types.Params, address common.Address) bool {
 	return params.IsNativePrecompile(address) ||
