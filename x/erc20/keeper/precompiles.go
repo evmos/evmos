@@ -36,9 +36,10 @@ func (k Keeper) GetERC20PrecompileInstance(
 }
 
 // InstantiateERC20Precompile returns an ERC20 precompile instance for the given
-// contract address. If the precompile is native, the ERC20 instance returned
-// expose methods for the wrapped version of the token.
-func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.Address, isNative bool) (vm.PrecompiledContract, error) {
+// contract address.
+// If the `hasWrappedMethods` boolean is true, the ERC20 instance returned
+// exposes methods for `withdraw` and `deposit` as it is common for wrapped tokens.
+func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.Address, hasWrappedMethods bool) (vm.PrecompiledContract, error) {
 	address := contractAddr.String()
 	// check if the precompile is an ERC20 contract
 	id := k.GetTokenPairID(ctx, address)
