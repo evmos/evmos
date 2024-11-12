@@ -25,8 +25,7 @@ import (
 type Config struct {
 	chainID            string
 	eip155ChainID      *big.Int
-	baseCoin           CoinInfo
-	evmCoin            CoinInfo
+	chainCoins         ChainCoins
 	amountOfValidators int
 	preFundedAccounts  []sdktypes.AccAddress
 	balances           []banktypes.Balance
@@ -38,33 +37,21 @@ type Config struct {
 
 type CustomGenesisState map[string]interface{}
 
-type CoinInfo struct {
-	Denom    string
-	Decimals evmtypes.Decimals
-}
-
 // DefaultConfig returns the default configuration for a chain.
 func DefaultConfig() Config {
 	account, _ := testtx.NewAccAddressAndKey()
 
-	// Default chain and coins info are mainnet values.
+	// Default chainID is mainnet.
 	chainID := utils.MainnetChainID + "-1"
 	eip155ChainID, err := evmostypes.ParseChainID(chainID)
 	if err != nil {
 		panic("chain ID with invalid eip155 value")
 	}
-	coinInfo := evmtypes.ChainsCoinInfo[utils.MainnetChainID]
-	// baseCoin is used for both base and evm coin.
-	baseCoin := CoinInfo{
-		Denom:    coinInfo.Denom,
-		Decimals: coinInfo.Decimals,
-	}
 
 	return Config{
 		chainID:            chainID,
 		eip155ChainID:      eip155ChainID,
-		baseCoin:           baseCoin,
-		evmCoin:            baseCoin,
+		chainCoins:         DefaultChainCoins(),
 		amountOfValidators: 3,
 		// Only one account besides the validators
 		preFundedAccounts: []sdktypes.AccAddress{account},
@@ -86,16 +73,16 @@ func getGenAccountsAndBalances(cfg Config, validators []stakingtypes.Validator) 
 	} else {
 		genAccounts = createGenesisAccounts(cfg.preFundedAccounts)
 
-		basisCoins := []string{cfg.baseCoin.Denom}
-		basisDecimals := map[string]evmtypes.Decimals{
-			cfg.baseCoin.Denom: cfg.baseCoin.Decimals,
+		chainDenoms := []string{cfg.chainCoins.BaseDenom()}
+		chainDenomDecimals := map[string]evmtypes.Decimals{
+			cfg.chainCoins.BaseDenom(): cfg.chainCoins.BaseDecimals(),
 		}
-		if cfg.baseCoin.Denom != cfg.evmCoin.Denom {
-			basisCoins = append(basisCoins, cfg.evmCoin.Denom)
-			basisDecimals[cfg.evmCoin.Denom] = cfg.evmCoin.Decimals
+		if !cfg.chainCoins.IsBaseEqualToEVM() {
+			chainDenoms = append(chainDenoms, cfg.chainCoins.EVMDenom())
+			chainDenomDecimals[cfg.chainCoins.EVMDenom()] = cfg.chainCoins.EVMDecimals()
 		}
 
-		balances = createBalances(cfg.preFundedAccounts, append(cfg.otherCoinDenom, basisCoins...), basisDecimals)
+		balances = createBalances(cfg.preFundedAccounts, append(cfg.otherCoinDenom, chainDenoms...), chainDenomDecimals)
 	}
 
 	// append validators to genesis accounts and balances
@@ -117,23 +104,21 @@ func getGenAccountsAndBalances(cfg Config, validators []stakingtypes.Validator) 
 // requires to be changed.
 type ConfigOption func(*Config)
 
-// WithChainID sets a custom chainID for the network. It panics if the chainID is invalid.
+// WithChainID sets a custom chainID for the network. Changing the chainID
+// change automatically also the EVM coin used. It panics if the chainID is invalid.
 func WithChainID(chainID string) ConfigOption {
-	chainIDNum, err := evmostypes.ParseChainID(chainID)
+	eip155ChainID, err := evmostypes.ParseChainID(chainID)
 	if err != nil {
 		panic(err)
 	}
 
-	coinInfo := evmtypes.ChainsCoinInfo[utils.MainnetChainID]
-	baseCoin := CoinInfo{
-		Denom:    coinInfo.Denom,
-		Decimals: coinInfo.Decimals,
-	}
+	evmCoinInfo := evmtypes.ChainsCoinInfo[utils.MainnetChainID]
+
 	return func(cfg *Config) {
 		cfg.chainID = chainID
-		cfg.eip155ChainID = chainIDNum
-		cfg.baseCoin = baseCoin
-		cfg.evmCoin = baseCoin
+		cfg.eip155ChainID = eip155ChainID
+		cfg.chainCoins.evmCoin.Denom = evmCoinInfo.Denom
+		cfg.chainCoins.evmCoin.Decimals = evmCoinInfo.Decimals
 	}
 }
 
@@ -162,17 +147,16 @@ func WithBalances(balances ...banktypes.Balance) ConfigOption {
 // WithBaseCoin sets the denom and decimals for the base coin in the network.
 func WithBaseCoin(denom string, decimals uint8) ConfigOption {
 	return func(cfg *Config) {
-		cfg.baseCoin.Denom = denom
-		cfg.baseCoin.Decimals = evmtypes.Decimals(decimals)
+		cfg.chainCoins.baseCoin.Denom = denom
+		cfg.chainCoins.baseCoin.Decimals = evmtypes.Decimals(decimals)
 	}
 }
 
-// WithEvmCoin sets the denom and decimals for the evm coin in the network.
-func WithEvmCoin(denom string, decimals uint8) ConfigOption {
-	return func(cfg *Config) {
-		cfg.evmCoin.Denom = denom
-		cfg.evmCoin.Decimals = evmtypes.Decimals(decimals)
-	}
+// WithEVMCoin sets the denom and decimals for the evm coin in the network.
+func WithEVMCoin(denom string, decimals uint8) ConfigOption {
+	// The evm config can be changed only via chain ID because it should be
+	// handled properly from the configurator.
+	panic("EVM coin can be changed only via ChainID: se WithChainID method")
 }
 
 // WithCustomGenesis sets the custom genesis of the network for specific modules.

@@ -132,10 +132,18 @@ func getAccAddrsFromBalances(balances []banktypes.Balance) []sdktypes.AccAddress
 	return genAccounts
 }
 
-// createBalances creates balances for the given accounts and coin
-func createBalances(accounts []sdktypes.AccAddress, denoms []string, denomsDecimals map[string]evmtypes.Decimals) []banktypes.Balance {
-	slices.Sort(denoms)
+// createBalances creates balances for the given accounts and coin. Depending on
+// the decimal representation of the denom, the amount is scaled to have the
+// same value for all denoms.
+func createBalances(
+	accounts []sdktypes.AccAddress,
+	denoms []string,
+	denomsDecimals map[string]evmtypes.Decimals,
+) []banktypes.Balance {
 	numberOfAccounts := len(accounts)
+
+	slices.Sort(denoms)
+
 	coins := make([]sdktypes.Coin, len(denoms))
 	for i, denom := range denoms {
 		amount := PrefundedAccountInitialBalance
@@ -143,6 +151,7 @@ func createBalances(accounts []sdktypes.AccAddress, denoms []string, denomsDecim
 		// If the denom is not in the map, the 18 decimals representation is
 		// used.
 		if found {
+			// amount is expressed in 18 decimals so it should be scaled down.
 			amount = amount.Quo(dec.ConversionFactor())
 		}
 		coins[i] = sdktypes.NewCoin(denom, amount)
@@ -260,7 +269,7 @@ func createStakingValidatorsWithSpecificOperator(tmValidators []*cmttypes.Valida
 	return stakingValidators, nil
 }
 
-// createDelegations creates delegations for the given validators and account
+// createDelegations creates delegations of 1 coin for the given validators and account.
 func createDelegations(validators []stakingtypes.Validator, fromAccount sdktypes.AccAddress) []stakingtypes.Delegation {
 	amountOfValidators := len(validators)
 	delegations := make([]stakingtypes.Delegation, 0, amountOfValidators)
