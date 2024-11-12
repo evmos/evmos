@@ -51,7 +51,7 @@ func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.
 		return nil, fmt.Errorf("token pair not found: %s", address)
 	}
 
-	if isNative {
+	if hasWrappedMethods {
 		return werc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
 	}
 

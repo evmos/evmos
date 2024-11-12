@@ -220,7 +220,7 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
 
 					finalBalance := is.checkAndReturnBalance(passCheck, callsData, user.Addr)
-					Expect(finalBalance).To(Equal(initBalance))
+					Expect(finalBalance.String()).To(Equal(initBalance.String()))
 				})
 				It("it should consume at least the deposit requested gas", func() {
 					txArgs, callArgs := callsData.getTxAndCallArgs(directCall, werc20.DepositMethod)
