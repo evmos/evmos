@@ -28,7 +28,6 @@ func (s *PrecompileTestSuite) TestEmitTransferEvent() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 			stateDB := s.network.GetStateDB()
@@ -75,7 +74,6 @@ func (s *PrecompileTestSuite) TestEmitApprovalEvent() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
 

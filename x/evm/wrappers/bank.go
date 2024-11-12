@@ -90,6 +90,13 @@ func (w BankWrapper) GetBalance(ctx context.Context, addr sdk.AccAddress, denom 
 // the input, to its original representation.
 func (w BankWrapper) SendCoinsFromAccountToModule(ctx context.Context, senderAddr sdk.AccAddress, recipientModule string, coins sdk.Coins) error {
 	convertedCoins := types.ConvertCoinsFrom18Decimals(coins)
+	if convertedCoins.IsZero() {
+		// if after scaling the coins the amt is zero
+		// then is a no-op.
+		// Also this avoids getting a validation error on the
+		// SendCoinsFromAccountToModule function of the bank keeper
+		return nil
+	}
 
 	return w.BankKeeper.SendCoinsFromAccountToModule(ctx, senderAddr, recipientModule, convertedCoins)
 }

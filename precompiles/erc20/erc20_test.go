@@ -153,8 +153,6 @@ func (s *PrecompileTestSuite) TestRequiredGas() {
 
 	for _, tc := range testcases {
 		s.Run(tc.name, func() {
-			tc := tc
-
 			input := tc.malleate()
 
 			s.Require().Equal(tc.expGas, s.precompile.RequiredGas(input))

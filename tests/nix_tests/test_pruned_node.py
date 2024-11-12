@@ -10,8 +10,10 @@ from .network import create_snapshots_dir, setup_custom_evmos
 from .utils import (
     ADDRS,
     CONTRACTS,
+    EVMOS_6DEC_CHAIN_ID,
     KEYS,
     deploy_contract,
+    evm6dec_config,
     sign_transaction,
     w3_wait_for_new_blocks,
 )
@@ -30,6 +32,18 @@ def pruned(tmp_path_factory):
 
 
 @pytest.fixture(scope="module")
+def pruned_6dec(tmp_path_factory):
+    """
+    setup evmos with 6 decimal
+    EVM denom and 'pruning = everything'
+    """
+    path = tmp_path_factory.mktemp("pruned-6dec")
+    yield from setup_custom_evmos(
+        path, 46700, evm6dec_config(path, "pruned_node"), chain_id=EVMOS_6DEC_CHAIN_ID
+    )
+
+
+@pytest.fixture(scope="module")
 def pruned_rocksdb(tmp_path_factory):
     """
     setup evmos with memIAVL + versionDB
@@ -44,8 +58,8 @@ def pruned_rocksdb(tmp_path_factory):
     )
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
-def pruned_cluster(request, pruned, pruned_rocksdb):
+@pytest.fixture(scope="module", params=["evmos", "evmos-6dec", "evmos-rocksdb"])
+def pruned_cluster(request, pruned, pruned_6dec, pruned_rocksdb):
     """
     run on evmos and
     evmos built with rocksdb (memIAVL + versionDB)
@@ -53,6 +67,8 @@ def pruned_cluster(request, pruned, pruned_rocksdb):
     provider = request.param
     if provider == "evmos":
         yield pruned
+    elif provider == "evmos-6dec":
+        yield pruned_6dec
     elif provider == "evmos-rocksdb":
         yield pruned_rocksdb
     else:
@@ -148,7 +164,7 @@ def test_pruned_node(pruned_cluster):
             "value": 0,
             "type": 2,
             "accessList": [],
-            "chainId": 9002,
+            "chainId": w3.eth.chain_id,
         }
     )
     assert tx1 == tx2

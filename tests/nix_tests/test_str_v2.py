@@ -51,7 +51,7 @@ UPDATE_PARAMS_PROP = {
 }
 
 
-@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
+@pytest.fixture(scope="module", params=["evmos", "evmos-6dec", "evmos-rocksdb"])
 def ibc(request, tmp_path_factory):
     """Prepare the network"""
     name = "str-v2"

@@ -136,8 +136,6 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 
 	Context("to create a clawback vesting account", func() {
 		for _, callType := range callTypes {
-			callType := callType
-
 			It(fmt.Sprintf("should succeed (%s)", callType.name), func() {
 				callArgs, txArgs := s.BuildCallArgs(callType, vestingCallerAddr)
 				callArgs.MethodName = vesting.CreateClawbackVestingAccountMethod
@@ -289,8 +287,6 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 
 	Context("to fund a clawback vesting account", func() {
 		for _, callType := range callTypes {
-			callType := callType
-
 			BeforeEach(func() {
 				if callType.directCall == false {
 					// Create a generic authorization in the precompile to authorize the vesting caller
@@ -1129,8 +1125,6 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 		})
 
 		for _, callType := range callTypes {
-			callType := callType
-
 			Context("without authorization", func() {
 				It(fmt.Sprintf("should fail when sending tx from the funder (%s)", callType.name), func() {
 					if callType.directCall {
@@ -1646,8 +1640,6 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 		})
 
 		for _, callType := range callTypes {
-			callType := callType
-
 			BeforeEach(func() {
 				if callType.directCall == false {
 					// Create a generic authorization in the precompile to authorize the vesting caller
@@ -1841,8 +1833,6 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 		})
 
 		for _, callType := range callTypes {
-			callType := callType
-
 			It(fmt.Sprintf("should succeed after vesting has ended (%s)", callType.name), func() {
 				// Commit block with new time so that the vesting period has ended.
 				err = s.network.NextBlockAfter(time.Hour * 24)
@@ -1917,8 +1907,6 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 	//
 	Context("to get vesting balances", func() {
 		for _, callType := range callTypes {
-			callType := callType
-
 			It(fmt.Sprintf("should return the vesting when it exists (%s)", callType.name), func() {
 				funder := s.keyring.GetKey(0)
 				vestingKey := s.keyring.GetKey(1)

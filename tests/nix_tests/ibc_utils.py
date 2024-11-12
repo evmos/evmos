@@ -14,7 +14,9 @@ from .network import (
 )
 from .utils import (
     ADDRS,
+    EVMOS_6DEC_CHAIN_ID,
     eth_to_bech32,
+    evm6dec_ibc_config,
     memiavl_config,
     setup_stride,
     update_evmos_bin,
@@ -41,6 +43,11 @@ IBC_CHAINS_META = {
         "chain_name": "evmos_9002-1",
         "bin": "evmosd",
         "denom": "aevmos",
+    },
+    "evmos-6dec": {
+        "chain_name": "evmosics_9000-1",
+        "bin": "evmosd",
+        "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
     },
     "evmos-rocksdb": {
         "chain_name": "evmos_9002-1",
@@ -73,7 +80,7 @@ IBC_CHAINS_META = {
         "denom": "uatom",
     },
 }
-EVM_CHAINS = ["evmos_9002", "chainmain-1"]
+EVM_CHAINS = ["evmos_9002", "evmosics_9000", "chainmain-1"]
 
 
 class IBCNetwork(NamedTuple):
@@ -85,6 +92,7 @@ def get_evmos_generator(
     tmp_path: Path,
     file: str,
     is_rocksdb: bool = False,
+    is_6dec: bool = False,
     stride_included: bool = False,
     custom_scenario: str | None = None,
 ):
@@ -101,6 +109,11 @@ def get_evmos_generator(
             Path(__file__).parent / file,
             chain_binary="evmosd-rocksdb",
             post_init=create_snapshots_dir,
+        )
+    elif is_6dec:
+        file = evm6dec_ibc_config(tmp_path, file)
+        gen = setup_custom_evmos(
+            tmp_path, 56710, Path(__file__).parent / file, chain_id=EVMOS_6DEC_CHAIN_ID
         )
     else:
         file = f"configs/{file}.jsonnet"
@@ -157,6 +170,7 @@ def prepare_network(
                 tmp_path,
                 file,
                 "-rocksdb" in chain,
+                "-6dec" in chain,
                 "stride" in chain_names,
                 custom_scenario,
             )
@@ -232,25 +246,27 @@ def assert_ready(ibc):
     assert json.loads(output)["status"] == "success"
 
 
-def hermes_transfer(ibc, other_chain_name="chainmain-1", other_chain_denom="basecro"):
+def hermes_transfer(
+    ibc,
+    src_chain_name="chainmain-1",
+    src_chain_denom="basecro",
+    dst_chain_name="evmos_9002-1",
+    src_amt=10,
+    channel_id="channel-0",
+):
     assert_ready(ibc)
+    # defaults to:
     # chainmain-1 -> evmos_9002-1
-    my_ibc0 = other_chain_name
-    my_ibc1 = "evmos_9002-1"
-    my_channel = "channel-0"
     dst_addr = eth_to_bech32(ADDRS["signer2"])
-    src_amount = 10
-    src_denom = other_chain_denom
-    # dstchainid srcchainid srcportid srchannelid
     cmd = (
         f"hermes --config {ibc.hermes.configpath} tx ft-transfer "
-        f"--dst-chain {my_ibc1} --src-chain {my_ibc0} --src-port transfer "
-        f"--src-channel {my_channel} --amount {src_amount} "
+        f"--dst-chain {dst_chain_name} --src-chain {src_chain_name} --src-port transfer "
+        f"--src-channel {channel_id} --amount {src_amt} "
         f"--timeout-height-offset 1000 --number-msgs 1 "
-        f"--denom {src_denom} --receiver {dst_addr} --key-name relayer"
+        f"--denom {src_chain_denom} --receiver {dst_addr} --key-name relayer"
     )
     subprocess.run(cmd, check=True, shell=True)
-    return src_amount
+    return src_amt
 
 
 def get_balance(chain, addr, denom):

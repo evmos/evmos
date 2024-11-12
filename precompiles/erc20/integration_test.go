@@ -280,6 +280,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				txArgs.To = &precompileAddress
 
 				_, err := is.factory.ExecuteEthTx(sender.Priv, txArgs)
+				// Currently, this check pass because the erc20 precompile does
+				// not expose a fallback handler. Adding a fallback handler, the
+				// test should pass again because of the check on the message
+				// value in the precompile before the setup.
 				Expect(err.Error()).To(ContainSubstring(vm.ErrExecutionReverted.Error()), "precompile should not accept transfers")
 			},
 			)

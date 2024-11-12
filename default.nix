@@ -1,7 +1,9 @@
 { lib
 , buildGoApplication
 , buildPackages
+, darwin
 , fetchFromGitHub
+, pkgs
 , stdenv
 , rev ? "dirty"
 , rocksdb
@@ -20,24 +22,24 @@ let
     "-X github.com/cosmos/cosmos-sdk/version.Commit=${rev}"
     "-X github.com/cosmos/cosmos-sdk/types.DBBackend=${dbBackend}"
   ]);
-  buildInputs = lib.optionals (dbBackend == "rocksdb") [ rocksdb ];
+  buildInputs = lib.optionals (dbBackend == "rocksdb") [ rocksdb ] ++ lib.optionals stdenv.isDarwin ([ darwin.apple_sdk.frameworks.CoreServices ]);
   # use a newer version of nixpkgs to get go_1_22
   # We're not updating this on the whole setup because breaks other stuff
   # but we can import the needed packages from the newer version
   nixpkgsUrl = "https://github.com/NixOS/nixpkgs/archive/master.tar.gz";
   nixpkgs = import (fetchTarball nixpkgsUrl) {};
   # the go_1_22 nixpkgs is v1.22.1
-  # but we need the v1.22.2. 
+  # but we need the v1.22.8. 
   # This overrides the pkg to use
-  # the v1.22.2 version  
+  # the v1.22.8 version  
   go_1_22 = nixpkgs.pkgs.go_1_22.overrideAttrs {
     pname = "golang";
-    version = "go1.22.2";
+    version = "go1.22.8";
     src = fetchFromGitHub {
       owner = "golang";
       repo = "go";
-      rev = "dddf0ae40fa0c1223aba191d73a44425a08e1035";
-      sha256 = "sha256-gWJ4txAt2TkobDo1EGotWDOSP2pGqLCNqpn+Smgr21w=";
+      rev = "aeccd613c896d39f582036aa52917c85ecf0b0c0";
+      sha256 = "sha256-N3uG+FLMgThIAr1aDJSq+X+VKCz8dw6az35um3Mr3D0=";
     };
   };  
 in

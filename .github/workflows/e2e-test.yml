@@ -114,7 +114,7 @@ jobs:
       - name: Setup Cachix
         uses: cachix/cachix-action@v15
         with:
-          name: evmosd
+          name: evmos
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - uses: technote-space/get-diff-action@v6.1.2
         with:

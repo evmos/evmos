@@ -1,7 +1,8 @@
-FROM golang:1.23.2-alpine3.20 AS build-env
+# hadolint global ignore=DL3018
+FROM golang:1.23.3-alpine3.20 AS build-env
 
 ARG DB_BACKEND=goleveldb
-ARG ROCKSDB_VERSION="9.5.2"
+ARG ROCKSDB_VERSION="9.7.3"
 
 WORKDIR /go/src/github.com/evmos/evmos
 
