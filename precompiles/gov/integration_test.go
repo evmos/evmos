@@ -561,8 +561,8 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				err = s.precompile.UnpackIntoInterface(&out, method, ethRes.Ret)
 				Expect(err).To(BeNil())
 
-				Expect(out.Proposals).To(HaveLen(1))
-				Expect(out.PageResponse.Total).To(Equal(uint64(1)))
+				Expect(out.Proposals).To(HaveLen(2))
+				Expect(out.PageResponse.Total).To(Equal(uint64(2)))
 
 				proposal := out.Proposals[0]
 				Expect(proposal.Id).To(Equal(uint64(1)))
@@ -596,8 +596,9 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				err = s.precompile.UnpackIntoInterface(&out, method, ethRes.Ret)
 				Expect(err).To(BeNil())
 
-				Expect(out.Proposals).To(HaveLen(1))
+				Expect(out.Proposals).To(HaveLen(2))
 				Expect(out.Proposals[0].Status).To(Equal(uint32(v1.StatusVotingPeriod)))
+				Expect(out.Proposals[1].Status).To(Equal(uint32(v1.StatusVotingPeriod)))
 			})
 
 			It("should filter proposals by voter", func() {

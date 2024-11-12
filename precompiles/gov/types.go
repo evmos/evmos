@@ -431,7 +431,6 @@ type ProposalData struct {
 	Proposer         common.Address  `abi:"proposer"`
 }
 
-// Add these parsing functions
 // ParseProposalArgs parses the arguments for the Proposal query
 func ParseProposalArgs(args []interface{}) (*govv1.QueryProposalRequest, error) {
 	if len(args) != 1 {
@@ -477,7 +476,6 @@ func ParseProposalsArgs(method *abi.Method, args []interface{}) (*govv1.QueryPro
 	}, nil
 }
 
-// Add these FromResponse methods
 func (po *ProposalOutput) FromResponse(res *govv1.QueryProposalResponse) *ProposalOutput {
 	msgs := make([]string, len(res.Proposal.Messages))
 	for i, msg := range res.Proposal.Messages {

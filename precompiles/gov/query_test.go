@@ -475,8 +475,8 @@ func (s *PrecompileTestSuite) TestGetProposals() {
 				}
 			},
 			func(data []gov.ProposalData, pageRes *query.PageResponse) {
-				s.Require().Len(data, 1)
-				s.Require().Equal(uint64(1), pageRes.Total)
+				s.Require().Len(data, 2)
+				s.Require().Equal(uint64(2), pageRes.Total)
 
 				proposal := data[0]
 				s.Require().Equal(uint64(1), proposal.Id)
@@ -506,9 +506,10 @@ func (s *PrecompileTestSuite) TestGetProposals() {
 				}
 			},
 			func(data []gov.ProposalData, pageRes *query.PageResponse) {
-				s.Require().Len(data, 1)
-				s.Require().Equal(uint64(1), pageRes.Total)
+				s.Require().Len(data, 2)
+				s.Require().Equal(uint64(2), pageRes.Total)
 				s.Require().Equal(uint32(govv1.StatusVotingPeriod), data[0].Status)
+				s.Require().Equal(uint32(govv1.StatusVotingPeriod), data[1].Status)
 			},
 			200000,
 			false,
