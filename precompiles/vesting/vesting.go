@@ -14,6 +14,7 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
@@ -49,7 +50,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 		return 0
 	}
 
-	return p.Precompile.RequiredGas(input, p.IsTransaction(method.Name))
+	return p.Precompile.RequiredGas(input, p.IsTransaction(method))
 }
 
 // NewPrecompile creates a new vesting Precompile instance as a
@@ -137,8 +138,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 //   - UpdateVestingFunder
 //   - ConvertVestingAccount
 //   - Approve
-func (Precompile) IsTransaction(method string) bool {
-	switch method {
+func (Precompile) IsTransaction(method *abi.Method) bool {
+	switch method.Name {
 	case CreateClawbackVestingAccountMethod,
 		FundVestingAccountMethod,
 		ClawbackMethod,

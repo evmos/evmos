@@ -279,6 +279,8 @@ def is_relative_target(path: Path) -> bool:
     return path == RELATIVE_TARGET
 
 
+# TODO: in the abi, the sourceName field refere to the path of the temporary
+# directory for the compilation. It should be updated.
 def compile_files(repo_path: Path, added_contract: Union[str, None] = None):
     """
     This function compiles the Solidity contracts in the repository

@@ -20,17 +20,17 @@
 pragma solidity >=0.4.22 <0.6;
 
 contract WEVMOS9 {
-    string public name     = "Wrapped Evmos";
-    string public symbol   = "WEVMOS";
-    uint8  public decimals = 18;
+    string public name = "Wrapped Evmos";
+    string public symbol = "WEVMOS";
+    uint8 public decimals = 18;
 
-    event  Approval(address indexed src, address indexed guy, uint wad);
-    event  Transfer(address indexed src, address indexed dst, uint wad);
-    event  Deposit(address indexed dst, uint wad);
-    event  Withdrawal(address indexed src, uint wad);
+    event Approval(address indexed src, address indexed guy, uint wad);
+    event Transfer(address indexed src, address indexed dst, uint wad);
+    event Deposit(address indexed dst, uint wad);
+    event Withdrawal(address indexed src, uint wad);
 
-    mapping (address => uint)                       public  balanceOf;
-    mapping (address => mapping (address => uint))  public  allowance;
+    mapping(address => uint) public balanceOf;
+    mapping(address => mapping(address => uint)) public allowance;
 
     function() external payable {
         deposit();
@@ -62,10 +62,11 @@ contract WEVMOS9 {
         return transferFrom(msg.sender, dst, wad);
     }
 
-    function transferFrom(address src, address dst, uint wad)
-    public
-    returns (bool)
-    {
+    function transferFrom(
+        address src,
+        address dst,
+        uint wad
+    ) public returns (bool) {
         require(balanceOf[src] >= wad);
 
         if (src != msg.sender && allowance[src][msg.sender] != uint(-1)) {
@@ -81,7 +82,6 @@ contract WEVMOS9 {
         return true;
     }
 }
-
 
 /*
                     GNU GENERAL PUBLIC LICENSE

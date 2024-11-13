@@ -82,7 +82,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 		return 0
 	}
 
-	return p.Precompile.RequiredGas(input, p.IsTransaction(method.Name))
+	return p.Precompile.RequiredGas(input, p.IsTransaction(method))
 }
 
 // Run executes the precompiled contract gov methods defined in the ABI.
@@ -143,8 +143,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 // Available gov transactions are:
 //   - Vote
 //   - VoteWeighted
-func (Precompile) IsTransaction(methodName string) bool {
-	switch methodName {
+func (Precompile) IsTransaction(method *abi.Method) bool {
+	switch method.Name {
 	case VoteMethod, VoteWeightedMethod:
 		return true
 	default:

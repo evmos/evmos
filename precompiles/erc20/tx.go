@@ -92,7 +92,7 @@ func (p *Precompile) transfer(
 
 	var prevAllowance *big.Int
 	if ownerIsSpender {
-		msgSrv := bankkeeper.NewMsgServerImpl(p.bankKeeper)
+		msgSrv := bankkeeper.NewMsgServerImpl(p.BankKeeper)
 		_, err = msgSrv.Send(ctx, msg)
 	} else {
 		_, _, prevAllowance, err = GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, spenderAddr, from, p.tokenPair.Denom)
