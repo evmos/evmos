@@ -22,6 +22,22 @@ type ChainCoins struct {
 	evmCoin  *CoinInfo
 }
 
+// DefaultChainCoins returns the default values used for the ChainCoins in which
+// base and evm denom are the same.
+func DefaultChainCoins() ChainCoins {
+	baseCoinInfo := evmtypes.ChainsCoinInfo[utils.MainnetChainID]
+	// baseCoin is used for both base and evm coin as default..
+	baseCoin := CoinInfo{
+		Denom:    baseCoinInfo.Denom,
+		Decimals: baseCoinInfo.Decimals,
+	}
+	evmCoin := baseCoin
+	return ChainCoins{
+		baseCoin: &baseCoin,
+		evmCoin:  &evmCoin,
+	}
+}
+
 func (cc ChainCoins) BaseCoin() CoinInfo {
 	return *cc.baseCoin
 }
@@ -50,18 +66,16 @@ func (cc ChainCoins) IsBaseEqualToEVM() bool {
 	return cc.BaseDenom() == cc.EVMDenom()
 }
 
-// DefaultChainCoins returns the default values used for the ChainCoins in which
-// base and evm denom are the same.
-func DefaultChainCoins() ChainCoins {
-	baseCoinInfo := evmtypes.ChainsCoinInfo[utils.MainnetChainID]
-	// baseCoin is used for both base and evm coin as default..
-	baseCoin := CoinInfo{
-		Denom:    baseCoinInfo.Denom,
-		Decimals: baseCoinInfo.Decimals,
+// DenomDecimalsMap returns a map of Denom -> Decimals for the chain coin.
+func (cc ChainCoins) DenomDecimalsMap() map[string]evmtypes.Decimals {
+	chainDenoms := []string{cc.BaseDenom()}
+	chainDenomDecimals := map[string]evmtypes.Decimals{
+		cc.BaseDenom(): cc.BaseDecimals(),
 	}
-	evmCoin := baseCoin
-	return ChainCoins{
-		baseCoin: &baseCoin,
-		evmCoin:  &evmCoin,
+
+	// Insert also the evm denom if base and evm denom are different.
+	if !cc.IsBaseEqualToEVM() {
+		chainDenoms = append(chainDenoms, cc.EVMDenom())
+		chainDenomDecimals[cc.EVMDenom()] = cc.EVMDecimals()
 	}
 }
