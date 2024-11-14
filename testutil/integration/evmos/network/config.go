@@ -6,6 +6,7 @@ package network
 import (
 	"fmt"
 	"math/big"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
@@ -74,6 +75,9 @@ func getGenAccountsAndBalances(cfg Config, validators []stakingtypes.Validator) 
 		genAccounts = createGenesisAccounts(cfg.preFundedAccounts)
 
 		chainDenoms := []string{cfg.chainCoins.BaseDenom()}
+		// TODO: move this logic as a method of chainCoins
+		fmt.Printf("CONFIIIIIIIIIIIIIIIIIG\nBase coin: %v\n", cfg.chainCoins.BaseDenom())
+		fmt.Printf("Base decimal: %v\n", cfg.chainCoins.BaseDecimals())
 		chainDenomDecimals := map[string]evmtypes.Decimals{
 			cfg.chainCoins.BaseDenom(): cfg.chainCoins.BaseDecimals(),
 		}
@@ -81,6 +85,8 @@ func getGenAccountsAndBalances(cfg Config, validators []stakingtypes.Validator) 
 			chainDenoms = append(chainDenoms, cfg.chainCoins.EVMDenom())
 			chainDenomDecimals[cfg.chainCoins.EVMDenom()] = cfg.chainCoins.EVMDecimals()
 		}
+		fmt.Printf("CONFIIIIIIIIIIIIIIIIIG\nEVM coin: %v\n", cfg.chainCoins.EVMDenom())
+		fmt.Printf("EVM decimal: %v\n", cfg.chainCoins.EVMDecimals())
 
 		balances = createBalances(cfg.preFundedAccounts, append(cfg.otherCoinDenom, chainDenoms...), chainDenomDecimals)
 	}
@@ -112,7 +118,8 @@ func WithChainID(chainID string) ConfigOption {
 		panic(err)
 	}
 
-	evmCoinInfo := evmtypes.ChainsCoinInfo[utils.MainnetChainID]
+	components := strings.Split(chainID, "-")
+	evmCoinInfo := evmtypes.ChainsCoinInfo[components[0]]
 
 	return func(cfg *Config) {
 		cfg.chainID = chainID

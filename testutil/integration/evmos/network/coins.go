@@ -16,6 +16,8 @@ type CoinInfo struct {
 // - evmCoin: represents the evm coin used to pay Ethereum
 // transactions fees.
 type ChainCoins struct {
+	// TODO: not sure if this is an overkill. Do we want to customize the
+	// decimals of the base denom? Maybe not..
 	baseCoin *CoinInfo
 	evmCoin  *CoinInfo
 }
