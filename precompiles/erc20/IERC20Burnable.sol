@@ -15,9 +15,4 @@ interface IERC20Burnable is IERC20 {
      * See {ERC20-_burn}.
      */
     function burn(uint256 amount) external;
-
-    /**
-     * @dev See {ERC20-_burnFrom}.
-     */
-    function burnFrom(address account, uint256 amount) external;
 }
