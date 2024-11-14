@@ -7,9 +7,11 @@ import (
 	"bytes"
 	"fmt"
 	"slices"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v20/types"
+	"github.com/evmos/evmos/v20/utils"
 )
 
 const (
@@ -18,6 +20,25 @@ const (
 	// WEVMOSContractTestnet is the WEVMOS contract address for testnet
 	WEVMOSContractTestnet = "0xcc491f589b45d4a3c679016195b3fb87d7848210"
 )
+
+// chainsWEVMOSHex is an utility map used to retrieve the WEVMOS contract
+// address in hex format from the chain ID.
+var chainsWEVMOSHex = map[string]string{
+	utils.MainnetChainID: WEVMOSContractMainnet,
+	utils.TestnetChainID: WEVMOSContractTestnet,
+}
+
+// GetWEVMOSContractHex returns the hex format of address for the WEVMOS contract given the
+// chainID. If the chainID is not found, it defaults to the mainnet address.
+func GetWEVMOSContractHex(chainID string) string {
+	id := strings.Split(chainID, "-")[0]
+	address, found := chainsWEVMOSHex[id]
+	// default to mainnet address
+	if !found {
+		address = chainsWEVMOSHex[utils.MainnetChainID]
+	}
+	return address
+}
 
 // Parameter store key
 var (

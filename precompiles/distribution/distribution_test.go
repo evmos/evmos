@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v20/app"
@@ -18,44 +19,44 @@ import (
 func (s *PrecompileTestSuite) TestIsTransaction() {
 	testCases := []struct {
 		name   string
-		method string
+		method abi.Method
 		isTx   bool
 	}{
 		{
 			distribution.SetWithdrawAddressMethod,
-			s.precompile.Methods[distribution.SetWithdrawAddressMethod].Name,
+			s.precompile.Methods[distribution.SetWithdrawAddressMethod],
 			true,
 		},
 		{
 			distribution.WithdrawDelegatorRewardsMethod,
-			s.precompile.Methods[distribution.WithdrawDelegatorRewardsMethod].Name,
+			s.precompile.Methods[distribution.WithdrawDelegatorRewardsMethod],
 			true,
 		},
 		{
 			distribution.WithdrawValidatorCommissionMethod,
-			s.precompile.Methods[distribution.WithdrawValidatorCommissionMethod].Name,
+			s.precompile.Methods[distribution.WithdrawValidatorCommissionMethod],
 			true,
 		},
 		{
 			distribution.FundCommunityPoolMethod,
-			s.precompile.Methods[distribution.FundCommunityPoolMethod].Name,
+			s.precompile.Methods[distribution.FundCommunityPoolMethod],
 			true,
 		},
 		{
 			distribution.ValidatorDistributionInfoMethod,
-			s.precompile.Methods[distribution.ValidatorDistributionInfoMethod].Name,
+			s.precompile.Methods[distribution.ValidatorDistributionInfoMethod],
 			false,
 		},
 		{
 			"invalid",
-			"invalid",
+			abi.Method{},
 			false,
 		},
 	}
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			s.Require().Equal(s.precompile.IsTransaction(tc.method), tc.isTx)
+			s.Require().Equal(s.precompile.IsTransaction(&tc.method), tc.isTx)
 		})
 	}
 }
