@@ -16,7 +16,7 @@ func TestCheckBalances(t *testing.T) {
 	testDenom := "atest"
 	keyring := testkeyring.New(1)
 	nw := network.New(
-		network.WithDenom(testDenom),
+		network.WithBaseCoin(testDenom),
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 
