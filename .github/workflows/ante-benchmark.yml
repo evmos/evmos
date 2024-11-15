@@ -25,5 +25,5 @@ jobs:
           check-latest: true
         if: env.GIT_DIFF
       - name: Run benchmark tests
-        run: go test -bench=. ./app/ante/... -benchtime=1000x
+        run: go test -tags=test -bench=. ./app/ante/... -benchtime=1000x
         if: env.GIT_DIFF
