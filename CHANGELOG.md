@@ -44,9 +44,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (app) [#2878](https://github.com/evmos/evmos/pull/2878) Changed `x/feemarket` BaseFee to Decimal. `x/evm` uses `FeeMarketWrapper` to manage EVM coin with different decimals.
 - (precompiles) [#2929](https://github.com/evmos/evmos/pull/2929) Distribution: scale balance change entries to the statedb journal to support different EVM denom precision.
 - (precompiles) [#2927](https://github.com/evmos/evmos/pull/2927) Erc20: scale balance change entries to the statedb journal to support different EVM denom precision.
+- (erc20) [#2962](https://github.com/evmos/evmos/pull/2962) Register ERC-20 code hash also for native ERC-20 extensions.
 
 ### Improvements
 
+- (gov) [#2976](https://github.com/evmos/evmos/pull/2976) Add `Proposals` and `Proposal` queries to gov precompile.
 - (testnet) [#2826](https://github.com/evmos/evmos/pull/2826) Fix command `evmosd testnet init-files` for validator_address is error.
 - (evm) [#2836](https://github.com/evmos/evmos/pull/2836) Recap the highest gas limit with account's available balance.
 - (evm) [#2872](https://github.com/evmos/evmos/pull/2872) Change `BankKeeper` for `BankWrapper` to manage EVM coin with different decimals.
@@ -62,6 +64,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [#2926](https://github.com/evmos/evmos/pull/2926) Staking: Add amount scaling on `balanceChange` entry to support different EVM denom precision.
 - (evm) [#2936](https://github.com/evmos/evmos/pull/2936) Add query for EVM config.
 - (app) [#2937](https://github.com/evmos/evmos/pull/2937) Fix conversion on the `CheckTxFee` ante handler and allow zero coins refunds.
+- (deps) [#2967](https://github.com/evmos/evmos/pull/2967) Bump CometBFT to `v0.38.15`.
+- (precompiles) [#2943](https://github.com/evmos/evmos/pull/2943) Add WERC-20 precompile.
+- (precompiles) [#2966](https://github.com/evmos/evmos/pull/2966) Add safety check that ERC-20 precompiles cannot receive funds.
 
 ### Bug Fixes
 

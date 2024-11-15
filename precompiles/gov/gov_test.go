@@ -3,6 +3,7 @@ package gov_test
 import (
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
@@ -16,24 +17,24 @@ import (
 func (s *PrecompileTestSuite) TestIsTransaction() {
 	testCases := []struct {
 		name   string
-		method string
+		method abi.Method
 		isTx   bool
 	}{
 		{
 			gov.VoteMethod,
-			s.precompile.Methods[gov.VoteMethod].Name,
+			s.precompile.Methods[gov.VoteMethod],
 			true,
 		},
 		{
 			"invalid",
-			"invalid",
+			abi.Method{},
 			false,
 		},
 	}
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			s.Require().Equal(s.precompile.IsTransaction(tc.method), tc.isTx)
+			s.Require().Equal(s.precompile.IsTransaction(&tc.method), tc.isTx)
 		})
 	}
 }

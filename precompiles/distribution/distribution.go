@@ -10,6 +10,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
@@ -76,7 +77,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 		return 0
 	}
 
-	return p.Precompile.RequiredGas(input, p.IsTransaction(method.Name))
+	return p.Precompile.RequiredGas(input, p.IsTransaction(method))
 }
 
 // Run executes the precompiled contract distribution methods defined in the ABI.
@@ -146,8 +147,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 //   - SetWithdrawAddress
 //   - WithdrawDelegatorRewards
 //   - WithdrawValidatorCommission
-func (Precompile) IsTransaction(methodName string) bool {
-	switch methodName {
+func (Precompile) IsTransaction(method *abi.Method) bool {
+	switch method.Name {
 	case ClaimRewardsMethod,
 		SetWithdrawAddressMethod,
 		WithdrawDelegatorRewardsMethod,

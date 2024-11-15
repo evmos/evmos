@@ -12,6 +12,7 @@ from .utils import (
     REGISTER_ERC20_PROP,
     approve_proposal,
     deploy_contract,
+    get_scaling_factor,
     w3_wait_for_new_blocks,
     wait_for_ack,
     wait_for_fn,
@@ -19,7 +20,7 @@ from .utils import (
 )
 
 
-@pytest.fixture(scope="module", params=["evmos"])
+@pytest.fixture(scope="module", params=["evmos", "evmos-6dec", "evmos-rocksdb"])
 def ibc(request, tmp_path_factory):
     """
     Prepares the network.
@@ -129,6 +130,9 @@ def test_ibc_callbacks(
     ibc_voucher_balance = get_balance(evmos, bech32_evmos_addr, ibc_voucher_denom)
     assert ibc_voucher_balance == convert_amt
 
+    fee_denom = evmos_cli.evm_denom()
+    scaling_factor = get_scaling_factor(evmos_cli)
+
     # send erc20 via IBC
     rsp = evmos_cli.ibc_transfer(
         bech32_evmos_addr,
@@ -137,7 +141,7 @@ def test_ibc_callbacks(
         "channel-0",
         1,
         1,
-        fees=f"{int(1e17)}aevmos",
+        fees=f"{int(1e17/scaling_factor)}{fee_denom}",
     )
     assert rsp["code"] == 0, rsp["raw_log"]
     wait_for_new_blocks(evmos_cli, 2)
