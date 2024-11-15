@@ -261,10 +261,8 @@ func (suite *EvmAnteTestSuite) TestCheckTxFee() {
 				// If decimals is not 18 decimals, we have to convert txFeeInfo to original
 				// decimals representation.
 				originalAmount := amount
-				if decimals != evmtypes.EighteenDecimals {
-					evmCoinDecimal := evmtypes.GetEVMCoinDecimals()
-					originalAmount = originalAmount.Quo(evmCoinDecimal.ConversionFactor())
-				}
+			        evmCoinDecimal := evmtypes.GetEVMCoinDecimals()
+			        originalAmount = originalAmount.Quo(evmCoinDecimal.ConversionFactor())
 
 				coins := sdktypes.Coins{sdktypes.Coin{Denom: "aevmos", Amount: originalAmount}}
 
