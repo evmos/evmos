@@ -7,6 +7,8 @@
 package app
 
 import (
+	"strings"
+
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v20/app/eips"
@@ -19,7 +21,8 @@ import (
 // for tests within the Evmos EVM. We're not using the sealed flag
 // and resetting the configuration to the provided one on every test setup
 func InitializeAppConfiguration(chainID string) error {
-	coinInfo, found := evmtypes.ChainsCoinInfo[chainID]
+	id := strings.Split(chainID, "-")[0]
+	coinInfo, found := evmtypes.ChainsCoinInfo[id]
 	if !found {
 		// default to mainnet coin info
 		coinInfo = evmtypes.ChainsCoinInfo[utils.MainnetChainID]
