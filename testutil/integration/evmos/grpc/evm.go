@@ -6,7 +6,10 @@ import (
 	"context"
 	"errors"
 
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
@@ -51,4 +54,12 @@ func (gqh *IntegrationHandler) GetEvmParams() (*evmtypes.QueryParamsResponse, er
 func (gqh *IntegrationHandler) GetEvmBaseFee() (*evmtypes.QueryBaseFeeResponse, error) {
 	evmClient := gqh.network.GetEvmClient()
 	return evmClient.BaseFee(context.Background(), &evmtypes.QueryBaseFeeRequest{})
+}
+
+// GetBalanceFromEVM returns the balance for the given address.
+func (gqh *IntegrationHandler) GetBalanceFromEVM(address sdktypes.AccAddress) (*evmtypes.QueryBalanceResponse, error) {
+	evmClient := gqh.network.GetEvmClient()
+	return evmClient.Balance(context.Background(), &evmtypes.QueryBalanceRequest{
+		Address: common.BytesToAddress(address).Hex(),
+	})
 }
