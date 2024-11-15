@@ -7,6 +7,7 @@
 package app
 
 import (
+	"fmt"
 	"strings"
 
 	"cosmossdk.io/math"
@@ -31,6 +32,7 @@ func InitializeAppConfiguration(chainID string) error {
 		return nil
 	}
 
+	fmt.Printf("Normal chain id: %v\n", chainID)
 	id := strings.Split(chainID, "-")[0]
 	coinInfo, found := evmtypes.ChainsCoinInfo[id]
 	if !found {

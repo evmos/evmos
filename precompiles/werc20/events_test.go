@@ -4,7 +4,9 @@
 package werc20_test
 
 import (
+	"fmt"
 	"math/big"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -58,10 +60,12 @@ func (s *PrecompileUnitTestSuite) SetupTest(chainID string) {
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
 
-	s.precompileAddrHex = erc20types.GetWEVMOSContractHex(chainID)
+	cosmosChainID := strings.Split(chainID, "-")[0]
+	s.precompileAddrHex = erc20types.GetWEVMOSContractHex(cosmosChainID)
 
 	ctx := integrationNetwork.GetContext()
 
+	fmt.Println(evmtypes.GetEVMCoinDenom())
 	tokenPairID := s.network.App.Erc20Keeper.GetTokenPairID(ctx, evmtypes.GetEVMCoinDenom())
 	tokenPair, found := s.network.App.Erc20Keeper.GetTokenPair(ctx, tokenPairID)
 	s.Require().True(found, "expected wevmos precompile to be registered in the tokens map")
