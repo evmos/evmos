@@ -530,7 +530,6 @@ func (suite *KeeperTestSuite) TestBurn() {
 	}
 }
 
-
 func (suite *KeeperTestSuite) TestTransferContractOwnership() {
 	var ctx sdk.Context
 

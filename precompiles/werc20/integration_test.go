@@ -156,6 +156,7 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 			erc20types.OWNER_MODULE,
 		)
 		precompile, err := werc20.NewPrecompile(
+			is.network.App.Erc20Keeper,
 			tokenPair,
 			is.network.App.BankKeeper,
 			is.network.App.AuthzKeeper,

@@ -120,7 +120,7 @@ func (p Precompile) EmitTransferOwnershipEvent(ctx sdk.Context, stateDB vm.State
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),
 		Topics:      topics,
-		BlockNumber: uint64(ctx.BlockHeight()),
+		BlockNumber: uint64(ctx.BlockHeight()), //nolint:gosec // G115
 	})
 
 	return nil

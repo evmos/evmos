@@ -68,6 +68,7 @@ func (s *PrecompileUnitTestSuite) SetupTest(chainID string) {
 	s.Require().Equal(s.precompileAddrHex, tokenPair.Erc20Address, "expected a different address of the contract")
 
 	precompile, err := werc20.NewPrecompile(
+		s.network.App.Erc20Keeper,
 		tokenPair,
 		s.network.App.BankKeeper,
 		s.network.App.AuthzKeeper,
