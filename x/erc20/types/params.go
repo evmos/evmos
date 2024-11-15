@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"fmt"
 	"slices"
-	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v20/types"
@@ -30,9 +29,9 @@ var chainsWEVMOSHex = map[string]string{
 
 // GetWEVMOSContractHex returns the hex format of address for the WEVMOS contract given the
 // chainID. If the chainID is not found, it defaults to the mainnet address.
+// The function expect the chain ID for a Cosmos chain, i.e. evmos_9000
 func GetWEVMOSContractHex(chainID string) string {
-	id := strings.Split(chainID, "-")[0]
-	address, found := chainsWEVMOSHex[id]
+	address, found := chainsWEVMOSHex[chainID]
 	// default to mainnet address
 	if !found {
 		address = chainsWEVMOSHex[utils.MainnetChainID]
