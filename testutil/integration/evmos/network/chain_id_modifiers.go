@@ -7,7 +7,6 @@
 package network
 
 import (
-	"fmt"
 	"strings"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -71,11 +70,9 @@ func generateBankGenesisMetadata(chainID string) banktypes.Metadata {
 // erc20 module on the testing suite depending on the chainID.
 func updateErc20GenesisStateForChainID(chainID string, erc20GenesisState erc20types.GenesisState) erc20types.GenesisState {
 	if !utils.IsTestnet(chainID) {
-		fmt.Println("ERC20 use mainnet")
 		return erc20GenesisState
 	}
 
-	fmt.Println("ERC20 use testnet")
 	erc20GenesisState.Params = updateErc20Params(chainID, erc20GenesisState.Params)
 	erc20GenesisState.TokenPairs = updateErc20TokenPairs(chainID, erc20GenesisState.TokenPairs)
 

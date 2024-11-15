@@ -4,7 +4,6 @@
 package werc20_test
 
 import (
-	"fmt"
 	"math/big"
 	"strings"
 	"testing"
@@ -65,7 +64,6 @@ func (s *PrecompileUnitTestSuite) SetupTest(chainID string) {
 
 	ctx := integrationNetwork.GetContext()
 
-	fmt.Println(evmtypes.GetEVMCoinDenom())
 	tokenPairID := s.network.App.Erc20Keeper.GetTokenPairID(ctx, evmtypes.GetEVMCoinDenom())
 	tokenPair, found := s.network.App.Erc20Keeper.GetTokenPair(ctx, tokenPairID)
 	s.Require().True(found, "expected wevmos precompile to be registered in the tokens map")
