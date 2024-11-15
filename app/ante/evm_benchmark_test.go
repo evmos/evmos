@@ -126,7 +126,7 @@ func (s *benchmarkSuite) generateTxType(txType string) (sdktypes.Tx, error) {
 			receiver,
 			sdktypes.NewCoins(
 				sdktypes.NewCoin(
-					s.network.GetDenom(),
+					s.network.GetBaseDenom(),
 					math.NewInt(1000),
 				),
 			),

@@ -18,7 +18,7 @@ import (
 // FundAccountWithBaseDenom funds the given account with the given amount of the network's
 // base denomination.
 func FundAccountWithBaseDenom(tf cmnfactory.CoreTxFactory, nw cmnnet.Network, sender keyring.Key, receiver sdk.AccAddress, amount math.Int) error {
-	return tf.FundAccount(sender, receiver, sdk.NewCoins(sdk.NewCoin(nw.GetDenom(), amount)))
+	return tf.FundAccount(sender, receiver, sdk.NewCoins(sdk.NewCoin(nw.GetBaseDenom(), amount)))
 }
 
 // CheckBalances checks that the given accounts have the expected balances and
