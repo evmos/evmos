@@ -54,7 +54,7 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 		expPass  bool
 	}{
 		{
-			"unknown method",
+			"pass with unknown method",
 			types.ModuleAddress,
 			func() []byte {
 				account := utiltx.GenerateAddress()
@@ -62,7 +62,7 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 				return data
 			},
 			false,
-			false,
+			true,
 		},
 		{
 			"pass",
@@ -76,13 +76,13 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 			true,
 		},
 		{
-			"fail empty data",
+			"pass with empty data",
 			types.ModuleAddress,
 			func() []byte {
 				return []byte{}
 			},
 			false,
-			false,
+			true,
 		},
 
 		{

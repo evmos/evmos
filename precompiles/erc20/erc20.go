@@ -48,8 +48,9 @@ var _ vm.PrecompiledContract = &Precompile{}
 type Precompile struct {
 	cmn.Precompile
 	tokenPair      erc20types.TokenPair
-	bankKeeper     bankkeeper.Keeper
 	transferKeeper transferkeeper.Keeper
+	// BankKeeper is a public field so that the werc20 precompile can use it.
+	BankKeeper bankkeeper.Keeper
 }
 
 // NewPrecompile creates a new ERC-20 Precompile instance as a
@@ -74,7 +75,7 @@ func NewPrecompile(
 			TransientKVGasConfig: storetypes.GasConfig{},
 		},
 		tokenPair:      tokenPair,
-		bankKeeper:     bankKeeper,
+		BankKeeper:     bankKeeper,
 		transferKeeper: transferKeeper,
 	}
 	// Address defines the address of the ERC-20 precompile contract.
@@ -164,8 +165,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 }
 
 // IsTransaction checks if the given method name corresponds to a transaction or query.
-func (Precompile) IsTransaction(methodName string) bool {
-	switch methodName {
+func (Precompile) IsTransaction(method *abi.Method) bool {
+	switch method.Name {
 	case TransferMethod,
 		TransferFromMethod,
 		auth.ApproveMethod,

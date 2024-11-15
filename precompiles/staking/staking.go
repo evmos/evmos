@@ -81,7 +81,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 		return 0
 	}
 
-	return p.Precompile.RequiredGas(input, p.IsTransaction(method.Name))
+	return p.Precompile.RequiredGas(input, p.IsTransaction(method))
 }
 
 // Run executes the precompiled contract staking methods defined in the ABI.
@@ -168,8 +168,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 //   - Revoke
 //   - IncreaseAllowance
 //   - DecreaseAllowance
-func (Precompile) IsTransaction(method string) bool {
-	switch method {
+func (Precompile) IsTransaction(method *abi.Method) bool {
+	switch method.Name {
 	case CreateValidatorMethod,
 		EditValidatorMethod,
 		DelegateMethod,
