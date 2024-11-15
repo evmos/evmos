@@ -76,8 +76,8 @@ var ChainsCoinInfo = map[string]EvmCoinInfo{
 		Decimals:     EighteenDecimals,
 	},
 	utils.SixDecChainID: {
-		Denom:        types.BaseDenom,
-		DisplayDenom: types.DisplayDenom,
+		Denom:        "asevmos",
+		DisplayDenom: "sevmos",
 		Decimals:     SixDecimals,
 	},
 	utils.ICSChainID: {
