@@ -7,7 +7,6 @@
 package app
 
 import (
-	"fmt"
 	"strings"
 
 	"cosmossdk.io/math"
@@ -22,7 +21,6 @@ import (
 // for tests within the Evmos EVM. We're not using the sealed flag
 // and resetting the configuration to the provided one on every test setup
 func InitializeAppConfiguration(chainID string) error {
-	fmt.Printf("Testing chain id: %v\n", chainID)
 	id := strings.Split(chainID, "-")[0]
 	coinInfo, found := evmtypes.ChainsCoinInfo[id]
 	if !found {
