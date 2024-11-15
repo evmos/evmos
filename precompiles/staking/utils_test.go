@@ -458,7 +458,7 @@ func (s *PrecompileTestSuite) setupVestingAccount(funder, vestAcc testkeyring.Ke
 	Expect(err).To(BeNil())
 	Expect(s.network.NextBlock()).To(BeNil())
 
-	balRes, err := s.grpcHandler.GetBalance(clawbackAccount.GetAddress(), s.bondDenom)
+	balRes, err := s.grpcHandler.GetBalanceFromBank(clawbackAccount.GetAddress(), s.bondDenom)
 	Expect(err).To(BeNil())
 	Expect(*balRes.Balance).To(Equal(accountGasCoverage[0].Add(vestingAmtTotal[0])))
 
