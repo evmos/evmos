@@ -223,8 +223,8 @@ func getTxByType(typeTx string, recipient common.Address) evmtypes.EvmTxArgs {
 
 func (suite *EvmAnteTestSuite) TestCheckTxFee() {
 	// amount represents 1 token in the 18 decimals representation.
-	amount := math.NewInt(1_000_000_000_000_000_000)
-	gasLimit := uint64(1_000_000)
+	amount := math.NewInt(1e18)
+	gasLimit := uint64(1e6)
 
 	testCases := []struct {
 		name       string
