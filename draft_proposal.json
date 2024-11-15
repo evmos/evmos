@@ -1,0 +1,28 @@
+{
+    "messages": [
+     {
+      "@type": "/evmos.inflation.v1.MsgUpdateParams",
+      "authority": "evmos10d07y265gmmuvt4z0w9aw880jnsr700jcrztvm",
+      "params": {
+       "mint_denom": "aevmos",
+       "exponential_calculation": {
+        "a": "54347826.086956521739130435",
+        "r": "0.500000000000000000",
+        "c": "9375000.000000000000000000",
+        "bonding_target": "0.660000000000000000",
+        "max_variance": "0.000000000000000000"
+       },
+       "inflation_distribution": {
+        "staking_rewards": "0.500000000000000000",
+        "usage_incentives": "0.000000000000000000",
+        "community_pool": "0.500000000000000000"
+       },
+       "enable_inflation": true
+      }
+     }
+    ],
+    "deposit": "3500000000000aevmos",
+    "title": "Reduce Inflation from 5% to 1%",
+    "summary": "This proposal aims to reduce the inflation rate of Evmos significantly before the implementation of Interchain Security (ICS). By lowering inflation, we intend to minimize sell pressure, setting the stage for a more stable and potentially deflationary Evmos token economy.",
+    "description": "Full proposal link - https://commonwealth.im/evmos/discussion/23896-reducing-evmos-inflation"
+    }
