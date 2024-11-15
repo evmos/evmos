@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"bytes"
 	"fmt"
 	"math/big"
 	"testing"
@@ -23,6 +24,7 @@ import (
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	erc20 "github.com/evmos/evmos/v20/x/erc20/types"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	"github.com/evmos/evmos/v20/x/evm/statedb"
 	"github.com/evmos/evmos/v20/x/evm/types"
@@ -402,6 +404,11 @@ func TestIterateContracts(t *testing.T) {
 	)
 
 	network.App.EvmKeeper.IterateContracts(network.GetContext(), func(addr common.Address, codeHash common.Hash) bool {
+		// NOTE: we only care about the 2 contracts deployed above, not the ERC20 native precompile for the aevmos denomination
+		if bytes.Equal(addr.Bytes(), common.HexToAddress(erc20.WEVMOSContractMainnet).Bytes()) {
+			return false
+		}
+
 		foundAddrs = append(foundAddrs, addr)
 		foundHashes = append(foundHashes, codeHash)
 		return false

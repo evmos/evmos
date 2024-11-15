@@ -14,21 +14,34 @@ func (s *PrecompileTestSuite) TestIsTransaction() {
 	s.SetupTest()
 
 	// Queries
-	s.Require().False(s.precompile.IsTransaction(erc20.BalanceOfMethod))
-	s.Require().False(s.precompile.IsTransaction(erc20.DecimalsMethod))
-	s.Require().False(s.precompile.IsTransaction(erc20.NameMethod))
-	s.Require().False(s.precompile.IsTransaction(erc20.SymbolMethod))
-	s.Require().False(s.precompile.IsTransaction(erc20.TotalSupplyMethod))
+	method := s.precompile.Methods[erc20.BalanceOfMethod]
+	s.Require().False(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[erc20.DecimalsMethod]
+	s.Require().False(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[erc20.NameMethod]
+	s.Require().False(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[erc20.SymbolMethod]
+	s.Require().False(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[erc20.TotalSupplyMethod]
+	s.Require().False(s.precompile.IsTransaction(&method))
 
 	// Transactions
-	s.Require().True(s.precompile.IsTransaction(auth.ApproveMethod))
-	s.Require().True(s.precompile.IsTransaction(auth.IncreaseAllowanceMethod))
-	s.Require().True(s.precompile.IsTransaction(auth.DecreaseAllowanceMethod))
-	s.Require().True(s.precompile.IsTransaction(erc20.TransferMethod))
-	s.Require().True(s.precompile.IsTransaction(erc20.TransferFromMethod))
-	s.Require().True(s.precompile.IsTransaction(erc20.MintMethod))
-	s.Require().True(s.precompile.IsTransaction(erc20.BurnMethod))
-	s.Require().True(s.precompile.IsTransaction(erc20.TransferOwnershipMethod))
+	method = s.precompile.Methods[auth.ApproveMethod]
+	s.Require().True(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[auth.IncreaseAllowanceMethod]
+	s.Require().True(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[auth.DecreaseAllowanceMethod]
+	s.Require().True(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[erc20.TransferMethod]
+	s.Require().True(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[erc20.TransferFromMethod]
+	s.Require().True(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[erc20.MintMethod]
+	s.Require().True(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[erc20.BurnMethod]
+	s.Require().True(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[erc20.TransferOwnershipMethod]
+	s.Require().True(s.precompile.IsTransaction(&method))
 }
 
 func (s *PrecompileTestSuite) TestRequiredGas() {

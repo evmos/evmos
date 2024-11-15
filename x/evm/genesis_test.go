@@ -13,6 +13,7 @@ import (
 	testhandler "github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	testnetwork "github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	erc20 "github.com/evmos/evmos/v20/x/erc20/types"
 	"github.com/evmos/evmos/v20/x/evm"
 	"github.com/evmos/evmos/v20/x/evm/statedb"
 	"github.com/evmos/evmos/v20/x/evm/types"
@@ -234,7 +235,7 @@ func TestExportGenesis(t *testing.T) {
 	require.NoError(t, ts.network.NextBlock(), "failed to advance block")
 
 	genState := evm.ExportGenesis(ts.network.GetContext(), ts.network.App.EvmKeeper)
-	require.Len(t, genState.Accounts, 2, "expected only one smart contract in the exported genesis")
+	require.Len(t, genState.Accounts, 3, "expected 3 smart contracts in the exported genesis") // NOTE: 2 deployed above + 1 for the aevmos denomination ERC-20 pair
 
 	genAddresses := make([]string, 0, len(genState.Accounts))
 	for _, acc := range genState.Accounts {
@@ -242,4 +243,5 @@ func TestExportGenesis(t *testing.T) {
 	}
 	require.Contains(t, genAddresses, contractAddr.Hex(), "expected contract 1 address in exported genesis")
 	require.Contains(t, genAddresses, contractAddr2.Hex(), "expected contract 2 address in exported genesis")
+	require.Contains(t, genAddresses, erc20.WEVMOSContractMainnet, "expected mainnet aevmos contract address in exported genesis")
 }

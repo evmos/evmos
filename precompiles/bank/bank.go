@@ -13,6 +13,7 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
 	erc20keeper "github.com/evmos/evmos/v20/x/erc20/keeper"
@@ -143,6 +144,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 // IsTransaction checks if the given method name corresponds to a transaction or query.
 // It returns false since all bank methods are queries.
-func (Precompile) IsTransaction(_ string) bool {
+func (Precompile) IsTransaction(_ *abi.Method) bool {
 	return false
 }

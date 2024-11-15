@@ -52,8 +52,9 @@ type Precompile struct {
 	cmn.Precompile
 	erc20Keeper    Keeper
 	tokenPair      erc20types.TokenPair
-	bankKeeper     bankkeeper.Keeper
 	transferKeeper transferkeeper.Keeper
+	// BankKeeper is a public field so that the werc20 precompile can use it.
+	BankKeeper bankkeeper.Keeper
 }
 
 // NewPrecompile creates a new ERC-20 Precompile instance as a
@@ -80,7 +81,7 @@ func NewPrecompile(
 			TransientKVGasConfig: storetypes.GasConfig{},
 		},
 		tokenPair:      tokenPair,
-		bankKeeper:     bankKeeper,
+		BankKeeper:     bankKeeper,
 		transferKeeper: transferKeeper,
 	}
 	// Address defines the address of the ERC-20 precompile contract.
@@ -142,6 +143,14 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 
 // Run executes the precompiled contract ERC-20 methods defined in the ABI.
 func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
+	// ERC20 precompiles cannot receive funds because they are not managed by an
+	// EOA and will not be possible to recover funds sent to an instance of
+	// them.This check is a safety measure because currently funds cannot be
+	// received due to the lack of a fallback handler.
+	if value := contract.Value(); value.Sign() == 1 {
+		return nil, fmt.Errorf(ErrCannotReceiveFunds, contract.Value().String())
+	}
+
 	ctx, stateDB, snapshot, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
 	if err != nil {
 		return nil, err
@@ -167,8 +176,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 }
 
 // IsTransaction checks if the given method name corresponds to a transaction or query.
-func (Precompile) IsTransaction(methodName string) bool {
-	switch methodName {
+func (Precompile) IsTransaction(method *abi.Method) bool {
+	switch method.Name {
 	case TransferMethod,
 		TransferFromMethod,
 		auth.ApproveMethod,

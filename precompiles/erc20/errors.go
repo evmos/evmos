@@ -23,6 +23,7 @@ const (
 	ErrInvalidReceiver           = "invalid to address: %s"
 	ErrNoAllowanceForToken       = "allowance for token %s does not exist"
 	ErrSubtractMoreThanAllowance = "subtracted value cannot be greater than existing allowance for denom %s: %s > %s"
+	ErrCannotReceiveFunds        = "cannot receive funds, received: %s"
 )
 
 var (

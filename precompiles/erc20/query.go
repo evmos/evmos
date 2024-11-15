@@ -55,7 +55,7 @@ func (p Precompile) Name(
 	method *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
-	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
+	metadata, found := p.BankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
 	if found {
 		return method.Outputs.Pack(metadata.Name)
 	}
@@ -79,7 +79,7 @@ func (p Precompile) Symbol(
 	method *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
-	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
+	metadata, found := p.BankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
 	if found {
 		return method.Outputs.Pack(metadata.Symbol)
 	}
@@ -103,7 +103,7 @@ func (p Precompile) Decimals(
 	method *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
-	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
+	metadata, found := p.BankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
 	if !found {
 		denomTrace, err := ibc.GetDenomTrace(p.transferKeeper, ctx, p.tokenPair.Denom)
 		if err != nil {
@@ -156,7 +156,7 @@ func (p Precompile) TotalSupply(
 	method *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
-	supply := p.bankKeeper.GetSupply(ctx, p.tokenPair.Denom)
+	supply := p.BankKeeper.GetSupply(ctx, p.tokenPair.Denom)
 
 	return method.Outputs.Pack(supply.Amount.BigInt())
 }
@@ -175,7 +175,7 @@ func (p Precompile) BalanceOf(
 		return nil, err
 	}
 
-	balance := p.bankKeeper.GetBalance(ctx, account.Bytes(), p.tokenPair.Denom)
+	balance := p.BankKeeper.GetBalance(ctx, account.Bytes(), p.tokenPair.Denom)
 
 	return method.Outputs.Pack(balance.Amount.BigInt())
 }

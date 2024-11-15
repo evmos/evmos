@@ -74,7 +74,7 @@ func (p Precompile) RunSetup(
 	evm *vm.EVM,
 	contract *vm.Contract,
 	readOnly bool,
-	isTransaction func(name string) bool,
+	isTransaction func(name *abi.Method) bool,
 ) (ctx sdk.Context, stateDB *statedb.StateDB, s snapshot, method *abi.Method, gasConfig storetypes.Gas, args []interface{}, err error) { //nolint:revive
 	stateDB, ok := evm.StateDB.(*statedb.StateDB)
 	if !ok {
@@ -125,7 +125,7 @@ func (p Precompile) RunSetup(
 	}
 
 	// return error if trying to write to state during a read-only call
-	if readOnly && isTransaction(method.Name) {
+	if readOnly && isTransaction(method) {
 		return sdk.Context{}, nil, s, nil, uint64(0), nil, vm.ErrWriteProtection
 	}
 

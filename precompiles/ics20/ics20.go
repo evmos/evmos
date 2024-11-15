@@ -10,6 +10,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v20/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
@@ -83,7 +84,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 		return 0
 	}
 
-	return p.Precompile.RequiredGas(input, p.IsTransaction(method.Name))
+	return p.Precompile.RequiredGas(input, p.IsTransaction(method))
 }
 
 // Run executes the precompiled contract IBC transfer methods defined in the ABI.
@@ -151,8 +152,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 //   - Revoke
 //   - IncreaseAllowance
 //   - DecreaseAllowance
-func (Precompile) IsTransaction(method string) bool {
-	switch method {
+func (Precompile) IsTransaction(method *abi.Method) bool {
+	switch method.Name {
 	case TransferMethod,
 		authorization.ApproveMethod,
 		authorization.RevokeMethod,
