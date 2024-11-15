@@ -157,7 +157,7 @@ func (k Keeper) TransferOwnershipProposal(ctx sdk.Context, newOwner sdk.AccAddre
 	return k.transferOwnership(ctx, newOwner, pair)
 }
 
-// TransferOwnership transfers ownership of the token to the new owner
+// TransferOwnership transfers ownership of the token to the new owner.
 func (k Keeper) TransferOwnership(ctx sdk.Context, sender, newOwner sdk.AccAddress, token string) error {
 	pair, found := k.GetTokenPair(ctx, k.GetTokenPairID(ctx, token))
 	if !found {

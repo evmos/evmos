@@ -530,9 +530,10 @@ func (suite *KeeperTestSuite) TestBurn() {
 	}
 }
 
+
 func (suite *KeeperTestSuite) TestTransferContractOwnership() {
 	var ctx sdk.Context
-	sender := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+
 	tokenAddr := utiltx.GenerateAddress()
 
 	testcases := []struct {
@@ -542,74 +543,8 @@ func (suite *KeeperTestSuite) TestTransferContractOwnership() {
 		expPass  bool
 	}{
 		{
-			"fail - invalid sender address",
-			&types.MsgTransferOwnership{
-				Sender: "invalid",
-			},
-			func() {},
-			false,
-		},
-		{
-			"fail - invalid new owner address",
-			&types.MsgTransferOwnership{
-				Sender:   sender.String(),
-				NewOwner: "invalid",
-			},
-			func() {},
-			false,
-		},
-		{
-			"pass - valid msg",
-			&types.MsgTransferOwnership{
-				Sender:   sender.String(),
-				NewOwner: sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
-				Token:    tokenAddr.String(),
-			},
-			func() {
-				expPair := types.NewTokenPair(
-					tokenAddr,
-					cosmosTokenDisplay,
-					types.OWNER_MODULE,
-				)
-				expPair.SetOwnerAddress(sender.String())
-				suite.network.App.Erc20Keeper.SetTokenPair(suite.network.GetContext(), expPair)
-				suite.network.App.Erc20Keeper.SetDenomMap(suite.network.GetContext(), expPair.Denom, expPair.GetID())
-				suite.network.App.Erc20Keeper.SetERC20Map(suite.network.GetContext(), expPair.GetERC20Contract(), expPair.GetID())
-			},
-			true,
-		},
-	}
-
-	for _, tc := range testcases {
-		suite.Run(tc.name, func() {
-			ctx = suite.network.GetContext()
-
-			tc.malleate()
-			res, err := suite.network.App.Erc20Keeper.TransferContractOwnership(ctx, tc.msg)
-			if tc.expPass {
-				suite.Require().NoError(err)
-				suite.Require().NotNil(res)
-			} else {
-				suite.Require().Error(err)
-			}
-		})
-	}
-}
-
-func (suite *KeeperTestSuite) TestTransferContractOwnershipProposal() {
-	var ctx sdk.Context
-
-	tokenAddr := utiltx.GenerateAddress()
-
-	testcases := []struct {
-		name     string
-		msg      *types.MsgTransferOwnershipProposal
-		malleate func()
-		expPass  bool
-	}{
-		{
 			"fail - invalid authority address",
-			&types.MsgTransferOwnershipProposal{
+			&types.MsgTransferOwnership{
 				Authority: "invalid",
 			},
 			func() {},
@@ -617,7 +552,7 @@ func (suite *KeeperTestSuite) TestTransferContractOwnershipProposal() {
 		},
 		{
 			"fail - invalid new owner address",
-			&types.MsgTransferOwnershipProposal{
+			&types.MsgTransferOwnership{
 				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 				NewOwner:  "invalid",
 			},
@@ -626,7 +561,7 @@ func (suite *KeeperTestSuite) TestTransferContractOwnershipProposal() {
 		},
 		{
 			"pass - valid msg",
-			&types.MsgTransferOwnershipProposal{
+			&types.MsgTransferOwnership{
 				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 				NewOwner:  sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
 				Token:     tokenAddr.String(),
@@ -649,7 +584,7 @@ func (suite *KeeperTestSuite) TestTransferContractOwnershipProposal() {
 		suite.Run(tc.name, func() {
 			ctx = sdk.UnwrapSDKContext(suite.network.GetContext())
 			tc.malleate()
-			res, err := suite.network.App.Erc20Keeper.TransferContractOwnershipProposal(ctx, tc.msg)
+			res, err := suite.network.App.Erc20Keeper.TransferContractOwnership(ctx, tc.msg)
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().NotNil(res)

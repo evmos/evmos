@@ -25,13 +25,8 @@ service Msg {
   // The authority is hard-coded to the Cosmos SDK x/gov module account
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
-  // TransferOwnership defines a Msg to transfer the ownership of the ERC20 token pair to the new owner
-  rpc TransferContractOwnership(MsgTransferOwnership) returns (MsgTransferOwnershipResponse) {
-    option (google.api.http).post = "/evmos/erc20/v1/tx/transfer_contract_ownership";
-  };
-
-  // TransferContractOwnershipProposal defines a Msg to transfer the ownership of the ERC20 token pair to the new owner through a proposal
-  rpc TransferContractOwnershipProposal(MsgTransferOwnershipProposal) returns (MsgTransferOwnershipProposalResponse); 
+  // TransferContractOwnership defines a Msg to transfer the ownership of the ERC20 token pair to the new owner
+  rpc TransferContractOwnership(MsgTransferOwnership) returns (MsgTransferOwnershipResponse); 
 
   // Mint mints ERC20 tokens
   rpc Mint(MsgMint) returns (MsgMintResponse) {
@@ -104,38 +99,18 @@ message MsgUpdateParamsResponse {}
 
 // MsgTransferOwnership defines a Msg to transfer the ownership of the ERC20 token pair to the new owner
 message MsgTransferOwnership {
-  option (cosmos.msg.v1.signer) = "sender";
+  option (cosmos.msg.v1.signer) = "authority";
 
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
   // token identifier can be either the hex contract address of the ERC20 or the
   // Cosmos base denomination
-  string token = 1;
+  string token = 2;
   // new_owner is the hex address of the new owner
-  string new_owner = 2;
-  // sender is the address of the sender
-  string sender = 3;
+  string new_owner = 3; 
 }
 
 // MsgTransferOwnershipResponse returns no fields
 message MsgTransferOwnershipResponse {}
-
-// MsgTransferOwnershipProposal defines a Msg to transfer the ownership of the ERC20 token pair to the new owner
-message MsgTransferOwnershipProposal {
-  option (cosmos.msg.v1.signer) = "authority";
-
-  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
-  // title of the proposal
-  string title = 2;
-  // description of the proposal
-  string description = 3;
-  // token identifier can be either the hex contract address of the ERC20 or the
-  // Cosmos base denomination
-  string token = 4;
-  // new_owner is the hex address of the new owner
-  string new_owner = 5; 
-}
-
-// MsgTransferOwnershipProposalResponse returns no fields
-message MsgTransferOwnershipProposalResponse {}
 
 // MsgMint defines a Msg to mint ERC20 tokens
 message MsgMint {

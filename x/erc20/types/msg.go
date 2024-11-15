@@ -23,12 +23,11 @@ var (
 	_ sdk.Msg              = &MsgTransferOwnership{}
 	_ sdk.Msg              = &MsgConvertERC20{}
 	_ sdk.Msg              = &MsgUpdateParams{}
-	_ sdk.Msg              = &MsgTransferOwnershipProposal{}
 	_ sdk.Msg              = &MsgRegisterERC20{}
 	_ sdk.Msg              = &MsgToggleConversion{}
 	_ sdk.HasValidateBasic = &MsgConvertERC20{}
 	_ sdk.HasValidateBasic = &MsgUpdateParams{}
-	_ sdk.HasValidateBasic = &MsgTransferOwnershipProposal{}
+	_ sdk.HasValidateBasic = &MsgTransferOwnership{}
 	_ sdk.HasValidateBasic = &MsgRegisterERC20{}
 	_ sdk.HasValidateBasic = &MsgToggleConversion{}
 )
@@ -119,41 +118,8 @@ func (m *MsgToggleConversion) ValidateBasic() error {
 	return nil
 }
 
-// GetSigners returns the expected signers for a MsgUpdateParams message.
-func (m *MsgTransferOwnership) GetSigners() []sdk.AccAddress {
-	addr := sdk.MustAccAddressFromBech32(m.Sender)
-	return []sdk.AccAddress{addr}
-}
-
-// GetSigners returns the expected signers for a MsgMint message.
-func (m MsgMint) GetSigners() []sdk.AccAddress {
-	addr := sdk.MustAccAddressFromBech32(m.Sender)
-	return []sdk.AccAddress{addr}
-}
-
 // ValidateBasic does a sanity check of the provided data
 func (m *MsgTransferOwnership) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
-		return errorsmod.Wrap(err, "Invalid sender address")
-	}
-
-	if !common.IsHexAddress(m.Token) {
-		return errorsmod.Wrapf(errortypes.ErrInvalidAddress, "invalid new owner hex address %s", m.NewOwner)
-	}
-
-	if _, err := sdk.AccAddressFromBech32(m.NewOwner); err != nil {
-		return errorsmod.Wrap(err, "Invalid new owner address")
-	}
-	return nil
-}
-
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgTransferOwnership) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
-}
-
-// ValidateBasic does a sanity check of the provided data
-func (m *MsgTransferOwnershipProposal) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
 		return errorsmod.Wrap(err, "invalid authority address")
 	}
@@ -170,12 +136,12 @@ func (m *MsgTransferOwnershipProposal) ValidateBasic() error {
 }
 
 // GetSignBytes implements the LegacyMsg interface.
-func (m MsgTransferOwnershipProposal) GetSignBytes() []byte {
+func (m MsgTransferOwnership) GetSignBytes() []byte {
 	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgTransferOwnershipProposal message.
-func (m MsgTransferOwnershipProposal) GetSigners() []sdk.AccAddress {
+// GetSigners returns the expected signers for a MsgTransferOwnership message.
+func (m MsgTransferOwnership) GetSigners() []sdk.AccAddress {
 	addr := sdk.MustAccAddressFromBech32(m.Authority)
 	return []sdk.AccAddress{addr}
 }
