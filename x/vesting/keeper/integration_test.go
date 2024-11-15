@@ -151,7 +151,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 		It("can transfer spendable tokens", func() {
 			account := vestingAccs[0]
-			balRes, err := s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePrev := balRes.Balance
 
@@ -166,12 +166,12 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			// check final balance is as expected - transferred spendable tokens
 			fees := gasPrice.Mul(math.NewInt(res.GasWanted))
-			balRes, err = s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePost := balRes.Balance
 			Expect(balancePost.Amount).To(Equal(balancePrev.Amount.Sub(fees).Sub(sendAmt)))
 
-			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			destBalance := balRes.Balance
 			Expect(destBalance.Amount).To(Equal(sendAmt))
@@ -188,7 +188,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("can perform Ethereum tx with spendable balance", func() {
 			account := vestingAccs[0]
 
-			balRes, err := s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePrev := balRes.Balance
 
@@ -200,12 +200,12 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			// check final balance is as expected - transferred spendable tokens
 			fees := gasPrice.Mul(math.NewInt(res.GasWanted))
-			balRes, err = s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePost := balRes.Balance
 			Expect(balancePost.Amount).To(Equal(balancePrev.Amount.Sub(sendAmt).Sub(fees)))
 
-			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			destBalance := balRes.Balance
 			Expect(destBalance.Amount).To(Equal(sendAmt))
@@ -392,7 +392,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("can perform Ethereum tx with spendable balance", func() {
 			account := vestingAccs[0]
 
-			balRes, err := s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePrev := balRes.Balance
 
@@ -405,12 +405,12 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			// check final balance is as expected - transferred spendable tokens
 			fees := gasPrice.Mul(math.NewInt(res.GasWanted))
-			balRes, err = s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePost := balRes.Balance
 			Expect(balancePost.Amount).To(Equal(balancePrev.Amount.Sub(fees).Sub(txAmount)))
 
-			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			destBalance := balRes.Balance
 			Expect(destBalance.Amount).To(Equal(txAmount))
@@ -457,7 +457,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("delegate unlocked vested tokens and spendable balance is updated properly", func() {
 			account := vestingAccs[0]
 
-			balRes, err := s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balance := balRes.Balance
 			// the returned balance should be the account's initial balance and
@@ -492,7 +492,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 		It("cannot delegate more than vested tokens", func() {
 			account := vestingAccs[0]
-			balRes, err := s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balance := balRes.Balance
 			// the returned balance should be the account's initial balance and
@@ -515,7 +515,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("should enable access to unlocked and vested EVM tokens (single-account, single-msg)", func() {
 			account := vestingAccs[0]
 
-			balRes, err := s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePrev := balRes.Balance
 
@@ -528,12 +528,12 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			// check final balance is as expected - transferred spendable tokens
 			fees := gasPrice.Mul(math.NewInt(res.GasWanted))
-			balRes, err = s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePost := balRes.Balance
 			Expect(balancePost.Amount).To(Equal(balancePrev.Amount.Sub(fees).Sub(txAmount)))
 
-			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			destBalance := balRes.Balance
 			Expect(destBalance.Amount).To(Equal(txAmount))
@@ -542,7 +542,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("should enable access to unlocked EVM tokens (single-account, multiple-msgs)", func() {
 			account := vestingAccs[0]
 
-			balRes, err := s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePrev := balRes.Balance
 
@@ -577,12 +577,12 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			// check final balance is as expected - transferred spendable tokens
 			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
-			balRes, err = s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePost := balRes.Balance
 			Expect(balancePost.Amount).To(Equal(balancePrev.Amount.Sub(fees).Sub(totalSendAmt)))
 
-			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			destBalance := balRes.Balance
 			Expect(destBalance.Amount).To(Equal(totalSendAmt))
@@ -616,7 +616,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(res.IsOK()).To(BeTrue())
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			balRes, err := s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			destBalance := balRes.Balance
 			Expect(destBalance.Amount).To(Equal(txAmount.MulRaw(int64(len(vestingAccs)))))
@@ -653,7 +653,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(res.IsOK()).To(BeTrue())
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			balRes, err := s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			destBalance := balRes.Balance
 			Expect(destBalance.Amount).To(Equal(amtSentByAcc.MulRaw(int64(len(vestingAccs)))))
@@ -810,7 +810,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 		It("should enable access to unlocked EVM tokens", func() {
 			account := vestingAccs[0]
-			balRes, err := s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePrev := balRes.Balance
 
@@ -829,12 +829,12 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			// check final balance is as expected - transferred spendable tokens
 			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
-			balRes, err = s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePost := balRes.Balance
 			Expect(balancePost.Amount).To(Equal(balancePrev.Amount.Sub(fees).Sub(txAmount)))
 
-			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			destBalance := balRes.Balance
 			Expect(destBalance.Amount).To(Equal(txAmount))
@@ -870,7 +870,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 		It("can delegate vested tokens", func() {
 			account := vestingAccs[0]
-			balRes, err := s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePrev := balRes.Balance
 
@@ -887,7 +887,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// check final balance is as expected - transferred spendable tokens
-			balRes, err = s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePost := balRes.Balance
 			// remaining balance should be less than prevBalance - delegated amount
@@ -911,7 +911,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("can transfer vested tokens", func() {
 			account := vestingAccs[0]
 
-			balRes, err := s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePrev := balRes.Balance
 
@@ -927,12 +927,12 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			// check final balance is as expected - transferred spendable tokens
 			fees := gasPrice.Mul(math.NewInt(res.GasWanted))
-			balRes, err = s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePost := balRes.Balance
 			Expect(balancePost.Amount).To(Equal(balancePrev.Amount.Sub(fees).Sub(sendAmt)))
 
-			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			destBalance := balRes.Balance
 			Expect(destBalance.Amount).To(Equal(sendAmt))
@@ -956,7 +956,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(ok).To(BeTrue())
 			txAmount := initialFreeCoins.Add(vestedCoin).Sub(accountGasCoverage...)[0].Amount
 
-			balRes, err := s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePrev := balRes.Balance
 
@@ -967,12 +967,12 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			// check final balance is as expected - transferred spendable tokens
 			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
-			balRes, err = s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePost := balRes.Balance
 			Expect(balancePost.Amount).To(Equal(balancePrev.Amount.Sub(fees).Sub(txAmount)))
 
-			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			destBalance := balRes.Balance
 			Expect(destBalance.Amount).To(Equal(txAmount))
@@ -1006,7 +1006,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("can send entire balance", func() {
 			account := vestingAccs[0]
 
-			balRes, err := s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePrev := balRes.Balance
 
@@ -1019,12 +1019,12 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			// check final balance is as expected - transferred spendable tokens
 			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
-			balRes, err = s.handler.GetBalance(account.AccAddr, stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(account.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balancePost := balRes.Balance
 			Expect(balancePost.Amount).To(Equal(balancePrev.Amount.Sub(fees).Sub(txAmount)))
 
-			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			destBalance := balRes.Balance
 			Expect(destBalance.Amount).To(Equal(txAmount))
@@ -1121,13 +1121,13 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		Expect(err.Error()).To(ContainSubstring("has no vesting or lockup periods"))
 	})
 	It("should claw back unvested amount before cliff", func() {
-		balRes, err := s.handler.GetBalance(funder.AccAddr, stakeDenom)
+		balRes, err := s.handler.GetBalanceFromBank(funder.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		balanceFunder := balRes.Balance
-		balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		balanceGrantee := balRes.Balance
-		balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 		Expect(err).To(BeNil())
 		balanceDest := balRes.Balance
 
@@ -1139,13 +1139,13 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		Expect(s.network.NextBlock()).To(BeNil())
 
 		// All initial vesting amount goes to dest
-		balRes, err = s.handler.GetBalance(funder.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(funder.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		bF := balRes.Balance
-		balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		bG := balRes.Balance
-		balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 		Expect(err).To(BeNil())
 		bD := balRes.Balance
 
@@ -1180,13 +1180,13 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		Expect(lockedUp).To(Equal(vestingAmtTotal))
 		Expect(vesting).To(Equal(unvested))
 
-		balRes, err := s.handler.GetBalance(funder.AccAddr, stakeDenom)
+		balRes, err := s.handler.GetBalanceFromBank(funder.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		balanceFunder := balRes.Balance
-		balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		balanceGrantee := balRes.Balance
-		balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 		Expect(err).To(BeNil())
 		balanceDest := balRes.Balance
 
@@ -1200,13 +1200,13 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		// fees paid by funder
 		fees := gasPrice.Mul(math.NewInt(res.GasWanted))
 
-		balRes, err = s.handler.GetBalance(funder.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(funder.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		bF := balRes.Balance
-		balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		bG := balRes.Balance
-		balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 		Expect(err).To(BeNil())
 		bD := balRes.Balance
 
@@ -1241,13 +1241,13 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		Expect(expVestedAmount.GT(math.NewInt(0))).To(BeTrue())
 		Expect(vesting).To(Equal(unvested))
 
-		balRes, err := s.handler.GetBalance(funder.AccAddr, stakeDenom)
+		balRes, err := s.handler.GetBalanceFromBank(funder.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		balanceFunder := balRes.Balance
-		balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		balanceGrantee := balRes.Balance
-		balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 		Expect(err).To(BeNil())
 		balanceDest := balRes.Balance
 
@@ -1261,13 +1261,13 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		// fees paid by funder
 		fees := gasPrice.Mul(math.NewInt(res.GasWanted))
 
-		balRes, err = s.handler.GetBalance(funder.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(funder.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		bF := balRes.Balance
-		balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		bG := balRes.Balance
-		balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 		Expect(err).To(BeNil())
 		bD := balRes.Balance
 
@@ -1298,13 +1298,13 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		Expect(vesting).To(Equal(unvested))
 		Expect(vesting.IsZero()).To(BeTrue())
 
-		balRes, err := s.handler.GetBalance(funder.AccAddr, stakeDenom)
+		balRes, err := s.handler.GetBalanceFromBank(funder.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		balanceFunder := balRes.Balance
-		balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		balanceGrantee := balRes.Balance
-		balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 		Expect(err).To(BeNil())
 		balanceDest := balRes.Balance
 
@@ -1318,13 +1318,13 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		// fees paid by funder
 		fees := gasPrice.Mul(math.NewInt(res.GasWanted))
 
-		balRes, err = s.handler.GetBalance(funder.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(funder.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		bF := balRes.Balance
-		balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		bG := balRes.Balance
-		balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 		Expect(err).To(BeNil())
 		bD := balRes.Balance
 
@@ -1500,13 +1500,13 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 	It("should update vesting funder and claw back unvested amount before cliff", func() {
 		newFunder := s.keyring.GetKey(2)
 
-		balRes, err := s.handler.GetBalance(funder.AccAddr, stakeDenom)
+		balRes, err := s.handler.GetBalanceFromBank(funder.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		balanceFunder := balRes.Balance
-		balRes, err = s.handler.GetBalance(newFunder.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(newFunder.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		balanceNewFunder := balRes.Balance
-		balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		balanceGrantee := balRes.Balance
 
@@ -1529,13 +1529,13 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		newFunderFees := gasPrice.Mul(math.NewInt(txRes.GasWanted))
 
 		// All initial vesting amount goes to funder
-		balRes, err = s.handler.GetBalance(funder.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(funder.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		bF := balRes.Balance
-		balRes, err = s.handler.GetBalance(newFunder.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(newFunder.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		bNewF := balRes.Balance
-		balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		bG := balRes.Balance
 
@@ -1549,13 +1549,13 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 	It("should update vesting funder and first funder cannot claw back unvested before cliff", func() {
 		newFunder := s.keyring.GetKey(2)
 
-		balRes, err := s.handler.GetBalance(funder.AccAddr, stakeDenom)
+		balRes, err := s.handler.GetBalanceFromBank(funder.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		balanceFunder := balRes.Balance
-		balRes, err = s.handler.GetBalance(newFunder.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(newFunder.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		balanceNewFunder := balRes.Balance
-		balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		balanceGrantee := balRes.Balance
 
@@ -1576,13 +1576,13 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		fees := gasPrice.Mul(math.NewInt(txRes.GasWanted))
 
 		// All balances should remain the same
-		balRes, err = s.handler.GetBalance(funder.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(funder.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		bF := balRes.Balance
-		balRes, err = s.handler.GetBalance(newFunder.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(newFunder.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		bNewF := balRes.Balance
-		balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+		balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 		Expect(err).To(BeNil())
 		bG := balRes.Balance
 
@@ -1597,10 +1597,10 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		}
 		It("should claw back unvested amount before cliff", func() {
 			// initial balances
-			balRes, err := s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balanceGrantee := balRes.Balance
-			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			balanceDest := balRes.Balance
 
@@ -1618,10 +1618,10 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(err).To(BeNil())
 
 			// All initial vesting amount goes to community pool instead of dest
-			balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			bG := balRes.Balance
-			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			bD := balRes.Balance
 
@@ -1677,11 +1677,11 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			)
 			Expect(err).To(BeNil())
 
-			balRes, err := s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			balanceDest := balRes.Balance
 
-			balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balanceGrantee := balRes.Balance
 
@@ -1700,11 +1700,11 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			err = testutils.ApproveProposal(s.factory, s.network, funder.Priv, propID)
 			Expect(err).To(BeNil())
 
-			balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			bG := balRes.Balance
 
-			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			bD := balRes.Balance
 
@@ -1764,13 +1764,13 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			balRes, err := s.handler.GetBalance(funder.AccAddr, stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(funder.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balanceFunder := balRes.Balance
-			balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balanceGrantee := balRes.Balance
-			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			balanceDest := balRes.Balance
 
@@ -1783,13 +1783,13 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 			fees := gasPrice.Mul(math.NewInt(res.GasWanted))
 
-			balRes, err = s.handler.GetBalance(funder.AccAddr, stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(funder.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			bF := balRes.Balance
-			balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			bG := balRes.Balance
-			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			bD := balRes.Balance
 
@@ -1840,11 +1840,11 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(err).To(BeNil())
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			balRes, err := s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balanceGrantee := balRes.Balance
 
-			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			balanceDest := balRes.Balance
 
@@ -1866,11 +1866,11 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			err = testutils.ApproveProposal(s.factory, s.network, funder.Priv, propID)
 			Expect(err).To(BeNil())
 
-			balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			bG := balRes.Balance
 
-			balRes, err = s.handler.GetBalance(dest.Bytes(), stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(dest.Bytes(), stakeDenom)
 			Expect(err).To(BeNil())
 			bD := balRes.Balance
 
@@ -1895,7 +1895,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		It("should update vesting funder and claw back unvested amount before cliff", func() {
 			newFunder := s.keyring.GetKey(2)
 
-			balRes, err := s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+			balRes, err := s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			balanceGrantee := balRes.Balance
 
@@ -1919,7 +1919,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			err = testutils.ApproveProposal(s.factory, s.network, funder.Priv, propID)
 			Expect(err).To(BeNil())
 			// All initial vesting amount goes to funder
-			balRes, err = s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+			balRes, err = s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 			Expect(err).To(BeNil())
 			bG := balRes.Balance
 
@@ -2203,7 +2203,7 @@ var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
 					}
 				}
 
-				balRes, err := s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+				balRes, err := s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 				Expect(err).To(BeNil())
 				prevBalance := balRes.Balance
 
@@ -2232,7 +2232,7 @@ var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
 					Expect(res.IsOK()).To(BeTrue())
 					Expect(vacc.LockupPeriods).ToNot(BeEmpty(), "vesting account should have been funded")
 					// Check that the vesting account has the correct balance
-					balRes, err := s.handler.GetBalance(vestingAcc.AccAddr, stakeDenom)
+					balRes, err := s.handler.GetBalanceFromBank(vestingAcc.AccAddr, stakeDenom)
 					Expect(err).To(BeNil())
 					balance := balRes.Balance
 

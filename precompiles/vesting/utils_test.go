@@ -151,7 +151,7 @@ func (s *PrecompileTestSuite) GetBondBalances(addresses ...sdk.AccAddress) []mat
 	balances := make([]math.Int, 0, len(addresses))
 
 	for _, acc := range addresses {
-		balResp, err := s.grpcHandler.GetBalance(acc, s.bondDenom)
+		balResp, err := s.grpcHandler.GetBalanceFromBank(acc, s.bondDenom)
 		Expect(err).To(BeNil())
 		balances = append(balances, balResp.Balance.Amount)
 	}
