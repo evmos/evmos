@@ -58,27 +58,61 @@ func (s *PrecompileTestSuite) SetupTest() {
 		SubmitTime:      &now,
 		DepositEndTime:  &inOneHour,
 		VotingStartTime: &now,
-		VotingEndTime:   &inOneHour,
-		Metadata:        "ipfs://CID",
-		Title:           "test prop",
-		Summary:         "test prop",
-		Proposer:        keyring.GetAccAddr(0).String(),
-		Messages:        []*types.Any{anyMessage},
+		FinalTallyResult: &govv1.TallyResult{
+			YesCount:        "0",
+			AbstainCount:    "0",
+			NoCount:         "0",
+			NoWithVetoCount: "0",
+		},
+		VotingEndTime: &inOneHour,
+		Metadata:      "ipfs://CID",
+		Title:         "test prop",
+		Summary:       "test prop",
+		Proposer:      keyring.GetAccAddr(0).String(),
+		Messages:      []*types.Any{anyMessage},
+	}
+
+	prop2 := &govv1.Proposal{
+		Id:              2,
+		Status:          govv1.ProposalStatus_PROPOSAL_STATUS_VOTING_PERIOD,
+		SubmitTime:      &now,
+		DepositEndTime:  &inOneHour,
+		VotingStartTime: &now,
+		FinalTallyResult: &govv1.TallyResult{
+			YesCount:        "0",
+			AbstainCount:    "0",
+			NoCount:         "0",
+			NoWithVetoCount: "0",
+		},
+		VotingEndTime: &inOneHour,
+		Metadata:      "ipfs://CID",
+		Title:         "test prop",
+		Summary:       "test prop",
+		Proposer:      keyring.GetAccAddr(1).String(),
+		Messages:      []*types.Any{anyMessage},
 	}
 
 	bankGen := banktypes.DefaultGenesisState()
 	bankGen.Balances = []banktypes.Balance{{
 		Address: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(100))),
+		Coins:   sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(200))),
 	}}
 	govGen := govv1.DefaultGenesisState()
-	govGen.Deposits = []*govv1.Deposit{{
-		ProposalId: 1,
-		Depositor:  keyring.GetAccAddr(0).String(),
-		Amount:     sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(100))),
-	}}
+	govGen.Deposits = []*govv1.Deposit{
+		{
+			ProposalId: 1,
+			Depositor:  keyring.GetAccAddr(0).String(),
+			Amount:     sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(100))),
+		},
+		{
+			ProposalId: 2,
+			Depositor:  keyring.GetAccAddr(1).String(),
+			Amount:     sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(100))),
+		},
+	}
 	govGen.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, math.NewInt(100)))
 	govGen.Proposals = append(govGen.Proposals, prop)
+	govGen.Proposals = append(govGen.Proposals, prop2)
 	customGen[govtypes.ModuleName] = govGen
 	customGen[banktypes.ModuleName] = bankGen
 

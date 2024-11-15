@@ -8,6 +8,8 @@ import (
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v20/precompiles/gov"
 	"github.com/evmos/evmos/v20/precompiles/testutil"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
@@ -72,6 +74,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 		txArgs = evmtypes.EvmTxArgs{
 			To: &precompileAddr,
 		}
+		txArgs.GasLimit = 200_000
 	})
 
 	// =====================================
@@ -231,7 +234,6 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			It("should return a vote", func() {
 				callArgs.MethodName = method
 				callArgs.Args = []interface{}{proposalID, s.keyring.GetAddr(0)}
-				txArgs.GasLimit = 200_000
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
@@ -282,7 +284,6 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			It("should return a weighted vote", func() {
 				callArgs.MethodName = method
 				callArgs.Args = []interface{}{proposalID, s.keyring.GetAddr(0)}
-				txArgs.GasLimit = 200_000
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
@@ -332,11 +333,9 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				callArgs.Args = []interface{}{
 					proposalID,
 					query.PageRequest{
-						Limit:      10,
 						CountTotal: true,
 					},
 				}
-				txArgs.GasLimit = 200_000
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
@@ -372,7 +371,6 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 			It("should return a deposit", func() {
 				callArgs.Args = []interface{}{proposalID, s.keyring.GetAddr(0)}
-				txArgs.GasLimit = 200_000
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
@@ -404,11 +402,9 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				callArgs.Args = []interface{}{
 					proposalID,
 					query.PageRequest{
-						Limit:      10,
 						CountTotal: true,
 					},
 				}
-				txArgs.GasLimit = 200_000
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
@@ -455,7 +451,6 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 			It("should return the tally result", func() {
 				callArgs.Args = []interface{}{proposalID}
-				txArgs.GasLimit = 200_000
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
@@ -473,6 +468,194 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				Expect(out.TallyResult.Abstain).To(Equal("0"))
 				Expect(out.TallyResult.No).To(Equal("0"))
 				Expect(out.TallyResult.NoWithVeto).To(Equal("0"))
+			})
+		})
+
+		Context("proposal query", func() {
+			method := gov.GetProposalMethod
+			BeforeEach(func() {
+				callArgs.MethodName = method
+			})
+
+			It("should return a proposal", func() {
+				callArgs.Args = []interface{}{uint64(1)}
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+				var out gov.ProposalOutput
+				err = s.precompile.UnpackIntoInterface(&out, method, ethRes.Ret)
+				Expect(err).To(BeNil())
+
+				// Check proposal details
+				Expect(out.Proposal.Id).To(Equal(uint64(1)))
+				Expect(out.Proposal.Status).To(Equal(uint32(v1.StatusVotingPeriod)))
+				Expect(out.Proposal.Proposer).To(Equal(s.keyring.GetAddr(0)))
+				Expect(out.Proposal.Metadata).To(Equal("ipfs://CID"))
+				Expect(out.Proposal.Title).To(Equal("test prop"))
+				Expect(out.Proposal.Summary).To(Equal("test prop"))
+				Expect(out.Proposal.Messages).To(HaveLen(1))
+				Expect(out.Proposal.Messages[0]).To(Equal("/cosmos.bank.v1beta1.MsgSend"))
+
+				// Check tally result
+				Expect(out.Proposal.FinalTallyResult.Yes).To(Equal("0"))
+				Expect(out.Proposal.FinalTallyResult.Abstain).To(Equal("0"))
+				Expect(out.Proposal.FinalTallyResult.No).To(Equal("0"))
+				Expect(out.Proposal.FinalTallyResult.NoWithVeto).To(Equal("0"))
+			})
+
+			It("should fail when proposal doesn't exist", func() {
+				callArgs.Args = []interface{}{uint64(999)}
+
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					defaultLogCheck.WithErrContains("proposal 999 doesn't exist"),
+				)
+				Expect(err).To(BeNil())
+			})
+		})
+
+		Context("proposals query", func() {
+			method := gov.GetProposalsMethod
+			BeforeEach(func() {
+				callArgs.MethodName = method
+			})
+
+			It("should return all proposals", func() {
+				callArgs.Args = []interface{}{
+					uint32(0), // StatusNil to get all proposals
+					common.Address{},
+					common.Address{},
+					query.PageRequest{
+						CountTotal: true,
+					},
+				}
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
+				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+				var out gov.ProposalsOutput
+				err = s.precompile.UnpackIntoInterface(&out, method, ethRes.Ret)
+				Expect(err).To(BeNil())
+
+				Expect(out.Proposals).To(HaveLen(2))
+				Expect(out.PageResponse.Total).To(Equal(uint64(2)))
+
+				proposal := out.Proposals[0]
+				Expect(proposal.Id).To(Equal(uint64(1)))
+				Expect(proposal.Status).To(Equal(uint32(v1.StatusVotingPeriod)))
+				Expect(proposal.Proposer).To(Equal(s.keyring.GetAddr(0)))
+				Expect(proposal.Messages).To(HaveLen(1))
+				Expect(proposal.Messages[0]).To(Equal("/cosmos.bank.v1beta1.MsgSend"))
+			})
+
+			It("should filter proposals by status", func() {
+				callArgs.Args = []interface{}{
+					uint32(v1.StatusVotingPeriod),
+					common.Address{},
+					common.Address{},
+					query.PageRequest{
+						CountTotal: true,
+					},
+				}
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
+				Expect(err).To(BeNil())
+
+				var out gov.ProposalsOutput
+				err = s.precompile.UnpackIntoInterface(&out, method, ethRes.Ret)
+				Expect(err).To(BeNil())
+
+				Expect(out.Proposals).To(HaveLen(2))
+				Expect(out.Proposals[0].Status).To(Equal(uint32(v1.StatusVotingPeriod)))
+				Expect(out.Proposals[1].Status).To(Equal(uint32(v1.StatusVotingPeriod)))
+			})
+
+			It("should filter proposals by voter", func() {
+				// First add a vote
+				voteArgs := factory.CallArgs{
+					ContractABI: s.precompile.ABI,
+					MethodName:  gov.VoteMethod,
+					Args: []interface{}{
+						s.keyring.GetAddr(0), uint64(1), uint8(v1.OptionYes), "",
+					},
+				}
+				_, _, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					voteArgs,
+					passCheck.WithExpEvents(gov.EventTypeVote),
+				)
+				Expect(err).To(BeNil())
+
+				// Wait for the vote to be included in the block
+				Expect(s.network.NextBlock()).To(BeNil())
+
+				// Query proposals filtered by voter
+				callArgs.Args = []interface{}{
+					uint32(0), // StatusNil
+					s.keyring.GetAddr(0),
+					common.Address{},
+					query.PageRequest{
+						CountTotal: true,
+					},
+				}
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
+				Expect(err).To(BeNil())
+
+				var out gov.ProposalsOutput
+				err = s.precompile.UnpackIntoInterface(&out, method, ethRes.Ret)
+				Expect(err).To(BeNil())
+
+				Expect(out.Proposals).To(HaveLen(1))
+			})
+
+			It("should filter proposals by depositor", func() {
+				callArgs.Args = []interface{}{
+					uint32(0), // StatusNil
+					common.Address{},
+					s.keyring.GetAddr(0),
+					query.PageRequest{
+						CountTotal: true,
+					},
+				}
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
+				Expect(err).To(BeNil())
+
+				var out gov.ProposalsOutput
+				err = s.precompile.UnpackIntoInterface(&out, method, ethRes.Ret)
+				Expect(err).To(BeNil())
+
+				Expect(out.Proposals).To(HaveLen(1))
 			})
 		})
 	})
