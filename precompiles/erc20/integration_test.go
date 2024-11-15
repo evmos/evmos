@@ -439,10 +439,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetKey(1)
 					amountToSend := big.NewInt(100)
-					balRes, err := is.handler.GetBalance(receiver.AccAddr, is.bondDenom)
+					balRes, err := is.handler.GetBalanceFromBank(receiver.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					denomInitialBalance := balRes.Balance
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderInitialBalance := balRes.Balance
 
@@ -463,17 +463,17 @@ var _ = Describe("ERC20 Extension -", func() {
 					Expect(is.network.NextBlock()).To(BeNil())
 					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 
-					balRes, err = is.handler.GetBalance(receiver.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(receiver.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					denomFinalBalance := balRes.Balance
 					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(amountToSend.Int64()))))
 
-					balRes, err = is.handler.GetBalance(revertContractAddr.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(revertContractAddr.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					contractBalance := balRes.Balance
 					Expect(contractBalance.Amount).To(Equal(math.ZeroInt()))
 
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderFinalBalance := balRes.Balance
 					denomSpent := fees.Add(math.NewIntFromBigInt(amountToSend))
@@ -484,10 +484,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetAddr(1)
 					amountToSend := big.NewInt(100)
-					balRes, err := is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					balRes, err := is.handler.GetBalanceFromBank(receiver.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					denomInitialBalance := balRes.Balance
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderInitialBalance := balRes.Balance
 
@@ -507,17 +507,17 @@ var _ = Describe("ERC20 Extension -", func() {
 					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 
 					// contract balance should remain unchanged
-					balRes, err = is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(receiver.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					denomFinalBalance := balRes.Balance
 					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount))
 
-					balRes, err = is.handler.GetBalance(revertContractAddr.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(revertContractAddr.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					contractBalance := balRes.Balance
 					Expect(contractBalance.Amount).To(Equal(math.ZeroInt()))
 
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderFinalBalance := balRes.Balance
 					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(fees)))
@@ -529,10 +529,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetAddr(1)
 					totalToSend := int64(350)
-					balRes, err := is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					balRes, err := is.handler.GetBalanceFromBank(receiver.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					denomInitialBalance := balRes.Balance
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderInitialBalance := balRes.Balance
 
@@ -556,17 +556,17 @@ var _ = Describe("ERC20 Extension -", func() {
 					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 
 					// contract balance should remain unchanged
-					balRes, err = is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(receiver.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					denomFinalBalance := balRes.Balance
 					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(totalToSend))))
 
-					balRes, err = is.handler.GetBalance(revertContractAddr.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(revertContractAddr.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					contractBalance := balRes.Balance
 					Expect(contractBalance.Amount).To(Equal(math.ZeroInt()))
 
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderFinalBalance := balRes.Balance
 					denomSpent := fees.AddRaw(totalToSend)
@@ -576,10 +576,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				DescribeTable("it should revert token transfer and send from WEVMOS contract", func(before bool, after bool) {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetAddr(1)
-					balRes, err := is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					balRes, err := is.handler.GetBalanceFromBank(receiver.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					denomInitialBalance := balRes.Balance
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderInitialBalance := balRes.Balance
 
@@ -600,17 +600,17 @@ var _ = Describe("ERC20 Extension -", func() {
 					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 
 					// contract balance should remain unchanged
-					balRes, err = is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(receiver.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					denomFinalBalance := balRes.Balance
 					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount))
 
-					balRes, err = is.handler.GetBalance(revertContractAddr.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(revertContractAddr.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					contractBalance := balRes.Balance
 					Expect(contractBalance.Amount).To(Equal(math.ZeroInt()))
 
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderFinalBalance := balRes.Balance
 					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(fees)))
@@ -622,10 +622,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetAddr(1)
 					amountToSend := big.NewInt(100)
-					balRes, err := is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					balRes, err := is.handler.GetBalanceFromBank(receiver.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					denomInitialBalance := balRes.Balance
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderInitialBalance := balRes.Balance
 
@@ -645,17 +645,17 @@ var _ = Describe("ERC20 Extension -", func() {
 					Expect(is.network.NextBlock()).To(BeNil())
 					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 
-					balRes, err = is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(receiver.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					denomFinalBalance := balRes.Balance
 					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(amountToSend.Int64()))))
 
-					balRes, err = is.handler.GetBalance(revertContractAddr.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(revertContractAddr.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					contractBalance := balRes.Balance
 					Expect(contractBalance.Amount.Int64()).To(Equal(amountToSend.Int64()))
 
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderFinalBalance := balRes.Balance
 					denomSpent := fees.AddRaw(amountToSend.Int64() + amountToSend.Int64())

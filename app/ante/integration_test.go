@@ -82,7 +82,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 		})
 
 		It("should succeed & not withdraw any staking rewards", func() {
-			prevBalanceRes, err := s.grpcHandler.GetBalance(addr, s.network.GetBaseDenom())
+			prevBalanceRes, err := s.grpcHandler.GetBalanceFromBank(addr, s.network.GetBaseDenom())
 			Expect(err).To(BeNil())
 
 			baseFeeRes, err := s.grpcHandler.GetEvmBaseFee()
@@ -106,7 +106,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 
 			// fees should be deducted from balance
 			feesAmt := math.NewInt(res.GasWanted).Mul(*gasPrice)
-			balanceRes, err := s.grpcHandler.GetBalance(addr, s.network.GetBaseDenom())
+			balanceRes, err := s.grpcHandler.GetBalanceFromBank(addr, s.network.GetBaseDenom())
 			Expect(err).To(BeNil())
 			Expect(balanceRes.Balance.Amount).To(Equal(prevBalanceRes.Balance.Amount.Sub(transferAmt).Sub(feesAmt)))
 

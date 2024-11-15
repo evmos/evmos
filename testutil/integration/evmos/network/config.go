@@ -114,6 +114,11 @@ func WithChainID(chainID string) ConfigOption {
 	return func(cfg *Config) {
 		cfg.chainID = chainID
 		cfg.eip155ChainID = eip155ChainID
+
+		if cfg.chainCoins.IsBaseEqualToEVM() {
+			cfg.chainCoins.baseCoin.Denom = evmCoinInfo.Denom
+			cfg.chainCoins.baseCoin.Decimals = evmCoinInfo.Decimals
+		}
 		cfg.chainCoins.evmCoin.Denom = evmCoinInfo.Denom
 		cfg.chainCoins.evmCoin.Decimals = evmCoinInfo.Decimals
 	}

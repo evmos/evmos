@@ -10,6 +10,7 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v20/testutil/integration/common/network"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // Handler is an interface that defines the common methods that are used to query
@@ -27,10 +28,13 @@ type Handler interface {
 	GetGrantsByGranter(granter string) ([]*authz.GrantAuthorization, error)
 
 	// Bank methods
-	GetBalance(address sdk.AccAddress, denom string) (*banktypes.QueryBalanceResponse, error)
+	GetBalanceFromBank(address sdk.AccAddress, denom string) (*banktypes.QueryBalanceResponse, error)
 	GetSpendableBalance(address sdk.AccAddress, denom string) (*banktypes.QuerySpendableBalanceByDenomResponse, error)
 	GetAllBalances(address sdk.AccAddress) (*banktypes.QueryAllBalancesResponse, error)
 	GetTotalSupply() (*banktypes.QueryTotalSupplyResponse, error)
+
+	// EVM methods
+	GetBalanceFromEVM(address sdk.AccAddress) (*evmtypes.QueryBalanceResponse, error)
 
 	// Staking methods
 	GetDelegation(delegatorAddress string, validatorAddress string) (*stakingtypes.QueryDelegationResponse, error)

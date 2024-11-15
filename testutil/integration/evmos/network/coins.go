@@ -78,4 +78,5 @@ func (cc ChainCoins) DenomDecimalsMap() map[string]evmtypes.Decimals {
 		chainDenoms = append(chainDenoms, cc.EVMDenom())
 		chainDenomDecimals[cc.EVMDenom()] = cc.EVMDecimals()
 	}
+	return chainDenomDecimals
 }

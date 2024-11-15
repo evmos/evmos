@@ -75,7 +75,7 @@ var _ = Describe("Staking module tests", func() {
 			Expect(nw.NextBlock()).To(BeNil())
 
 			// get vesting account initial balance (free tokens)
-			balRes, err := gh.GetBalance(vestingAccount.AccAddr, nw.GetBaseDenom())
+			balRes, err := gh.GetBalanceFromBank(vestingAccount.AccAddr, nw.GetBaseDenom())
 			Expect(err).To(BeNil())
 			vestAccInitialBalance = balRes.Balance
 
@@ -109,7 +109,7 @@ var _ = Describe("Staking module tests", func() {
 					unvestedCoins := clawbackAccount.GetVestingCoins(nw.GetContext().BlockTime())
 					Expect(unvestedCoins).To(Equal(testutil.TestVestingSchedule.TotalVestingCoins))
 
-					balRes, err := gh.GetBalance(vestingAccount.AccAddr, nw.GetBaseDenom())
+					balRes, err := gh.GetBalanceFromBank(vestingAccount.AccAddr, nw.GetBaseDenom())
 					Expect(err).To(BeNil())
 					delegatableBalance := balRes.Balance.Sub(unvestedCoins[0])
 					Expect(delegatableBalance.Amount.LT(delMsg.Amount.Amount)).To(BeTrue())
@@ -217,7 +217,7 @@ var _ = Describe("Staking module tests", func() {
 					unvestedCoins := clawbackAccount.GetVestingCoins(nw.GetContext().BlockTime())
 					Expect(unvestedCoins).To(Equal(testutil.TestVestingSchedule.TotalVestingCoins))
 
-					balRes, err := gh.GetBalance(vestingAccount.AccAddr, nw.GetBaseDenom())
+					balRes, err := gh.GetBalanceFromBank(vestingAccount.AccAddr, nw.GetBaseDenom())
 					Expect(err).To(BeNil())
 					delegatableBalance := balRes.Balance.Sub(unvestedCoins[0])
 					Expect(delegatableBalance.Amount.LT(delMsg.Amount.Amount)).To(BeTrue())
@@ -311,7 +311,7 @@ var _ = Describe("Staking module tests", func() {
 				unvestedCoins := clawbackAccount.GetVestingCoins(nw.GetContext().BlockTime())
 				Expect(unvestedCoins).To(Equal(testutil.TestVestingSchedule.TotalVestingCoins))
 
-				balRes, err := gh.GetBalance(vestingAccount.AccAddr, nw.GetBaseDenom())
+				balRes, err := gh.GetBalanceFromBank(vestingAccount.AccAddr, nw.GetBaseDenom())
 				Expect(err).To(BeNil())
 				delegatableBalance := balRes.Balance.Sub(unvestedCoins[0])
 				Expect(delegatableBalance.Amount.LT(createValMsg.Value.Amount)).To(BeTrue())

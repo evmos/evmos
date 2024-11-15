@@ -17,6 +17,8 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
+
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 // Network is the interface that wraps the common methods to interact with integration test network.
@@ -40,6 +42,7 @@ type Network interface {
 	GetBankClient() banktypes.QueryClient
 	GetStakingClient() stakingtypes.QueryClient
 	GetDistrClient() distrtypes.QueryClient
+	GetEvmClient() evmtypes.QueryClient
 
 	BroadcastTxSync(txBytes []byte) (abcitypes.ExecTxResult, error)
 	Simulate(txBytes []byte) (*txtypes.SimulateResponse, error)
