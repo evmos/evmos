@@ -117,6 +117,10 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.GetDeposits(ctx, method, contract, args)
 	case GetTallyResultMethod:
 		bz, err = p.GetTallyResult(ctx, method, contract, args)
+	case GetProposalMethod:
+		bz, err = p.GetProposal(ctx, method, contract, args)
+	case GetProposalsMethod:
+		bz, err = p.GetProposals(ctx, method, contract, args)
 	default:
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}
