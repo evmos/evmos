@@ -48,6 +48,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (gov) [#2976](https://github.com/evmos/evmos/pull/2976) Add `Proposals` and `Proposal` queries to gov precompile.
 - (testnet) [#2826](https://github.com/evmos/evmos/pull/2826) Fix command `evmosd testnet init-files` for validator_address is error.
 - (evm) [#2836](https://github.com/evmos/evmos/pull/2836) Recap the highest gas limit with account's available balance.
 - (evm) [#2872](https://github.com/evmos/evmos/pull/2872) Change `BankKeeper` for `BankWrapper` to manage EVM coin with different decimals.

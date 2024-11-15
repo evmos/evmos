@@ -394,3 +394,178 @@ func (tro *TallyResultOutput) FromResponse(res *govv1.QueryTallyResultResponse) 
 	}
 	return tro
 }
+
+// ProposalOutput defines the output for the Proposal query
+type ProposalOutput struct {
+	Proposal ProposalData
+}
+
+// ProposalsInput defines the input for the Proposals query
+type ProposalsInput struct {
+	ProposalStatus uint32
+	Voter          common.Address
+	Depositor      common.Address
+	Pagination     query.PageRequest
+}
+
+// ProposalsOutput defines the output for the Proposals query
+type ProposalsOutput struct {
+	Proposals    []ProposalData
+	PageResponse query.PageResponse
+}
+
+// ProposalData represents a governance proposal
+type ProposalData struct {
+	Id               uint64          `abi:"id"` //nolint
+	Messages         []string        `abi:"messages"`
+	Status           uint32          `abi:"status"`
+	FinalTallyResult TallyResultData `abi:"finalTallyResult"`
+	SubmitTime       uint64          `abi:"submitTime"`
+	DepositEndTime   uint64          `abi:"depositEndTime"`
+	TotalDeposit     []cmn.Coin      `abi:"totalDeposit"`
+	VotingStartTime  uint64          `abi:"votingStartTime"`
+	VotingEndTime    uint64          `abi:"votingEndTime"`
+	Metadata         string          `abi:"metadata"`
+	Title            string          `abi:"title"`
+	Summary          string          `abi:"summary"`
+	Proposer         common.Address  `abi:"proposer"`
+}
+
+// ParseProposalArgs parses the arguments for the Proposal query
+func ParseProposalArgs(args []interface{}) (*govv1.QueryProposalRequest, error) {
+	if len(args) != 1 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
+	}
+
+	proposalID, ok := args[0].(uint64)
+	if !ok {
+		return nil, fmt.Errorf(ErrInvalidProposalID, args[0])
+	}
+
+	return &govv1.QueryProposalRequest{
+		ProposalId: proposalID,
+	}, nil
+}
+
+// ParseProposalsArgs parses the arguments for the Proposals query
+func ParseProposalsArgs(method *abi.Method, args []interface{}) (*govv1.QueryProposalsRequest, error) {
+	if len(args) != 4 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))
+	}
+
+	var input ProposalsInput
+	if err := method.Inputs.Copy(&input, args); err != nil {
+		return nil, fmt.Errorf("error while unpacking args to ProposalsInput: %s", err)
+	}
+
+	voter := ""
+	if input.Voter != (common.Address{}) {
+		voter = sdk.AccAddress(input.Voter.Bytes()).String()
+	}
+
+	depositor := ""
+	if input.Depositor != (common.Address{}) {
+		depositor = sdk.AccAddress(input.Depositor.Bytes()).String()
+	}
+
+	return &govv1.QueryProposalsRequest{
+		ProposalStatus: govv1.ProposalStatus(input.ProposalStatus), //nolint:gosec // G115
+		Voter:          voter,
+		Depositor:      depositor,
+		Pagination:     &input.Pagination,
+	}, nil
+}
+
+func (po *ProposalOutput) FromResponse(res *govv1.QueryProposalResponse) *ProposalOutput {
+	msgs := make([]string, len(res.Proposal.Messages))
+	for i, msg := range res.Proposal.Messages {
+		msgs[i] = msg.TypeUrl
+	}
+
+	coins := make([]cmn.Coin, len(res.Proposal.TotalDeposit))
+	for i, c := range res.Proposal.TotalDeposit {
+		coins[i] = cmn.Coin{
+			Denom:  c.Denom,
+			Amount: c.Amount.BigInt(),
+		}
+	}
+
+	proposer, err := utils.Bech32ToHexAddr(res.Proposal.Proposer)
+	if err != nil {
+		return nil
+	}
+
+	po.Proposal = ProposalData{
+		Id:       res.Proposal.Id,
+		Messages: msgs,
+		Status:   uint32(res.Proposal.Status), //nolint:gosec // G115
+		FinalTallyResult: TallyResultData{
+			Yes:        res.Proposal.FinalTallyResult.YesCount,
+			Abstain:    res.Proposal.FinalTallyResult.AbstainCount,
+			No:         res.Proposal.FinalTallyResult.NoCount,
+			NoWithVeto: res.Proposal.FinalTallyResult.NoWithVetoCount,
+		},
+		SubmitTime:      uint64(res.Proposal.SubmitTime.Unix()),     //nolint:gosec // G115
+		DepositEndTime:  uint64(res.Proposal.DepositEndTime.Unix()), //nolint:gosec // G115
+		TotalDeposit:    coins,
+		VotingStartTime: uint64(res.Proposal.VotingStartTime.Unix()), //nolint:gosec // G115
+		VotingEndTime:   uint64(res.Proposal.VotingEndTime.Unix()),   //nolint:gosec // G115
+		Metadata:        res.Proposal.Metadata,
+		Title:           res.Proposal.Title,
+		Summary:         res.Proposal.Summary,
+		Proposer:        proposer,
+	}
+	return po
+}
+
+func (po *ProposalsOutput) FromResponse(res *govv1.QueryProposalsResponse) *ProposalsOutput {
+	po.Proposals = make([]ProposalData, len(res.Proposals))
+	for i, p := range res.Proposals {
+		msgs := make([]string, len(p.Messages))
+		for j, msg := range p.Messages {
+			msgs[j] = msg.TypeUrl
+		}
+
+		coins := make([]cmn.Coin, len(p.TotalDeposit))
+		for j, c := range p.TotalDeposit {
+			coins[j] = cmn.Coin{
+				Denom:  c.Denom,
+				Amount: c.Amount.BigInt(),
+			}
+		}
+
+		proposer, err := utils.Bech32ToHexAddr(p.Proposer)
+		if err != nil {
+			return nil
+		}
+
+		po.Proposals[i] = ProposalData{
+			Id:       p.Id,
+			Messages: msgs,
+			Status:   uint32(p.Status), //nolint:gosec // G115
+			FinalTallyResult: TallyResultData{
+				Yes:        p.FinalTallyResult.YesCount,
+				Abstain:    p.FinalTallyResult.AbstainCount,
+				No:         p.FinalTallyResult.NoCount,
+				NoWithVeto: p.FinalTallyResult.NoWithVetoCount,
+			},
+			SubmitTime:      uint64(p.SubmitTime.Unix()),     //nolint:gosec // G115
+			DepositEndTime:  uint64(p.DepositEndTime.Unix()), //nolint:gosec // G115
+			TotalDeposit:    coins,
+			VotingStartTime: uint64(p.VotingStartTime.Unix()), //nolint:gosec // G115
+			VotingEndTime:   uint64(p.VotingEndTime.Unix()),   //nolint:gosec // G115
+			Metadata:        p.Metadata,
+			Title:           p.Title,
+			Summary:         p.Summary,
+			Proposer:        proposer,
+		}
+	}
+
+	if res.Pagination != nil {
+		po.PageResponse = query.PageResponse{
+			NextKey: res.Pagination.NextKey,
+			Total:   res.Pagination.Total,
+		}
+	}
+	return po
+}

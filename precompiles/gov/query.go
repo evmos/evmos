@@ -21,6 +21,10 @@ const (
 	GetDepositsMethod = "getDeposits"
 	// GetTallyResultMethod defines the method name for the tally result precompile request.
 	GetTallyResultMethod = "getTallyResult"
+	// GetProposalMethod defines the method name for the proposal precompile request.
+	GetProposalMethod = "getProposal"
+	// GetProposalsMethod defines the method name for the proposals precompile request.
+	GetProposalsMethod = "getProposals"
 )
 
 // GetVotes implements the query logic for getting votes for a proposal.
@@ -132,4 +136,49 @@ func (p *Precompile) GetTallyResult(
 
 	output := new(TallyResultOutput).FromResponse(res)
 	return method.Outputs.Pack(output.TallyResult)
+}
+
+// GetProposal implements the query logic for getting a proposal
+func (p *Precompile) GetProposal(
+	ctx sdk.Context,
+	method *abi.Method,
+	_ *vm.Contract,
+	args []interface{},
+) ([]byte, error) {
+	queryProposalReq, err := ParseProposalArgs(args)
+	if err != nil {
+		return nil, err
+	}
+
+	queryServer := govkeeper.NewQueryServer(&p.govKeeper)
+	res, err := queryServer.Proposal(ctx, queryProposalReq)
+	if err != nil {
+		return nil, err
+	}
+
+	output := new(ProposalOutput).FromResponse(res)
+	return method.Outputs.Pack(output.Proposal)
+}
+
+// GetProposals implements the query logic for getting proposals
+func (p *Precompile) GetProposals(
+	ctx sdk.Context,
+	method *abi.Method,
+	_ *vm.Contract,
+	args []interface{},
+) ([]byte, error) {
+	queryProposalsReq, err := ParseProposalsArgs(method, args)
+	if err != nil {
+		return nil, err
+	}
+
+	queryServer := govkeeper.NewQueryServer(&p.govKeeper)
+	res, err := queryServer.Proposals(ctx, queryProposalsReq)
+	if err != nil {
+		return nil, err
+	}
+
+	output := new(ProposalsOutput).FromResponse(res)
+
+	return method.Outputs.Pack(output.Proposals, output.PageResponse)
 }
