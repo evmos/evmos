@@ -79,7 +79,7 @@ func (tf *baseTxFactory) buildTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArg
 
 // calculateFees calculates the fees for the transaction.
 func (tf *baseTxFactory) calculateFees(gasPrice *sdkmath.Int, gasLimit uint64) (sdktypes.Coins, error) {
-	denom := tf.network.GetDenom()
+	denom := tf.network.GetBaseDenom()
 	var fees sdktypes.Coins
 	if gasPrice != nil {
 		fees = sdktypes.Coins{{Denom: denom, Amount: gasPrice.MulRaw(int64(gasLimit))}} //#nosec G115

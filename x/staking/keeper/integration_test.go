@@ -75,7 +75,7 @@ var _ = Describe("Staking module tests", func() {
 			Expect(nw.NextBlock()).To(BeNil())
 
 			// get vesting account initial balance (free tokens)
-			balRes, err := gh.GetBalanceFromBank(vestingAccount.AccAddr, nw.GetDenom())
+			balRes, err := gh.GetBalanceFromBank(vestingAccount.AccAddr, nw.GetBaseDenom())
 			Expect(err).To(BeNil())
 			vestAccInitialBalance = balRes.Balance
 
@@ -109,7 +109,7 @@ var _ = Describe("Staking module tests", func() {
 					unvestedCoins := clawbackAccount.GetVestingCoins(nw.GetContext().BlockTime())
 					Expect(unvestedCoins).To(Equal(testutil.TestVestingSchedule.TotalVestingCoins))
 
-					balRes, err := gh.GetBalanceFromBank(vestingAccount.AccAddr, nw.GetDenom())
+					balRes, err := gh.GetBalanceFromBank(vestingAccount.AccAddr, nw.GetBaseDenom())
 					Expect(err).To(BeNil())
 					delegatableBalance := balRes.Balance.Sub(unvestedCoins[0])
 					Expect(delegatableBalance.Amount.LT(delMsg.Amount.Amount)).To(BeTrue())
@@ -122,7 +122,7 @@ var _ = Describe("Staking module tests", func() {
 				It("should allow to delegate free tokens when all tokens in vesting schedule are unvested", func() {
 					// calculate fees to deduct from free balance
 					// to get the proper delegation amount
-					fees := sdk.NewCoin(nw.GetDenom(), gasPrice.Mul(math.NewIntFromUint64(gas)))
+					fees := sdk.NewCoin(nw.GetBaseDenom(), gasPrice.Mul(math.NewIntFromUint64(gas)))
 					delMsg.Amount = vestAccInitialBalance.Sub(fees)
 
 					res, err := tf.ExecuteCosmosTx(vestingAccount.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{delMsg}, Gas: &gas, GasPrice: &gasPrice})
@@ -143,13 +143,13 @@ var _ = Describe("Staking module tests", func() {
 					Expect(nw.NextBlockAfter(vestingPeriod * time.Second)).To(BeNil())
 
 					// check there're some vested coins
-					denom := nw.GetDenom()
+					denom := nw.GetBaseDenom()
 					expCoins := sdk.NewCoins(sdk.NewCoin(denom, testutil.TestVestingSchedule.VestedCoinsPerPeriod.AmountOf(denom).MulRaw(testutil.TestVestingSchedule.CliffMonths)))
 					lockedVestedCoins := clawbackAccount.GetLockedUpVestedCoins(nw.GetContext().BlockTime())
 					Expect(lockedVestedCoins).To(Equal(expCoins))
 
 					// deduct fees from delegation amount to pay the tx
-					fees := sdk.NewCoin(nw.GetDenom(), gasPrice.Mul(math.NewIntFromUint64(gas)))
+					fees := sdk.NewCoin(nw.GetBaseDenom(), gasPrice.Mul(math.NewIntFromUint64(gas)))
 					delMsg.Amount = vestAccInitialBalance.Add(lockedVestedCoins[0]).Sub(fees)
 
 					res, err := tf.ExecuteCosmosTx(vestingAccount.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{delMsg}, Gas: &gas, GasPrice: &gasPrice})
@@ -170,7 +170,7 @@ var _ = Describe("Staking module tests", func() {
 					Expect(nw.NextBlockAfter(lockupPeriod * time.Second)).To(BeNil())
 
 					// check there're some vested coins
-					denom := nw.GetDenom()
+					denom := nw.GetBaseDenom()
 					expVested := sdk.NewCoins(sdk.NewCoin(denom, testutil.TestVestingSchedule.VestedCoinsPerPeriod.AmountOf(denom).Mul(math.NewInt(testutil.TestVestingSchedule.LockupMonths))))
 					vestedCoins := clawbackAccount.GetVestedCoins(nw.GetContext().BlockTime())
 					Expect(vestedCoins).To(Equal(expVested))
@@ -180,7 +180,7 @@ var _ = Describe("Staking module tests", func() {
 					Expect(unlockedVestedCoins).To(Equal(vestedCoins))
 
 					// delegation amount is all free coins + unlocked vested - fee to pay tx
-					fees := sdk.NewCoin(nw.GetDenom(), gasPrice.Mul(math.NewIntFromUint64(gas)))
+					fees := sdk.NewCoin(nw.GetBaseDenom(), gasPrice.Mul(math.NewIntFromUint64(gas)))
 					delMsg.Amount = vestAccInitialBalance.Add(unlockedVestedCoins[0]).Sub(fees)
 
 					res, err := tf.ExecuteCosmosTx(vestingAccount.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{delMsg}, Gas: &gas, GasPrice: &gasPrice})
@@ -217,7 +217,7 @@ var _ = Describe("Staking module tests", func() {
 					unvestedCoins := clawbackAccount.GetVestingCoins(nw.GetContext().BlockTime())
 					Expect(unvestedCoins).To(Equal(testutil.TestVestingSchedule.TotalVestingCoins))
 
-					balRes, err := gh.GetBalanceFromBank(vestingAccount.AccAddr, nw.GetDenom())
+					balRes, err := gh.GetBalanceFromBank(vestingAccount.AccAddr, nw.GetBaseDenom())
 					Expect(err).To(BeNil())
 					delegatableBalance := balRes.Balance.Sub(unvestedCoins[0])
 					Expect(delegatableBalance.Amount.LT(delMsg.Amount.Amount)).To(BeTrue())
@@ -234,13 +234,13 @@ var _ = Describe("Staking module tests", func() {
 					Expect(nw.NextBlockAfter(vestingPeriod * time.Second)).To(BeNil())
 
 					// check there're some vested coins
-					denom := nw.GetDenom()
+					denom := nw.GetBaseDenom()
 					expCoins := sdk.NewCoins(sdk.NewCoin(denom, testutil.TestVestingSchedule.VestedCoinsPerPeriod.AmountOf(denom).MulRaw(testutil.TestVestingSchedule.CliffMonths)))
 					lockedVestedCoins := clawbackAccount.GetLockedUpVestedCoins(nw.GetContext().BlockTime())
 					Expect(lockedVestedCoins).To(Equal(expCoins))
 
 					// update delegation amount to be the free balance + locked vested coins - fees
-					fees := sdk.NewCoin(nw.GetDenom(), gasPrice.Mul(math.NewIntFromUint64(gas)))
+					fees := sdk.NewCoin(nw.GetBaseDenom(), gasPrice.Mul(math.NewIntFromUint64(gas)))
 					delMsg.Amount = vestAccInitialBalance.Add(lockedVestedCoins[0]).Sub(fees)
 
 					execMsg := authz.NewMsgExec(otherAccount.AccAddr, []sdk.Msg{delMsg})
@@ -262,7 +262,7 @@ var _ = Describe("Staking module tests", func() {
 					Expect(nw.NextBlockAfter(lockupPeriod * time.Second)).To(BeNil())
 
 					// check there're some vested coins
-					denom := nw.GetDenom()
+					denom := nw.GetBaseDenom()
 					expVested := sdk.NewCoins(sdk.NewCoin(denom, testutil.TestVestingSchedule.VestedCoinsPerPeriod.AmountOf(denom).Mul(math.NewInt(testutil.TestVestingSchedule.LockupMonths))))
 					vestedCoins := clawbackAccount.GetVestedCoins(nw.GetContext().BlockTime())
 					Expect(vestedCoins).To(Equal(expVested))
@@ -311,7 +311,7 @@ var _ = Describe("Staking module tests", func() {
 				unvestedCoins := clawbackAccount.GetVestingCoins(nw.GetContext().BlockTime())
 				Expect(unvestedCoins).To(Equal(testutil.TestVestingSchedule.TotalVestingCoins))
 
-				balRes, err := gh.GetBalanceFromBank(vestingAccount.AccAddr, nw.GetDenom())
+				balRes, err := gh.GetBalanceFromBank(vestingAccount.AccAddr, nw.GetBaseDenom())
 				Expect(err).To(BeNil())
 				delegatableBalance := balRes.Balance.Sub(unvestedCoins[0])
 				Expect(delegatableBalance.Amount.LT(createValMsg.Value.Amount)).To(BeTrue())
@@ -327,13 +327,13 @@ var _ = Describe("Staking module tests", func() {
 				Expect(nw.NextBlockAfter(vestingPeriod * time.Second)).To(BeNil())
 
 				// check there're some vested coins
-				denom := nw.GetDenom()
+				denom := nw.GetBaseDenom()
 				expCoins := sdk.NewCoins(sdk.NewCoin(denom, testutil.TestVestingSchedule.VestedCoinsPerPeriod.AmountOf(denom).MulRaw(testutil.TestVestingSchedule.CliffMonths)))
 				lockedVestedCoins := clawbackAccount.GetLockedUpVestedCoins(nw.GetContext().BlockTime())
 				Expect(lockedVestedCoins).To(Equal(expCoins))
 
 				// update delegation amount to be the free balance + locked vested coins - fees
-				fees := sdk.NewCoin(nw.GetDenom(), gasPrice.Mul(math.NewIntFromUint64(gas)))
+				fees := sdk.NewCoin(nw.GetBaseDenom(), gasPrice.Mul(math.NewIntFromUint64(gas)))
 				createValMsg.Value = vestAccInitialBalance.Add(lockedVestedCoins[0]).Sub(fees)
 
 				res, err := tf.ExecuteCosmosTx(vestingAccount.Priv, factory.CosmosTxArgs{Msgs: []sdk.Msg{createValMsg}, Gas: &gas, GasPrice: &gasPrice})
@@ -354,7 +354,7 @@ var _ = Describe("Staking module tests", func() {
 				Expect(nw.NextBlockAfter(lockupPeriod * time.Second)).To(BeNil())
 
 				// check there're some vested coins
-				denom := nw.GetDenom()
+				denom := nw.GetBaseDenom()
 				expVested := sdk.NewCoins(sdk.NewCoin(denom, testutil.TestVestingSchedule.VestedCoinsPerPeriod.AmountOf(denom).Mul(math.NewInt(testutil.TestVestingSchedule.LockupMonths))))
 				vestedCoins := clawbackAccount.GetVestedCoins(nw.GetContext().BlockTime())
 				Expect(vestedCoins).To(Equal(expVested))
