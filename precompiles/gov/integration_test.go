@@ -74,6 +74,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 		txArgs = evmtypes.EvmTxArgs{
 			To: &precompileAddr,
 		}
+		txArgs.GasLimit = 200_000
 	})
 
 	// =====================================
@@ -233,7 +234,6 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			It("should return a vote", func() {
 				callArgs.MethodName = method
 				callArgs.Args = []interface{}{proposalID, s.keyring.GetAddr(0)}
-				txArgs.GasLimit = 200_000
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
@@ -284,7 +284,6 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			It("should return a weighted vote", func() {
 				callArgs.MethodName = method
 				callArgs.Args = []interface{}{proposalID, s.keyring.GetAddr(0)}
-				txArgs.GasLimit = 200_000
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
@@ -334,11 +333,9 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				callArgs.Args = []interface{}{
 					proposalID,
 					query.PageRequest{
-						Limit:      10,
 						CountTotal: true,
 					},
 				}
-				txArgs.GasLimit = 200_000
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
@@ -374,7 +371,6 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 			It("should return a deposit", func() {
 				callArgs.Args = []interface{}{proposalID, s.keyring.GetAddr(0)}
-				txArgs.GasLimit = 200_000
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
@@ -406,11 +402,9 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				callArgs.Args = []interface{}{
 					proposalID,
 					query.PageRequest{
-						Limit:      10,
 						CountTotal: true,
 					},
 				}
-				txArgs.GasLimit = 200_000
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
@@ -457,7 +451,6 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 			It("should return the tally result", func() {
 				callArgs.Args = []interface{}{proposalID}
-				txArgs.GasLimit = 200_000
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
@@ -486,7 +479,6 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 			It("should return a proposal", func() {
 				callArgs.Args = []interface{}{uint64(1)}
-				txArgs.GasLimit = 200_000
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
@@ -519,7 +511,6 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 			It("should fail when proposal doesn't exist", func() {
 				callArgs.Args = []interface{}{uint64(999)}
-				txArgs.GasLimit = 200_000
 
 				_, _, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
@@ -543,11 +534,9 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 					common.Address{},
 					common.Address{},
 					query.PageRequest{
-						Limit:      10,
 						CountTotal: true,
 					},
 				}
-				txArgs.GasLimit = 200_000
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
@@ -578,11 +567,9 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 					common.Address{},
 					common.Address{},
 					query.PageRequest{
-						Limit:      10,
 						CountTotal: true,
 					},
 				}
-				txArgs.GasLimit = 200_000
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
@@ -627,11 +614,9 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 					s.keyring.GetAddr(0),
 					common.Address{},
 					query.PageRequest{
-						Limit:      10,
 						CountTotal: true,
 					},
 				}
-				txArgs.GasLimit = 200_000
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
@@ -654,11 +639,9 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 					common.Address{},
 					s.keyring.GetAddr(0),
 					query.PageRequest{
-						Limit:      10,
 						CountTotal: true,
 					},
 				}
-				txArgs.GasLimit = 200_000
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
