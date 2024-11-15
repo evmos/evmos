@@ -128,7 +128,9 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 		is.keyring = keyring
 
 		is.wrappedCoinDenom = evmtypes.GetEVMCoinDenom()
-		is.precompileAddrHex = erc20types.GetWEVMOSContractHex(is.network.GetChainID())
+
+		cosmosChainID := strings.Split(is.network.GetChainID(), "-")[0]
+		is.precompileAddrHex = erc20types.GetWEVMOSContractHex(cosmosChainID)
 
 		ctx := integrationNetwork.GetContext()
 
