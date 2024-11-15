@@ -71,14 +71,12 @@ func (cc ChainCoins) IsBaseEqualToEVM() bool {
 
 // DenomDecimalsMap returns a map of Denom -> Decimals for the chain coin.
 func (cc ChainCoins) DenomDecimalsMap() map[string]evmtypes.Decimals {
-	chainDenoms := []string{cc.BaseDenom()}
 	chainDenomDecimals := map[string]evmtypes.Decimals{
 		cc.BaseDenom(): cc.BaseDecimals(),
 	}
 
 	// Insert also the evm denom if base and evm denom are different.
 	if !cc.IsBaseEqualToEVM() {
-		chainDenoms = append(chainDenoms, cc.EVMDenom())
 		chainDenomDecimals[cc.EVMDenom()] = cc.EVMDecimals()
 	}
 	return chainDenomDecimals
