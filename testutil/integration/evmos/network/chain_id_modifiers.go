@@ -7,6 +7,8 @@
 package network
 
 import (
+	"strings"
+
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/evmos/evmos/v20/utils"
 	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
@@ -81,7 +83,9 @@ func updateErc20GenesisStateForChainID(chainID string, erc20GenesisState erc20ty
 // WEVMOS contract depending on ChainID
 func updateErc20Params(chainID string, params erc20types.Params) erc20types.Params {
 	mainnetAddress := erc20types.GetWEVMOSContractHex(utils.MainnetChainID)
-	testnetAddress := erc20types.GetWEVMOSContractHex(chainID)
+
+	cosmosChainID := strings.Split(chainID, "-")[0]
+	testnetAddress := erc20types.GetWEVMOSContractHex(cosmosChainID)
 
 	nativePrecompiles := make([]string, len(params.NativePrecompiles))
 	for i, nativePrecompile := range params.NativePrecompiles {
@@ -98,8 +102,9 @@ func updateErc20Params(chainID string, params erc20types.Params) erc20types.Para
 // updateErc20TokenPairs modifies the erc20 token pairs to use the correct
 // WEVMOS depending on ChainID
 func updateErc20TokenPairs(chainID string, tokenPairs []erc20types.TokenPair) []erc20types.TokenPair {
-	testnetAddress := erc20types.GetWEVMOSContractHex(chainID)
-	coinInfo := evmtypes.ChainsCoinInfo[utils.MainnetChainID]
+	cosmosChainID := strings.Split(chainID, "-")[0]
+	testnetAddress := erc20types.GetWEVMOSContractHex(cosmosChainID)
+	coinInfo := evmtypes.ChainsCoinInfo[cosmosChainID]
 
 	mainnetAddress := erc20types.GetWEVMOSContractHex(utils.MainnetChainID)
 
