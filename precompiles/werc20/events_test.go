@@ -5,6 +5,7 @@ package werc20_test
 
 import (
 	"math/big"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -58,7 +59,8 @@ func (s *PrecompileUnitTestSuite) SetupTest(chainID string) {
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
 
-	s.precompileAddrHex = erc20types.GetWEVMOSContractHex(chainID)
+	cosmosChainID := strings.Split(chainID, "-")[0]
+	s.precompileAddrHex = erc20types.GetWEVMOSContractHex(cosmosChainID)
 
 	ctx := integrationNetwork.GetContext()
 
