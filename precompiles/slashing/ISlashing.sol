@@ -6,7 +6,7 @@ import "../common/Types.sol";
 /// @dev The ISlashing contract's address.
 address constant SLASHING_PRECOMPILE_ADDRESS = 0x0000000000000000000000000000000000000806;
 
-/// @dev The IGov contract's instance.
+/// @dev The ISlashing contract's instance.
 ISlashing constant SLASHING_CONTRACT = ISlashing(SLASHING_PRECOMPILE_ADDRESS);
 
 /// @dev SigningInfo defines a validator's signing info for monitoring their
