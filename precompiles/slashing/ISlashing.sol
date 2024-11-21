@@ -26,6 +26,20 @@ struct SigningInfo {
     uint64 missedBlocksCounter;
 }
 
+/// @dev Params defines the parameters for the slashing module.
+struct Params {
+    /// @dev SignedBlocksWindow defines how many blocks the validator should have signed
+    uint64 signedBlocksWindow;
+    /// @dev MinSignedPerWindow defines the minimum blocks signed per window to avoid slashing
+    string minSignedPerWindow;
+    /// @dev DowntimeJailDuration defines how long the validator will be jailed for downtime
+    uint64 downtimeJailDuration;
+    /// @dev SlashFractionDoubleSign defines the percentage of slash for double sign
+    string slashFractionDoubleSign;
+    /// @dev SlashFractionDowntime defines the percentage of slash for downtime
+    string slashFractionDowntime;
+}
+
 /// @author Evmos Team
 /// @title Slashing Precompiled Contract
 /// @dev The interface through which solidity contracts will interact with slashing.
@@ -56,4 +70,8 @@ interface ISlashing {
     /// @param validatorAddress The validator operator address to unjail
     /// @return success true if the unjail operation was successful
     function unjail(address validatorAddress) external returns (bool success);
+
+    /// @dev GetParams returns the slashing module parameters
+    /// @return params The slashing module parameters
+    function getParams() external view returns (Params memory params);
 }

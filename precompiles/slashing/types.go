@@ -110,3 +110,28 @@ func (sio *SigningInfosOutput) FromResponse(res *slashingtypes.QuerySigningInfos
 type ValidatorUnjailed struct {
 	Validator common.Address
 }
+
+// Params defines the parameters for the slashing module
+type Params struct {
+	SignedBlocksWindow      uint64 `abi:"signedBlocksWindow"`
+	MinSignedPerWindow      string `abi:"minSignedPerWindow"`
+	DowntimeJailDuration    uint64 `abi:"downtimeJailDuration"`
+	SlashFractionDoubleSign string `abi:"slashFractionDoubleSign"`
+	SlashFractionDowntime   string `abi:"slashFractionDowntime"`
+}
+
+// ParamsOutput represents the output of the params query
+type ParamsOutput struct {
+	Params Params
+}
+
+func (po *ParamsOutput) FromResponse(res *slashingtypes.QueryParamsResponse) *ParamsOutput {
+	po.Params = Params{
+		SignedBlocksWindow:      uint64(res.Params.SignedBlocksWindow), //nolint:gosec // G115
+		MinSignedPerWindow:      res.Params.MinSignedPerWindow.String(),
+		DowntimeJailDuration:    uint64(res.Params.DowntimeJailDuration.Seconds()),
+		SlashFractionDoubleSign: res.Params.SlashFractionDoubleSign.String(),
+		SlashFractionDowntime:   res.Params.SlashFractionDowntime.String(),
+	}
+	return po
+}

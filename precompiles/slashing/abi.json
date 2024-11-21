@@ -17,6 +17,46 @@
       "type": "event"
     },
     {
+      "inputs": [],
+      "name": "getParams",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint64",
+              "name": "signedBlocksWindow",
+              "type": "uint64"
+            },
+            {
+              "internalType": "string",
+              "name": "minSignedPerWindow",
+              "type": "string"
+            },
+            {
+              "internalType": "uint64",
+              "name": "downtimeJailDuration",
+              "type": "uint64"
+            },
+            {
+              "internalType": "string",
+              "name": "slashFractionDoubleSign",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "slashFractionDowntime",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Params",
+          "name": "params",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",

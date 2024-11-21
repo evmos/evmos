@@ -205,3 +205,57 @@ func (s *PrecompileTestSuite) TestGetSigningInfos() {
 		})
 	}
 }
+
+func (s *PrecompileTestSuite) TestGetParams() {
+	method := s.precompile.Methods[slashing.GetParamsMethod]
+
+	testCases := []struct {
+		name        string
+		malleate    func() []interface{}
+		postCheck   func(params *slashing.Params)
+		gas         uint64
+		expError    bool
+		errContains string
+	}{
+		{
+			"success - get params",
+			func() []interface{} {
+				return []interface{}{}
+			},
+			func(params *slashing.Params) {
+				// Get the default params from the network
+				defaultParams, err := s.network.App.SlashingKeeper.GetParams(s.network.GetContext())
+				s.Require().NoError(err)
+				s.Require().Equal(uint64(defaultParams.SignedBlocksWindow), params.SignedBlocksWindow) //nolint:gosec // G115
+				s.Require().Equal(defaultParams.MinSignedPerWindow.String(), params.MinSignedPerWindow)
+				s.Require().Equal(uint64(defaultParams.DowntimeJailDuration.Seconds()), params.DowntimeJailDuration)
+				s.Require().Equal(defaultParams.SlashFractionDoubleSign.String(), params.SlashFractionDoubleSign)
+				s.Require().Equal(defaultParams.SlashFractionDowntime.String(), params.SlashFractionDowntime)
+			},
+			200000,
+			false,
+			"",
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(tc.name, func() {
+			s.SetupTest()
+
+			contract, ctx := testutil.NewPrecompileContract(s.T(), s.network.GetContext(), s.keyring.GetAddr(0), s.precompile, tc.gas)
+
+			bz, err := s.precompile.GetParams(ctx, &method, contract, tc.malleate())
+
+			if tc.expError {
+				s.Require().Error(err)
+				s.Require().Contains(err.Error(), tc.errContains)
+			} else {
+				s.Require().NoError(err)
+				var out slashing.ParamsOutput
+				err = s.precompile.UnpackIntoInterface(&out, slashing.GetParamsMethod, bz)
+				s.Require().NoError(err)
+				tc.postCheck(&out.Params)
+			}
+		})
+	}
+}

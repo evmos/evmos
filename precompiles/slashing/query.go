@@ -5,6 +5,7 @@ package slashing
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
@@ -14,6 +15,8 @@ const (
 	GetSigningInfoMethod = "getSigningInfo"
 	// GetSigningInfosMethod defines the ABI method name for the slashing SigningInfos query
 	GetSigningInfosMethod = "getSigningInfos"
+	// GetParamsMethod defines the ABI method name for the slashing Params query
+	GetParamsMethod = "getParams"
 )
 
 // GetSigningInfo implements the query to get a validator's signing info.
@@ -56,4 +59,20 @@ func (p *Precompile) GetSigningInfos(
 
 	out := new(SigningInfosOutput).FromResponse(res)
 	return method.Outputs.Pack(out.SigningInfos, out.PageResponse)
+}
+
+// GetParams implements the query to get the slashing parameters.
+func (p *Precompile) GetParams(
+	ctx sdk.Context,
+	method *abi.Method,
+	_ *vm.Contract,
+	_ []interface{},
+) ([]byte, error) {
+	res, err := p.slashingKeeper.Params(ctx, &types.QueryParamsRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	out := new(ParamsOutput).FromResponse(res)
+	return method.Outputs.Pack(out.Params)
 }
