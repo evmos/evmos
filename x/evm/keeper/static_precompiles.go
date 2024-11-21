@@ -12,6 +12,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	bankprecompile "github.com/evmos/evmos/v20/precompiles/bank"
@@ -20,6 +21,7 @@ import (
 	govprecompile "github.com/evmos/evmos/v20/precompiles/gov"
 	ics20precompile "github.com/evmos/evmos/v20/precompiles/ics20"
 	"github.com/evmos/evmos/v20/precompiles/p256"
+	slashingprecompile "github.com/evmos/evmos/v20/precompiles/slashing"
 	stakingprecompile "github.com/evmos/evmos/v20/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v20/precompiles/vesting"
 	erc20Keeper "github.com/evmos/evmos/v20/x/erc20/keeper"
@@ -44,6 +46,7 @@ func NewAvailableStaticPrecompiles(
 	transferKeeper transferkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
 	govKeeper govkeeper.Keeper,
+	slashingKeeper slashingkeeper.Keeper,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
@@ -95,6 +98,11 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate gov precompile: %w", err))
 	}
 
+	slashingPrecompile, err := slashingprecompile.NewPrecompile(slashingKeeper, authzKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to instantiate slashing precompile: %w", err))
+	}
+
 	// Stateless precompiles
 	precompiles[bech32Precompile.Address()] = bech32Precompile
 	precompiles[p256Precompile.Address()] = p256Precompile
@@ -106,6 +114,7 @@ func NewAvailableStaticPrecompiles(
 	precompiles[vestingPrecompile.Address()] = vestingPrecompile
 	precompiles[bankPrecompile.Address()] = bankPrecompile
 	precompiles[govPrecompile.Address()] = govPrecompile
+	precompiles[slashingPrecompile.Address()] = slashingPrecompile
 	return precompiles
 }
 
