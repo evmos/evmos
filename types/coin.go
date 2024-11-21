@@ -6,8 +6,6 @@ import (
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (
@@ -35,9 +33,3 @@ const (
 
 // PowerReduction defines the default power reduction value for staking
 var PowerReduction = sdkmath.NewIntFromBigInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(BaseDenomUnit), nil))
-
-// NewBaseCoinInt64 is a utility function that returns an "aevmos" coin with the given int64 amount.
-// The function will panic if the provided amount is negative.
-func NewBaseCoinInt64(amount int64) sdk.Coin {
-	return sdk.NewInt64Coin(BaseDenom, amount)
-}

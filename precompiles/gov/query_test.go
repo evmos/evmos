@@ -248,7 +248,7 @@ func (s *PrecompileTestSuite) TestGetDeposits() {
 			name: "valid query",
 			malleate: func() []gov.DepositData {
 				return []gov.DepositData{
-					{ProposalId: 1, Depositor: s.keyring.GetAddr(0), Amount: []cmn.Coin{{Denom: s.network.GetDenom(), Amount: big.NewInt(100)}}},
+					{ProposalId: 1, Depositor: s.keyring.GetAddr(0), Amount: []cmn.Coin{{Denom: s.network.GetBaseDenom(), Amount: big.NewInt(100)}}},
 				}
 			},
 			args:     []interface{}{uint64(1), query.PageRequest{Limit: 10, CountTotal: true}},
@@ -304,7 +304,7 @@ func (s *PrecompileTestSuite) TestGetTallyResult() {
 			malleate: func() gov.TallyResultData {
 				proposal, err := s.network.App.GovKeeper.SubmitProposal(s.network.GetContext(), TestProposalMsgs, "", "Proposal", "testing proposal", s.keyring.GetAccAddr(0), false)
 				s.Require().NoError(err)
-				votingStarted, err := s.network.App.GovKeeper.AddDeposit(s.network.GetContext(), proposal.Id, s.keyring.GetAccAddr(0), sdk.NewCoins(sdk.NewCoin(s.network.GetDenom(), math.NewInt(100))))
+				votingStarted, err := s.network.App.GovKeeper.AddDeposit(s.network.GetContext(), proposal.Id, s.keyring.GetAccAddr(0), sdk.NewCoins(sdk.NewCoin(s.network.GetBaseDenom(), math.NewInt(100))))
 				s.Require().NoError(err)
 				s.Require().True(votingStarted)
 				err = s.network.App.GovKeeper.AddVote(s.network.GetContext(), proposal.Id, s.keyring.GetAccAddr(0), govv1.NewNonSplitVoteOption(govv1.OptionYes), "")

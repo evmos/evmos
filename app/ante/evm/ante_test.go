@@ -23,6 +23,9 @@ import (
 )
 
 func (suite *AnteTestSuite) TestAnteHandler() {
+	amount := big.NewInt(10)
+	gasPrice := big.NewInt(150)
+	gasFeeCap := big.NewInt(200)
 	var (
 		ctx     sdk.Context
 		addr    common.Address
@@ -46,20 +49,20 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 	ethContractCreationTxParams := evmtypes.EvmTxArgs{
 		ChainID:   evmChainID,
 		Nonce:     0,
-		Amount:    big.NewInt(10),
-		GasLimit:  100000,
-		GasPrice:  big.NewInt(150),
-		GasFeeCap: big.NewInt(200),
+		Amount:    amount,
+		GasLimit:  100_000,
+		GasPrice:  gasPrice,
+		GasFeeCap: gasFeeCap,
 	}
 
 	ethTxParams := evmtypes.EvmTxArgs{
 		ChainID:   evmChainID,
 		To:        &to,
 		Nonce:     0,
-		Amount:    big.NewInt(10),
-		GasLimit:  100000,
-		GasPrice:  big.NewInt(150),
-		GasFeeCap: big.NewInt(200),
+		Amount:    amount,
+		GasLimit:  100_000,
+		GasPrice:  gasPrice,
+		GasFeeCap: gasFeeCap,
 	}
 
 	baseDenom := evmtypes.GetEVMCoinDenom()
@@ -231,7 +234,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				txBuilder := suite.CreateTxBuilder(privKey, ethTxParams)
 
 				expFee := txBuilder.GetTx().GetFee()
-				oneCoin := sdk.NewCoin(suite.GetNetwork().GetDenom(), sdkmath.NewInt(1))
+				oneCoin := sdk.NewCoin(suite.GetNetwork().GetBaseDenom(), sdkmath.NewInt(1))
 				invalidFee := expFee.Add(oneCoin)
 				txBuilder.SetFeeAmount(invalidFee)
 				return txBuilder.GetTx()
