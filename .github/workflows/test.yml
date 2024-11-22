@@ -37,7 +37,7 @@ jobs:
         run: |
           make test-unit-cover
         if: env.GIT_DIFF
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           file: ./coverage.txt
           # We were getting a 500 error on codecov servers

@@ -44,7 +44,7 @@ require (
 	github.com/holiman/uint256 v1.3.1
 	github.com/improbable-eng/grpc-web v0.15.0
 	github.com/linxGnu/grocksdb v1.9.7
-	github.com/onsi/ginkgo/v2 v2.21.0
+	github.com/onsi/ginkgo/v2 v2.22.0
 	github.com/onsi/gomega v1.35.1
 	github.com/ory/dockertest/v3 v3.11.0
 	github.com/pkg/errors v0.9.1
@@ -66,7 +66,7 @@ require (
 	golang.org/x/text v0.20.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240903143218-8af14fe29dc1
 	google.golang.org/grpc v1.68.0
-	google.golang.org/protobuf v1.35.1
+	google.golang.org/protobuf v1.35.2
 	sigs.k8s.io/yaml v1.4.0
 )
 
