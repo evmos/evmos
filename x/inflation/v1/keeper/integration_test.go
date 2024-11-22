@@ -21,7 +21,6 @@ var (
 	epochNumber int64
 	skipped     uint64
 	provision   math.LegacyDec
-	denomMint   = types.DefaultInflationDenom
 )
 
 func TestKeeperIntegrationTestSuite(t *testing.T) {
@@ -31,10 +30,14 @@ func TestKeeperIntegrationTestSuite(t *testing.T) {
 }
 
 var _ = Describe("Inflation", Ordered, func() {
-	var s *KeeperTestSuite
+	var (
+		s         *KeeperTestSuite
+		denomMint string
+	)
 	BeforeEach(func() {
 		s = new(KeeperTestSuite)
 		s.SetupTest()
+		denomMint = s.network.GetBaseDenom()
 	})
 
 	Context("Committing a block", func() {

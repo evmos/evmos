@@ -95,7 +95,7 @@ func TestEpochMintProvision(t *testing.T) {
 				expEpochMintProvision := defaultEpochMintProvision.Quo(math.LegacyNewDec(types.ReductionFactor))
 				req = &types.QueryEpochMintProvisionRequest{}
 				expRes = &types.QueryEpochMintProvisionResponse{
-					EpochMintProvision: sdk.NewDecCoinFromDec(denomMint, expEpochMintProvision),
+					EpochMintProvision: sdk.NewDecCoinFromDec(nw.GetBaseDenom(), expEpochMintProvision),
 				}
 			},
 			true,
