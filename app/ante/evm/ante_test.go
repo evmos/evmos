@@ -231,7 +231,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				txBuilder := suite.CreateTxBuilder(privKey, ethTxParams)
 
 				expFee := txBuilder.GetTx().GetFee()
-				oneCoin := sdk.NewCoin(suite.GetNetwork().GetDenom(), sdkmath.NewInt(1))
+				oneCoin := sdk.NewCoin(suite.GetNetwork().GetBaseDenom(), sdkmath.NewInt(1))
 				invalidFee := expFee.Add(oneCoin)
 				txBuilder.SetFeeAmount(invalidFee)
 				return txBuilder.GetTx()

@@ -53,7 +53,7 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 				suite.Require().NoError(err)
 
 				// Make tx cost greater than balance
-				balanceResp, err := grpcHandler.GetBalance(senderKey.AccAddr, unitNetwork.GetDenom())
+				balanceResp, err := grpcHandler.GetBalanceFromBank(senderKey.AccAddr, unitNetwork.GetBaseDenom())
 				suite.Require().NoError(err)
 
 				invalidAmount := balanceResp.Balance.Amount.Add(math.NewInt(100))

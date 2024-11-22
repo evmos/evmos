@@ -387,7 +387,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				Expect(out.Deposit.ProposalId).To(Equal(proposalID))
 				Expect(out.Deposit.Depositor).To(Equal(s.keyring.GetAddr(0)))
 				Expect(out.Deposit.Amount).To(HaveLen(1))
-				Expect(out.Deposit.Amount[0].Denom).To(Equal(s.network.GetDenom()))
+				Expect(out.Deposit.Amount[0].Denom).To(Equal(s.network.GetBaseDenom()))
 				Expect(out.Deposit.Amount[0].Amount.Cmp(big.NewInt(100))).To(Equal(0))
 			})
 		})
@@ -424,7 +424,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				for _, d := range out.Deposits {
 					Expect(d.ProposalId).To(Equal(proposalID))
 					Expect(d.Amount).To(HaveLen(1))
-					Expect(d.Amount[0].Denom).To(Equal(s.network.GetDenom()))
+					Expect(d.Amount[0].Denom).To(Equal(s.network.GetBaseDenom()))
 					Expect(d.Amount[0].Amount.Cmp(big.NewInt(100))).To(Equal(0))
 				}
 			})

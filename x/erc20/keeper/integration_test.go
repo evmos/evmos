@@ -181,7 +181,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 				})
 
 				It("should send coins to the receiver account", func() {
-					balRes, err := s.handler.GetBalance(s.keyring.GetAccAddr(0), fmt.Sprintf("erc20/%s", contract.Hex()))
+					balRes, err := s.handler.GetBalanceFromBank(s.keyring.GetAccAddr(0), fmt.Sprintf("erc20/%s", contract.Hex()))
 					Expect(err).To(BeNil())
 					balanceCoin := balRes.Balance
 					Expect(balanceCoin.Amount).To(Equal(amt))

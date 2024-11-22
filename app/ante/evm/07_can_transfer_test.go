@@ -45,7 +45,7 @@ func (suite *EvmAnteTestSuite) TestCanTransfer() {
 			expectedError: errortypes.ErrInsufficientFunds,
 			isLondon:      true,
 			malleate: func(txArgs *evmtypes.EvmTxArgs) {
-				balanceResp, err := grpcHandler.GetBalance(senderKey.AccAddr, unitNetwork.GetDenom())
+				balanceResp, err := grpcHandler.GetBalanceFromBank(senderKey.AccAddr, unitNetwork.GetBaseDenom())
 				suite.Require().NoError(err)
 				invalidAmount := balanceResp.Balance.Amount.Add(math.NewInt(1)).BigInt()
 				txArgs.Amount = invalidAmount

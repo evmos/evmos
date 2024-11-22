@@ -97,13 +97,22 @@ func New(opts ...ConfigOption) *IntegrationNetwork {
 var (
 	// DefaultBondedAmount is the amount of tokens that each validator will have initially bonded
 	DefaultBondedAmount = sdktypes.TokensFromConsensusPower(1, types.PowerReduction)
-	// PrefundedAccountInitialBalance is the amount of tokens that each prefunded account has at genesis
-	PrefundedAccountInitialBalance, _ = sdkmath.NewIntFromString("100_000_000_000_000_000_000_000") // 100k
+	// PrefundedAccountInitialBalance is the amount of tokens that each
+	// prefunded account has at genesis. It represents a 100k amount expressed
+	// in the 18 decimals representation.
+	PrefundedAccountInitialBalance, _ = sdkmath.NewIntFromString("100_000_000_000_000_000_000_000")
 )
 
 // configureAndInitChain initializes the network with the given configuration.
 // It creates the genesis state and starts the network.
 func (n *IntegrationNetwork) configureAndInitChain() error {
+	// The bonded denom should be updated to reflect the actual base denom
+	// decimals.
+	baseDecimals := n.cfg.chainCoins.BaseDecimals()
+	// 1e18/1e18 = 1
+	// 1e6/1e18 * 1e12 = 1e6/1e6 = 1
+	DefaultBondedAmount = DefaultBondedAmount.Mul(baseDecimals.ConversionFactor())
+
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
 	valSet, valSigners := createValidatorSetAndSigners(n.cfg.amountOfValidators)
@@ -120,7 +129,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	fundedAccountBalances = addBondedModuleAccountToFundedBalances(
 		fundedAccountBalances,
-		sdktypes.NewCoin(n.cfg.denom, totalBonded),
+		sdktypes.NewCoin(n.cfg.chainCoins.BaseDenom(), totalBonded),
 	)
 
 	delegations := createDelegations(validators, genAccounts[0].GetAddress())
@@ -129,12 +138,12 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	evmosApp := createEvmosApp(n.cfg.chainID, n.cfg.customBaseAppOpts...)
 
 	stakingParams := StakingCustomGenesisState{
-		denom:       n.cfg.denom,
+		denom:       n.cfg.chainCoins.BaseDenom(),
 		validators:  validators,
 		delegations: delegations,
 	}
 	govParams := GovCustomGenesisState{
-		denom: n.cfg.denom,
+		denom: n.cfg.chainCoins.BaseDenom(),
 	}
 
 	totalSupply := calculateTotalSupply(fundedAccountBalances)
@@ -267,9 +276,14 @@ func (n *IntegrationNetwork) GetEVMChainConfig() *gethparams.ChainConfig {
 	return evmtypes.GetEthChainConfig()
 }
 
-// GetDenom returns the network's denom
-func (n *IntegrationNetwork) GetDenom() string {
-	return n.cfg.denom
+// GetBaseDenom returns the network's base denom
+func (n *IntegrationNetwork) GetBaseDenom() string {
+	return n.cfg.chainCoins.baseCoin.Denom
+}
+
+// GetEVMDenom returns the network's evm denom
+func (n *IntegrationNetwork) GetEVMDenom() string {
+	return n.cfg.chainCoins.evmCoin.Denom
 }
 
 // GetOtherDenoms returns network's other supported denoms

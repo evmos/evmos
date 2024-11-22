@@ -57,8 +57,8 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			rewards sdk.DecCoins
 			// minExpRewards are the minimun rewards that should be accrued
 			// for the test case
-			minExpRewards  = sdk.DecCoins{sdk.DecCoin{Amount: math.LegacyNewDec(1e5), Denom: s.network.GetDenom()}}
-			delegationCoin = sdk.Coin{Amount: math.NewInt(1e15), Denom: s.network.GetDenom()}
+			minExpRewards  = sdk.DecCoins{sdk.DecCoin{Amount: math.LegacyNewDec(1e5), Denom: s.network.GetBaseDenom()}}
+			delegationCoin = sdk.Coin{Amount: math.NewInt(1e15), Denom: s.network.GetBaseDenom()}
 			transferAmt    = math.NewInt(1e14)
 		)
 
@@ -70,7 +70,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			msg = &banktypes.MsgSend{
 				FromAddress: addr.String(),
 				ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
-				Amount:      sdk.Coins{sdk.Coin{Amount: transferAmt, Denom: s.network.GetDenom()}},
+				Amount:      sdk.Coins{sdk.Coin{Amount: transferAmt, Denom: s.network.GetBaseDenom()}},
 			}
 
 			valAddr := s.network.GetValidators()[0].OperatorAddress
@@ -82,7 +82,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 		})
 
 		It("should succeed & not withdraw any staking rewards", func() {
-			prevBalanceRes, err := s.grpcHandler.GetBalance(addr, s.network.GetDenom())
+			prevBalanceRes, err := s.grpcHandler.GetBalanceFromBank(addr, s.network.GetBaseDenom())
 			Expect(err).To(BeNil())
 
 			baseFeeRes, err := s.grpcHandler.GetEvmBaseFee()
@@ -106,7 +106,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 
 			// fees should be deducted from balance
 			feesAmt := math.NewInt(res.GasWanted).Mul(*gasPrice)
-			balanceRes, err := s.grpcHandler.GetBalance(addr, s.network.GetDenom())
+			balanceRes, err := s.grpcHandler.GetBalanceFromBank(addr, s.network.GetBaseDenom())
 			Expect(err).To(BeNil())
 			Expect(balanceRes.Balance.Amount).To(Equal(prevBalanceRes.Balance.Amount.Sub(transferAmt).Sub(feesAmt)))
 
@@ -132,7 +132,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 				sdk.Coins{
 					sdk.Coin{
 						Amount: math.NewInt(1),
-						Denom:  s.network.GetDenom(),
+						Denom:  s.network.GetBaseDenom(),
 					},
 				},
 			)
@@ -143,7 +143,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			msg = &banktypes.MsgSend{
 				FromAddress: addr.String(),
 				ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
-				Amount:      sdk.Coins{sdk.Coin{Amount: math.NewInt(1e14), Denom: s.network.GetDenom()}},
+				Amount:      sdk.Coins{sdk.Coin{Amount: math.NewInt(1e14), Denom: s.network.GetBaseDenom()}},
 			}
 		})
 
@@ -172,7 +172,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 	Context("and the sender account has not enough balance but sufficient staking rewards to pay for the transaction cost", func() {
 		// minExpRewards are the minimun rewards that should be accrued
 		// for the test case
-		minExpRewards := sdk.DecCoins{sdk.DecCoin{Amount: math.LegacyNewDec(1e8), Denom: s.network.GetDenom()}}
+		minExpRewards := sdk.DecCoins{sdk.DecCoin{Amount: math.LegacyNewDec(1e8), Denom: s.network.GetBaseDenom()}}
 
 		BeforeEach(func() {
 			addr, priv = testutiltx.NewAccAddressAndKey()
@@ -185,7 +185,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 				sdk.Coins{
 					sdk.Coin{
 						Amount: math.NewInt(1e18),
-						Denom:  s.network.GetDenom(),
+						Denom:  s.network.GetBaseDenom(),
 					},
 				},
 			)
@@ -195,7 +195,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 
 			// delegate some tokens and make sure the remaining balance is not sufficient to cover the tx fees
 			valAddr := s.network.GetValidators()[1].OperatorAddress
-			err = s.factory.Delegate(priv, valAddr, sdk.NewCoin(s.network.GetDenom(), math.NewInt(9888e14)))
+			err = s.factory.Delegate(priv, valAddr, sdk.NewCoin(s.network.GetBaseDenom(), math.NewInt(9888e14)))
 			Expect(err).To(BeNil())
 
 			_, err = integrationutils.WaitToAccrueRewards(s.network, s.grpcHandler, addr.String(), minExpRewards)
@@ -204,7 +204,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			msg = &banktypes.MsgSend{
 				FromAddress: addr.String(),
 				ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
-				Amount:      sdk.Coins{sdk.Coin{Amount: math.NewInt(1), Denom: s.network.GetDenom()}},
+				Amount:      sdk.Coins{sdk.Coin{Amount: math.NewInt(1), Denom: s.network.GetBaseDenom()}},
 			}
 		})
 	})
