@@ -61,10 +61,10 @@ func TestEpochIdentifierAfterEpochEnd(t *testing.T) {
 			require.NoError(t, err)
 			if tc.expDistribution {
 				// Actual distribution portions are tested elsewhere; we just want to verify the value of the pool is greater here
-				require.Greater(t, feePoolNew.CommunityPool.AmountOf(denomMint).BigInt().Uint64(),
-					feePoolOrigin.CommunityPool.AmountOf(denomMint).BigInt().Uint64())
+				require.Greater(t, feePoolNew.CommunityPool.AmountOf(nw.GetBaseDenom()).BigInt().Uint64(),
+					feePoolOrigin.CommunityPool.AmountOf(nw.GetBaseDenom()).BigInt().Uint64())
 			} else {
-				require.Equal(t, feePoolNew.CommunityPool.AmountOf(denomMint), feePoolOrigin.CommunityPool.AmountOf(denomMint))
+				require.Equal(t, feePoolNew.CommunityPool.AmountOf(nw.GetBaseDenom()), feePoolOrigin.CommunityPool.AmountOf(nw.GetBaseDenom()))
 			}
 		})
 	}

@@ -26,7 +26,7 @@ import (
 type Network interface {
 	GetContext() sdktypes.Context
 	GetChainID() string
-	GetDenom() string
+	GetBaseDenom() string
 	GetOtherDenoms() []string
 	GetValidators() []stakingtypes.Validator
 

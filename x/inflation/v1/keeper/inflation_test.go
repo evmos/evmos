@@ -28,26 +28,23 @@ func TestMintAndAllocateInflation(t *testing.T) {
 	)
 	testCases := []struct {
 		name                string
-		mintCoin            sdk.Coin
-		malleate            func()
-		expStakingRewardAmt sdk.Coin
-		expCommunityPoolAmt sdk.DecCoins
+		mintCoinAmount      math.Int
+		expStakingRewardAmt math.Int
+		expCommunityPoolAmt math.Int
 		expPass             bool
 	}{
 		{
 			"pass",
-			sdk.NewCoin(denomMint, math.NewInt(1_000_000)),
-			func() {},
-			sdk.NewCoin(denomMint, math.NewInt(533_333)),
-			sdk.NewDecCoins(sdk.NewDecCoin(denomMint, math.NewInt(466_667))),
+			math.NewInt(1_000_000),
+			math.NewInt(533_333),
+			math.NewInt(466_667),
 			true,
 		},
 		{
 			"pass - no coins minted ",
-			sdk.NewCoin(denomMint, math.ZeroInt()),
-			func() {},
-			sdk.NewCoin(denomMint, math.ZeroInt()),
-			sdk.DecCoins(nil),
+			math.ZeroInt(),
+			math.ZeroInt(),
+			math.ZeroInt(),
 			true,
 		},
 	}
@@ -57,23 +54,29 @@ func TestMintAndAllocateInflation(t *testing.T) {
 			nw = network.NewUnitTestNetwork()
 			ctx = nw.GetContext()
 
-			tc.malleate()
+			mintCoin := sdk.NewCoin(nw.GetBaseDenom(), tc.mintCoinAmount)
+			expStakingReward := sdk.NewCoin(nw.GetBaseDenom(), tc.expStakingRewardAmt)
+			coin := sdk.NewDecCoin(nw.GetBaseDenom(), tc.expCommunityPoolAmt)
+			expCommunityPool := sdk.NewDecCoins(coin)
+			if tc.expCommunityPoolAmt.IsZero() {
+				expCommunityPool = sdk.DecCoins(nil)
+			}
 
-			_, _, err := nw.App.InflationKeeper.MintAndAllocateInflation(ctx, tc.mintCoin, types.DefaultParams())
+			_, _, err := nw.App.InflationKeeper.MintAndAllocateInflation(ctx, mintCoin, types.DefaultParams())
 			require.NoError(t, err, tc.name)
 
 			// Get balances
 			balanceModule := nw.App.BankKeeper.GetBalance(
 				ctx,
 				nw.App.AccountKeeper.GetModuleAddress(types.ModuleName),
-				denomMint,
+				nw.GetBaseDenom(),
 			)
 
 			feeCollector := nw.App.AccountKeeper.GetModuleAddress(authtypes.FeeCollectorName)
 			balanceStakingRewards := nw.App.BankKeeper.GetBalance(
 				ctx,
 				feeCollector,
-				denomMint,
+				nw.GetBaseDenom(),
 			)
 
 			pool, err := nw.App.DistrKeeper.FeePool.Get(ctx)
@@ -83,8 +86,8 @@ func TestMintAndAllocateInflation(t *testing.T) {
 			if tc.expPass {
 				require.NoError(t, err, tc.name)
 				require.True(t, balanceModule.IsZero())
-				require.Equal(t, tc.expStakingRewardAmt, balanceStakingRewards)
-				require.Equal(t, tc.expCommunityPoolAmt, balanceCommunityPool)
+				require.Equal(t, expStakingReward, balanceStakingRewards)
+				require.Equal(t, expCommunityPool, balanceCommunityPool)
 			} else {
 				require.Error(t, err)
 			}
@@ -165,13 +168,13 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 
 				// Mint coins to increase supply
 				coin := sdk.NewCoin(
-					denomMint,
+					nw.GetBaseDenom(),
 					tc.bankSupply,
 				)
 				err := nw.App.InflationKeeper.MintCoins(ctx, coin)
 				require.NoError(t, err)
 
-				circulatingSupply := nw.App.InflationKeeper.GetCirculatingSupply(ctx, denomMint)
+				circulatingSupply := nw.App.InflationKeeper.GetCirculatingSupply(ctx, nw.GetBaseDenom())
 				expCirculatingSupply := math.LegacyNewDecFromInt(tc.bankSupply.Add(bondedAmount).Add(accsFreeAmount))
 				require.Equal(t, expCirculatingSupply, circulatingSupply)
 
@@ -184,7 +187,7 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 
 				expInflationRate := epochMintProvision.Mul(epochsPerPeriod).Quo(expCirculatingSupply).Mul(math.LegacyNewDec(100))
 
-				inflationRate := nw.App.InflationKeeper.GetInflationRate(ctx, denomMint)
+				inflationRate := nw.App.InflationKeeper.GetInflationRate(ctx, nw.GetBaseDenom())
 				require.Equal(t, expInflationRate, inflationRate)
 			})
 		}

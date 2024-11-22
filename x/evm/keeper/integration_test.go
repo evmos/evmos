@@ -82,13 +82,13 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		DescribeTable("Executes a transfer transaction", func(getTxArgs func() evmtypes.EvmTxArgs) {
 			senderKey := s.keyring.GetKey(0)
 			receiverKey := s.keyring.GetKey(1)
-			denom := s.network.GetDenom()
+			denom := s.network.GetBaseDenom()
 
-			senderPrevBalanceResponse, err := s.grpcHandler.GetBalance(senderKey.AccAddr, denom)
+			senderPrevBalanceResponse, err := s.grpcHandler.GetBalanceFromBank(senderKey.AccAddr, denom)
 			Expect(err).To(BeNil())
 			senderPrevBalance := senderPrevBalanceResponse.GetBalance().Amount
 
-			receiverPrevBalanceResponse, err := s.grpcHandler.GetBalance(receiverKey.AccAddr, denom)
+			receiverPrevBalanceResponse, err := s.grpcHandler.GetBalanceFromBank(receiverKey.AccAddr, denom)
 			Expect(err).To(BeNil())
 			receiverPrevBalance := receiverPrevBalanceResponse.GetBalance().Amount
 
@@ -108,13 +108,13 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 			// Check sender balance after transaction
 			senderBalanceResultBeforeFees := senderPrevBalance.Sub(math.NewInt(transferAmount))
-			senderAfterBalance, err := s.grpcHandler.GetBalance(senderKey.AccAddr, denom)
+			senderAfterBalance, err := s.grpcHandler.GetBalanceFromBank(senderKey.AccAddr, denom)
 			Expect(err).To(BeNil())
 			Expect(senderAfterBalance.GetBalance().Amount.LTE(senderBalanceResultBeforeFees)).To(BeTrue())
 
 			// Check receiver balance after transaction
 			receiverBalanceResult := receiverPrevBalance.Add(math.NewInt(transferAmount))
-			receverAfterBalanceResponse, err := s.grpcHandler.GetBalance(receiverKey.AccAddr, denom)
+			receverAfterBalanceResponse, err := s.grpcHandler.GetBalanceFromBank(receiverKey.AccAddr, denom)
 			Expect(err).To(BeNil())
 			Expect(receverAfterBalanceResponse.GetBalance().Amount).To(Equal(receiverBalanceResult))
 		},
