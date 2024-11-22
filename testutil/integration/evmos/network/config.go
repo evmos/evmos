@@ -153,7 +153,7 @@ func WithBaseCoin(denom string, decimals uint8) ConfigOption {
 }
 
 // WithEVMCoin sets the denom and decimals for the evm coin in the network.
-func WithEVMCoin(denom string, decimals uint8) ConfigOption {
+func WithEVMCoin(_ string, _ uint8) ConfigOption {
 	// The evm config can be changed only via chain ID because it should be
 	// handled properly from the configurator.
 	panic("EVM coin can be changed only via ChainID: se WithChainID method")
