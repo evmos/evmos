@@ -73,7 +73,7 @@ func (is *PrecompileIntegrationTestSuite) checkAndReturnBalance(
 	Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
 
 	addressAcc := sdk.AccAddress(address.Bytes())
-	balanceAfter, err := is.grpcHandler.GetBalance(addressAcc, is.wrappedCoinDenom)
+	balanceAfter, err := is.grpcHandler.GetBalanceFromBank(addressAcc, is.wrappedCoinDenom)
 	Expect(err).ToNot(HaveOccurred(), "expected no error getting balance")
 
 	Expect(erc20Balance.String()).To(Equal(balanceAfter.Balance.Amount.BigInt().String()), "expected return balance from contract equal to bank")

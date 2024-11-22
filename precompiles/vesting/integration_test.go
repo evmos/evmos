@@ -1598,7 +1598,7 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 					err := s.network.NextBlockAfter(time.Hour * 24)
 					Expect(err).ToNot(HaveOccurred(), "error while committing block: %v", err)
 
-					res, err := s.grpcHandler.GetBalance(vestingAccKey.AccAddr, s.bondDenom)
+					res, err := s.grpcHandler.GetBalanceFromBank(vestingAccKey.AccAddr, s.bondDenom)
 					Expect(err).To(BeNil())
 					balancePre := res.Balance
 
@@ -1619,7 +1619,7 @@ var _ = Describe("Interacting with the vesting extension", Ordered, func() {
 					Expect(err).ToNot(HaveOccurred(), "error while unpacking the clawback output: %v", err)
 					Expect(co.Coins).To(BeEmpty(), "expected empty clawback amount")
 
-					res, err = s.grpcHandler.GetBalance(vestingAccKey.AccAddr, s.bondDenom)
+					res, err = s.grpcHandler.GetBalanceFromBank(vestingAccKey.AccAddr, s.bondDenom)
 					Expect(err).To(BeNil())
 					balancePost := res.Balance
 					Expect(balancePost).To(Equal(balancePre), "expected balance not to have changed")

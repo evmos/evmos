@@ -1200,7 +1200,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 				Expect(s.network.NextBlock()).To(BeNil())
 
 				// check balance is updated
-				balRes, err := s.grpcHandler.GetBalance(clawbackAccount.GetAddress(), s.bondDenom)
+				balRes, err := s.grpcHandler.GetBalanceFromBank(clawbackAccount.GetAddress(), s.bondDenom)
 				Expect(err).To(BeNil())
 				Expect(*balRes.Balance).To(Equal(accountGasCoverage[0].Add(evmosutil.TestVestingSchedule.TotalVestingCoins[0]).Add(coinsToDelegate[0])))
 
@@ -1219,7 +1219,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 				Expect(delRes.DelegationResponse.Balance).To(Equal(coinsToDelegate[0]))
 
 				// check vesting balance is untouched
-				balRes, err = s.grpcHandler.GetBalance(vestAcc.Bytes(), s.bondDenom)
+				balRes, err = s.grpcHandler.GetBalanceFromBank(vestAcc.Bytes(), s.bondDenom)
 				Expect(err).To(BeNil())
 				Expect(balRes.Balance.IsGTE(evmosutil.TestVestingSchedule.TotalVestingCoins[0])).To(BeTrue())
 			})
@@ -1276,7 +1276,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 				Expect(s.network.NextBlock()).To(BeNil())
 
 				// check balance is updated
-				balRes, err := s.grpcHandler.GetBalance(vestAcc.Bytes(), s.bondDenom)
+				balRes, err := s.grpcHandler.GetBalanceFromBank(vestAcc.Bytes(), s.bondDenom)
 				Expect(err).To(BeNil())
 				Expect(*balRes.Balance).To(Equal(accountGasCoverage[0].Add(evmosutil.TestVestingSchedule.TotalVestingCoins[0]).Add(amt[0])))
 
@@ -1339,7 +1339,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			It("Cannot delegate more than vested tokens (and free tokens)", func() {
 				ctx := s.network.GetContext()
 				// calculate the delegatable amount
-				balRes, err := s.grpcHandler.GetBalance(sdk.AccAddress(vestAcc.Bytes()), s.bondDenom)
+				balRes, err := s.grpcHandler.GetBalanceFromBank(sdk.AccAddress(vestAcc.Bytes()), s.bondDenom)
 				Expect(err).To(BeNil())
 				unvestedOnly := clawbackAccount.GetVestingCoins(ctx.BlockTime())
 				delegatable := balRes.Balance.Sub(unvestedOnly[0])
@@ -1973,7 +1973,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 	It("Should refund leftover gas", func() {
 		delegator := s.keyring.GetKey(0)
 
-		resBal, err := s.grpcHandler.GetBalance(delegator.AccAddr, s.bondDenom)
+		resBal, err := s.grpcHandler.GetBalanceFromBank(delegator.AccAddr, s.bondDenom)
 		Expect(err).To(BeNil(), "error while getting balance")
 		balancePre := resBal.Balance
 		gasPrice := big.NewInt(1e9)
@@ -1994,7 +1994,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 		Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 		Expect(s.network.NextBlock()).To(BeNil())
 
-		resBal, err = s.grpcHandler.GetBalance(delegator.AccAddr, s.bondDenom)
+		resBal, err = s.grpcHandler.GetBalanceFromBank(delegator.AccAddr, s.bondDenom)
 		Expect(err).To(BeNil(), "error while getting balance")
 		balancePost := resBal.Balance
 		difference := balancePre.Sub(*balancePost)
@@ -2725,10 +2725,10 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 					// set approval for the StakingReverter contract
 					s.SetupApproval(s.keyring.GetPrivKey(0), stkReverterAddr, delAmt.BigInt(), []string{staking.DelegateMsg})
 
-					balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+					balRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 					Expect(err).To(BeNil())
 					txSenderInitialBal = balRes.Balance
-					balRes, err = s.grpcHandler.GetBalance(stkReverterAddr.Bytes(), s.bondDenom)
+					balRes, err = s.grpcHandler.GetBalanceFromBank(stkReverterAddr.Bytes(), s.bondDenom)
 					Expect(err).To(BeNil())
 					contractInitialBalance = balRes.Balance
 				})
@@ -2758,7 +2758,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 					fees := gasPrice.MulRaw(res.GasUsed)
 
 					// contract balance should remain unchanged
-					balRes, err := s.grpcHandler.GetBalance(stkReverterAddr.Bytes(), s.bondDenom)
+					balRes, err := s.grpcHandler.GetBalanceFromBank(stkReverterAddr.Bytes(), s.bondDenom)
 					Expect(err).To(BeNil())
 					contractFinalBalance := balRes.Balance
 					Expect(contractFinalBalance.Amount).To(Equal(contractInitialBalance.Amount))
@@ -2769,7 +2769,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 					Expect(err.Error()).To(ContainSubstring("not found"), "expected NO delegation created")
 
 					// Only fees deducted on tx sender
-					balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+					balRes, err = s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 					Expect(err).To(BeNil())
 					txSenderFinalBal := balRes.Balance
 					Expect(txSenderFinalBal.Amount).To(Equal(txSenderInitialBal.Amount.Sub(fees)))
@@ -2797,7 +2797,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 					// contract balance should remain unchanged
-					balRes, err := s.grpcHandler.GetBalance(stkReverterAddr.Bytes(), s.bondDenom)
+					balRes, err := s.grpcHandler.GetBalanceFromBank(stkReverterAddr.Bytes(), s.bondDenom)
 					Expect(err).To(BeNil())
 					contractFinalBalance := balRes.Balance
 					Expect(contractFinalBalance.Amount).To(Equal(contractInitialBalance.Amount))
@@ -2843,13 +2843,13 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 							To: &contractTwoAddr,
 						}, args)
 
-					balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+					balRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 					Expect(err).To(BeNil())
 					delegatorInitialBal = balRes.Balance
-					balRes, err = s.grpcHandler.GetBalance(contractTwoAddr.Bytes(), s.bondDenom)
+					balRes, err = s.grpcHandler.GetBalanceFromBank(contractTwoAddr.Bytes(), s.bondDenom)
 					Expect(err).To(BeNil())
 					contractInitialBalance = balRes.Balance
-					balRes, err = s.grpcHandler.GetBalance(bondedTokensPoolAccAddr, s.bondDenom)
+					balRes, err = s.grpcHandler.GetBalanceFromBank(bondedTokensPoolAccAddr, s.bondDenom)
 					Expect(err).To(BeNil())
 					bondedTokensPoolInitialBalance = balRes.Balance
 
@@ -2888,7 +2888,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 					fees := gasPrice.MulRaw(res.GasUsed)
 
 					// check the contract's balance was deducted to fund the vesting account
-					balRes, err := s.grpcHandler.GetBalance(contractTwoAddr.Bytes(), s.bondDenom)
+					balRes, err := s.grpcHandler.GetBalanceFromBank(contractTwoAddr.Bytes(), s.bondDenom)
 					contractFinalBal := balRes.Balance
 					Expect(err).To(BeNil())
 					Expect(contractFinalBal.Amount).To(Equal(contractInitialBalance.Amount.Sub(transferToDelAmt)))
@@ -2900,13 +2900,13 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 					expShares := prevDelegation.GetShares().Add(math.LegacyNewDec(1))
 					Expect(delegation.GetShares()).To(Equal(expShares), "expected delegation shares to be 2")
 
-					balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+					balRes, err = s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 					Expect(err).To(BeNil())
 					delegatorFinalBal := balRes.Balance
 					Expect(delegatorFinalBal.Amount).To(Equal(delegatorInitialBal.Amount.Sub(fees).Sub(delAmt).Add(transferToDelAmt)))
 
 					// check the bondedTokenPool is updated with the delegated tokens
-					balRes, err = s.grpcHandler.GetBalance(bondedTokensPoolAccAddr, s.bondDenom)
+					balRes, err = s.grpcHandler.GetBalanceFromBank(bondedTokensPoolAccAddr, s.bondDenom)
 					bondedTokensPoolFinalBalance := balRes.Balance
 					Expect(err).To(BeNil())
 					Expect(bondedTokensPoolFinalBalance.Amount).To(Equal(bondedTokensPoolInitialBalance.Amount.Add(delAmt)))
@@ -2942,13 +2942,13 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 					Expect(s.network.NextBlock()).To(BeNil())
 
 					// contract balance should remain unchanged
-					balRes, err := s.grpcHandler.GetBalance(contractTwoAddr.Bytes(), s.bondDenom)
+					balRes, err := s.grpcHandler.GetBalanceFromBank(contractTwoAddr.Bytes(), s.bondDenom)
 					Expect(err).To(BeNil())
 					contractFinalBal := balRes.Balance
 					Expect(contractFinalBal.Amount).To(Equal(contractInitialBalance.Amount))
 
 					// check the bondedTokenPool should remain unchanged
-					balRes, err = s.grpcHandler.GetBalance(bondedTokensPoolAccAddr, s.bondDenom)
+					balRes, err = s.grpcHandler.GetBalanceFromBank(bondedTokensPoolAccAddr, s.bondDenom)
 					Expect(err).To(BeNil())
 					bondedTokensPoolFinalBalance := balRes.Balance
 					Expect(bondedTokensPoolFinalBalance.Amount).To(Equal(bondedTokensPoolInitialBalance.Amount))
@@ -4379,7 +4379,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			// Set up funding for the contract address.
 			// NOTE: we are first asserting that no balance exists and then check successful
 			// funding afterwards.
-			resBal, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			resBal, err := s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil(), "error while getting balance")
 
 			balanceBefore := resBal.Balance
@@ -4389,7 +4389,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			Expect(err).To(BeNil(), "error while funding account")
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			resBal, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			resBal, err = s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil(), "error while getting balance")
 
 			balanceAfterFunding := resBal.Balance
@@ -4426,7 +4426,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			Expect(res.DelegationResponse).NotTo(BeNil())
 			Expect(res.DelegationResponse.Delegation.GetShares().BigInt()).To(Equal(delegationAmount), "expected different delegation shares")
 
-			resBal, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			resBal, err := s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil(), "error while getting balance")
 
 			postBalance := resBal.Balance
@@ -4455,7 +4455,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			resBal, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			resBal, err := s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil(), "error while getting balance")
 			balance := resBal.Balance
 
@@ -4484,7 +4484,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			resBal, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			resBal, err := s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil(), "error while getting balance")
 			balance := resBal.Balance
 
@@ -4515,7 +4515,7 @@ var _ = Describe("Calling staking precompile via Solidity", Ordered, func() {
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			resBal, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			resBal, err := s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil(), "error while getting balance")
 
 			balance := resBal.Balance

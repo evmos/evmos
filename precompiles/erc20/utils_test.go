@@ -373,7 +373,7 @@ type ExpectedBalance struct {
 func (is *IntegrationTestSuite) ExpectBalances(expBalances []ExpectedBalance) {
 	for _, expBalance := range expBalances {
 		for _, expCoin := range expBalance.expCoins {
-			coinBalance, err := is.handler.GetBalance(expBalance.address, expCoin.Denom)
+			coinBalance, err := is.handler.GetBalanceFromBank(expBalance.address, expCoin.Denom)
 			Expect(err).ToNot(HaveOccurred(), "expected no error getting balance")
 			Expect(coinBalance.Balance.Amount).To(Equal(expCoin.Amount), "expected different balance")
 		}
@@ -563,7 +563,7 @@ func (is *IntegrationTestSuite) fundWithTokens(
 	Expect(is.network.NextBlock()).To(BeNil())
 
 	if balanceInBankMod {
-		balRes, err := is.handler.GetBalance(receiver.Bytes(), fundCoins.Denoms()[0])
+		balRes, err := is.handler.GetBalanceFromBank(receiver.Bytes(), fundCoins.Denoms()[0])
 		Expect(err).To(BeNil())
 		receiverBalance = balRes.Balance.Amount
 	}
