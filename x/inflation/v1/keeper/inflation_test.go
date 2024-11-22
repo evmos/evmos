@@ -165,13 +165,13 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 
 				// Mint coins to increase supply
 				coin := sdk.NewCoin(
-					denomMint,
+					nw.GetBaseDenom(),
 					tc.bankSupply,
 				)
 				err := nw.App.InflationKeeper.MintCoins(ctx, coin)
 				require.NoError(t, err)
 
-				circulatingSupply := nw.App.InflationKeeper.GetCirculatingSupply(ctx, denomMint)
+				circulatingSupply := nw.App.InflationKeeper.GetCirculatingSupply(ctx, nw.GetBaseDenom())
 				expCirculatingSupply := math.LegacyNewDecFromInt(tc.bankSupply.Add(bondedAmount).Add(accsFreeAmount))
 				require.Equal(t, expCirculatingSupply, circulatingSupply)
 
@@ -184,7 +184,7 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 
 				expInflationRate := epochMintProvision.Mul(epochsPerPeriod).Quo(expCirculatingSupply).Mul(math.LegacyNewDec(100))
 
-				inflationRate := nw.App.InflationKeeper.GetInflationRate(ctx, denomMint)
+				inflationRate := nw.App.InflationKeeper.GetInflationRate(ctx, nw.GetBaseDenom())
 				require.Equal(t, expInflationRate, inflationRate)
 			})
 		}
