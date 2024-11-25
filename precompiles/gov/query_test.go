@@ -14,7 +14,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v20/precompiles/gov"
 	"github.com/evmos/evmos/v20/precompiles/testutil"
@@ -45,10 +45,10 @@ func (s *PrecompileTestSuite) TestGetVotes() {
 		{
 			name: "valid query",
 			malleate: func() []gov.WeightedVote {
-				err := s.network.App.GovKeeper.AddVote(s.network.GetContext(), 1, s.keyring.GetAccAddr(0), []*govv1.WeightedVoteOption{{Option: govv1.OptionYes, Weight: "1.0"}}, "")
+				err := s.network.App.GovKeeper.AddVote(s.network.GetContext(), 1, s.keyring.GetAccAddr(0), []*v1.WeightedVoteOption{{Option: v1.OptionYes, Weight: "1.0"}}, "")
 				s.Require().NoError(err)
 				return []gov.WeightedVote{
-					{ProposalId: 1, Voter: s.keyring.GetAddr(0), Options: []gov.WeightedVoteOption{{Option: uint8(govv1.OptionYes), Weight: "1.0"}}},
+					{ProposalId: 1, Voter: s.keyring.GetAddr(0), Options: []gov.WeightedVoteOption{{Option: uint8(v1.OptionYes), Weight: "1.0"}}},
 				}
 			},
 			args:     []interface{}{uint64(1), query.PageRequest{Limit: 10, CountTotal: true}},
@@ -107,7 +107,7 @@ func (s *PrecompileTestSuite) TestGetVote() {
 		{
 			name: "valid query",
 			malleate: func() {
-				err := s.network.App.GovKeeper.AddVote(s.network.GetContext(), 1, voter, []*govv1.WeightedVoteOption{{Option: govv1.OptionYes, Weight: "1.0"}}, "")
+				err := s.network.App.GovKeeper.AddVote(s.network.GetContext(), 1, voter, []*v1.WeightedVoteOption{{Option: v1.OptionYes, Weight: "1.0"}}, "")
 				s.Require().NoError(err)
 			},
 			propNumber:    uint64(1),
@@ -122,7 +122,7 @@ func (s *PrecompileTestSuite) TestGetVote() {
 			expPass:    false,
 			gas:        200_000,
 			malleate: func() {
-				err := s.network.App.GovKeeper.AddVote(s.network.GetContext(), 1, voter, []*govv1.WeightedVoteOption{{Option: govv1.OptionYes, Weight: "1.0"}}, "")
+				err := s.network.App.GovKeeper.AddVote(s.network.GetContext(), 1, voter, []*v1.WeightedVoteOption{{Option: v1.OptionYes, Weight: "1.0"}}, "")
 				s.Require().NoError(err)
 			},
 			errContains: "not found for proposal",
@@ -152,7 +152,7 @@ func (s *PrecompileTestSuite) TestGetVote() {
 			expVote := gov.WeightedVote{
 				ProposalId: tc.expPropNumber,
 				Voter:      common.BytesToAddress(voter.Bytes()),
-				Options:    []gov.WeightedVoteOption{{Option: uint8(govv1.OptionYes), Weight: "1.0"}},
+				Options:    []gov.WeightedVoteOption{{Option: uint8(v1.OptionYes), Weight: "1.0"}},
 				Metadata:   "",
 			}
 
@@ -307,7 +307,7 @@ func (s *PrecompileTestSuite) TestGetTallyResult() {
 				votingStarted, err := s.network.App.GovKeeper.AddDeposit(s.network.GetContext(), proposal.Id, s.keyring.GetAccAddr(0), sdk.NewCoins(sdk.NewCoin(s.network.GetBaseDenom(), math.NewInt(100))))
 				s.Require().NoError(err)
 				s.Require().True(votingStarted)
-				err = s.network.App.GovKeeper.AddVote(s.network.GetContext(), proposal.Id, s.keyring.GetAccAddr(0), govv1.NewNonSplitVoteOption(govv1.OptionYes), "")
+				err = s.network.App.GovKeeper.AddVote(s.network.GetContext(), proposal.Id, s.keyring.GetAccAddr(0), v1.NewNonSplitVoteOption(v1.OptionYes), "")
 				s.Require().NoError(err)
 				return gov.TallyResultData{
 					Yes:        "3000000000000000000",
@@ -404,7 +404,7 @@ func (s *PrecompileTestSuite) TestGetProposal() {
 			},
 			func(data *gov.ProposalData) {
 				s.Require().Equal(uint64(1), data.Id)
-				s.Require().Equal(uint32(govv1.StatusVotingPeriod), data.Status)
+				s.Require().Equal(uint32(v1.StatusVotingPeriod), data.Status)
 				s.Require().Equal(s.keyring.GetAddr(0), data.Proposer)
 				s.Require().Equal("test prop", data.Title)
 				s.Require().Equal("test prop", data.Summary)
@@ -465,7 +465,7 @@ func (s *PrecompileTestSuite) TestGetProposals() {
 			"success - get all proposals",
 			func() []interface{} {
 				return []interface{}{
-					uint32(govv1.StatusNil),
+					uint32(v1.StatusNil),
 					common.Address{},
 					common.Address{},
 					query.PageRequest{
@@ -480,7 +480,7 @@ func (s *PrecompileTestSuite) TestGetProposals() {
 
 				proposal := data[0]
 				s.Require().Equal(uint64(1), proposal.Id)
-				s.Require().Equal(uint32(govv1.StatusVotingPeriod), proposal.Status)
+				s.Require().Equal(uint32(v1.StatusVotingPeriod), proposal.Status)
 				s.Require().Equal(s.keyring.GetAddr(0), proposal.Proposer)
 				s.Require().Equal("test prop", proposal.Title)
 				s.Require().Equal("test prop", proposal.Summary)
@@ -496,7 +496,7 @@ func (s *PrecompileTestSuite) TestGetProposals() {
 			"success - filter by status",
 			func() []interface{} {
 				return []interface{}{
-					uint32(govv1.StatusVotingPeriod),
+					uint32(v1.StatusVotingPeriod),
 					common.Address{},
 					common.Address{},
 					query.PageRequest{
@@ -508,8 +508,8 @@ func (s *PrecompileTestSuite) TestGetProposals() {
 			func(data []gov.ProposalData, pageRes *query.PageResponse) {
 				s.Require().Len(data, 2)
 				s.Require().Equal(uint64(2), pageRes.Total)
-				s.Require().Equal(uint32(govv1.StatusVotingPeriod), data[0].Status)
-				s.Require().Equal(uint32(govv1.StatusVotingPeriod), data[1].Status)
+				s.Require().Equal(uint32(v1.StatusVotingPeriod), data[0].Status)
+				s.Require().Equal(uint32(v1.StatusVotingPeriod), data[1].Status)
 			},
 			200000,
 			false,
@@ -519,11 +519,11 @@ func (s *PrecompileTestSuite) TestGetProposals() {
 			"success - filter by voter",
 			func() []interface{} {
 				// First add a vote
-				err := s.network.App.GovKeeper.AddVote(s.network.GetContext(), 1, s.keyring.GetAccAddr(0), govv1.NewNonSplitVoteOption(govv1.OptionYes), "")
+				err := s.network.App.GovKeeper.AddVote(s.network.GetContext(), 1, s.keyring.GetAccAddr(0), v1.NewNonSplitVoteOption(v1.OptionYes), "")
 				s.Require().NoError(err)
 
 				return []interface{}{
-					uint32(govv1.StatusVotingPeriod),
+					uint32(v1.StatusVotingPeriod),
 					s.keyring.GetAddr(0),
 					common.Address{},
 					query.PageRequest{
@@ -544,7 +544,7 @@ func (s *PrecompileTestSuite) TestGetProposals() {
 			"success - filter by depositor",
 			func() []interface{} {
 				return []interface{}{
-					uint32(govv1.StatusVotingPeriod),
+					uint32(v1.StatusVotingPeriod),
 					common.Address{},
 					s.keyring.GetAddr(0),
 					query.PageRequest{
@@ -581,6 +581,86 @@ func (s *PrecompileTestSuite) TestGetProposals() {
 				s.Require().NoError(err)
 				tc.postCheck(out.Proposals, &out.PageResponse)
 			}
+		})
+	}
+}
+
+func (s *PrecompileTestSuite) TestGetParams() {
+	testCases := []struct {
+		name        string
+		malleate    func() []interface{}
+		postCheck   func()
+		expPass     bool
+		errContains string
+	}{
+		{
+			"fail - empty input args",
+			func() []interface{} {
+				return []interface{}{}
+			},
+			func() {},
+			false,
+			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 1, 0),
+		},
+		{
+			"fail - invalid params type",
+			func() []interface{} {
+				return []interface{}{123} // invalid type
+			},
+			func() {},
+			false,
+			"invalid type for paramsType",
+		},
+		{
+			"success - get deposit params",
+			func() []interface{} {
+				return []interface{}{
+					v1.ParamDeposit,
+				}
+			},
+			func() {},
+			true,
+			"",
+		},
+		{
+			"success - get voting params",
+			func() []interface{} {
+				return []interface{}{
+					v1.ParamVoting,
+				}
+			},
+			func() {},
+			true,
+			"",
+		},
+		{
+			"success - get tallying params",
+			func() []interface{} {
+				return []interface{}{
+					v1.ParamTallying,
+				}
+			},
+			func() {},
+			true,
+			"",
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(tc.name, func() {
+			s.SetupTest()
+
+			method := s.precompile.Methods[gov.GetParamsMethod]
+			_, err := s.precompile.GetParams(s.network.GetContext(), &method, nil, tc.malleate())
+
+			if tc.expPass {
+				s.Require().NoError(err)
+			} else {
+				s.Require().Error(err)
+				s.Require().Contains(err.Error(), tc.errContains)
+			}
+
+			tc.postCheck()
 		})
 	}
 }

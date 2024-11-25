@@ -209,6 +209,14 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 		})
 	})
 
+	Describe("Execute UpdateParams transaction", func() {
+		const method = gov.UpdateParamsMethod
+
+		BeforeEach(func() {
+			callArgs.MethodName = method
+		})
+	})
+
 	// =====================================
 	// 				QUERIES
 	// =====================================
@@ -656,6 +664,41 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				Expect(err).To(BeNil())
 
 				Expect(out.Proposals).To(HaveLen(1))
+			})
+		})
+
+		Context("params query", func() {
+			method := gov.GetParamsMethod
+			BeforeEach(func() {
+				callArgs.MethodName = method
+			})
+
+			It("should return all params", func() {
+				callArgs.Args = []interface{}{
+					"", // empty string to get all params
+				}
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
+				Expect(err).To(BeNil())
+
+				var output struct {
+					Params gov.ParamsOutput `json:"params"`
+				}
+				err = s.precompile.UnpackIntoInterface(&output, method, ethRes.Ret)
+				Expect(err).To(BeNil())
+
+				// Verify default params
+				Expect(output.Params.VotingPeriod).NotTo(BeNil())
+				Expect(output.Params.MaxDepositPeriod).NotTo(BeNil())
+				Expect(output.Params.MinDeposit).NotTo(BeNil())
+				Expect(output.Params.Quorum).NotTo(BeNil())
+				Expect(output.Params.Threshold).NotTo(BeNil())
+				Expect(output.Params.VetoThreshold).NotTo(BeNil())
 			})
 		})
 	})
