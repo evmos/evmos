@@ -15,6 +15,7 @@ import (
 	"github.com/evmos/evmos/v20/utils"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v20/x/feemarket/types"
 )
 
 // InitializeAppConfiguration allows to setup the global configuration
@@ -36,6 +37,12 @@ func InitializeAppConfiguration(chainID string) error {
 	baseDenom, err := sdk.GetBaseDenom()
 	if err != nil {
 		return err
+	}
+
+	if coinInfo.Decimals == evmtypes.SixDecimals {
+		feemarkettypes.DefaultBaseFee = math.LegacyNewDec(1)
+	} else {
+		feemarkettypes.DefaultBaseFee = math.LegacyNewDec(1_000_000_000)
 	}
 
 	ethCfg := evmtypes.DefaultChainConfig(chainID)

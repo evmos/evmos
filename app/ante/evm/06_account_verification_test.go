@@ -3,6 +3,7 @@ package evm_test
 import (
 	"fmt"
 	"math/big"
+	"strings"
 
 	"cosmossdk.io/math"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
@@ -12,14 +13,23 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v20/utils"
 	"github.com/evmos/evmos/v20/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
+
+	if strings.Contains(suite.chainID, utils.SixDecChainID) {
+		network.PrefundedAccountInitialBalance, _ = math.NewIntFromString("100_000_000_000")
+	} else {
+		network.PrefundedAccountInitialBalance, _ = math.NewIntFromString("100_000_000_000_000_000_000_000")
+	}
+
 	// Setup
 	keyring := testkeyring.New(2)
 	unitNetwork := network.NewUnitTestNetwork(
+		network.WithChainID(suite.chainID),
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
@@ -53,6 +63,14 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 				suite.Require().NoError(err)
 
 				// Make tx cost greater than balance
+				// balanceResp, err := grpcHandler.GetBalanceFromEVM(senderKey.AccAddr)
+				// suite.Require().NoError(err)
+
+				// balance, ok := math.NewIntFromString(balanceResp.Balance)
+				// suite.Require().True(ok)
+				// invalidAmount := balance.Add(math.NewInt(100))
+				// txArgs.Amount = invalidAmount.BigInt()
+
 				balanceResp, err := grpcHandler.GetBalanceFromBank(senderKey.AccAddr, unitNetwork.GetBaseDenom())
 				suite.Require().NoError(err)
 
@@ -98,7 +116,7 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 	}
 
 	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("%v_%v", evmtypes.GetTxTypeName(suite.ethTxType), tc.name), func() {
+		suite.Run(fmt.Sprintf("%v_%v_%v", evmtypes.GetTxTypeName(suite.ethTxType), suite.chainID, tc.name), func() {
 			// Perform test logic
 			statedbAccount, txArgs := tc.generateAccountAndArgs()
 			txData, err := txArgs.ToTxData()
