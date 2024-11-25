@@ -6,11 +6,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
 	"github.com/evmos/evmos/v20/precompiles/evidence"
 	"github.com/evmos/evmos/v20/precompiles/testutil"
-	testutiltx "github.com/evmos/evmos/v20/testutil/tx"
 )
 
 func (s *PrecompileTestSuite) TestSubmitEvidence() {
@@ -30,38 +28,7 @@ func (s *PrecompileTestSuite) TestSubmitEvidence() {
 			},
 			200000,
 			true,
-			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 2, 0),
-		},
-		{
-			"fail - invalid submitter address",
-			func() []interface{} {
-				return []interface{}{
-					common.Address{},
-					evidence.EquivocationData{},
-				}
-			},
-			200000,
-			true,
-			"invalid submitter address",
-		},
-		{
-			"fail - different origin from submitter",
-			func() []interface{} {
-				addr := testutiltx.GenerateAddress()
-				evidenceData := evidence.EquivocationData{
-					Height:           1,
-					Time:             uint64(time.Now().UTC().Unix()), //nolint:gosec // G115
-					Power:            1000,
-					ConsensusAddress: s.keyring.GetAccAddr(0).String(),
-				}
-				return []interface{}{
-					addr,
-					evidenceData,
-				}
-			},
-			200000,
-			true,
-			"does not match the submitter address",
+			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 1, 0),
 		},
 		{
 			"success - submit equivocation evidence",
@@ -82,7 +49,6 @@ func (s *PrecompileTestSuite) TestSubmitEvidence() {
 					ConsensusAddress: types.ConsAddress(valConsAddr).String(),
 				}
 				return []interface{}{
-					s.keyring.GetAddr(0),
 					evidenceData,
 				}
 			},

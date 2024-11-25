@@ -60,19 +60,14 @@ func (e EquivocationData) ToEquivocation() *evidencetypes.Equivocation {
 }
 
 // NewMsgSubmitEvidence creates a new MsgSubmitEvidence instance.
-func NewMsgSubmitEvidence(args []interface{}) (*evidencetypes.MsgSubmitEvidence, common.Address, error) {
-	if len(args) != 2 {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
+func NewMsgSubmitEvidence(origin common.Address, args []interface{}) (*evidencetypes.MsgSubmitEvidence, error) {
+	if len(args) != 1 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
 	}
 
-	submitterAddr, ok := args[0].(common.Address)
-	if !ok || submitterAddr == (common.Address{}) {
-		return nil, common.Address{}, fmt.Errorf("invalid submitter address")
-	}
-
-	equivocation, ok := args[1].(EquivocationData)
+	equivocation, ok := args[0].(EquivocationData)
 	if !ok {
-		return nil, common.Address{}, fmt.Errorf("invalid equivocation evidence")
+		return nil, fmt.Errorf("invalid equivocation evidence")
 	}
 
 	// Convert the EquivocationData to a types.Equivocation
@@ -80,12 +75,12 @@ func NewMsgSubmitEvidence(args []interface{}) (*evidencetypes.MsgSubmitEvidence,
 
 	// Create the MsgSubmitEvidence using the SDK msg builder
 	msg, err := evidencetypes.NewMsgSubmitEvidence(
-		sdk.AccAddress(submitterAddr.Bytes()),
+		sdk.AccAddress(origin.Bytes()),
 		evidence,
 	)
 	if err != nil {
-		return nil, common.Address{}, fmt.Errorf("failed to create evidence message: %w", err)
+		return nil, fmt.Errorf("failed to create evidence message: %w", err)
 	}
 
-	return msg, submitterAddr, nil
+	return msg, nil
 }

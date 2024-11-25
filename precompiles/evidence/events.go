@@ -19,7 +19,7 @@ const (
 )
 
 // EmitSubmitEvidenceEvent creates a new event emitted on a SubmitEvidence transaction.
-func (p Precompile) EmitSubmitEvidenceEvent(ctx sdk.Context, stateDB vm.StateDB, submitterAddress common.Address, evidenceHash []byte) error {
+func (p Precompile) EmitSubmitEvidenceEvent(ctx sdk.Context, stateDB vm.StateDB, origin common.Address, evidenceHash []byte) error {
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeSubmitEvidence]
 	topics := make([]common.Hash, 2)
@@ -28,7 +28,7 @@ func (p Precompile) EmitSubmitEvidenceEvent(ctx sdk.Context, stateDB vm.StateDB,
 	topics[0] = event.ID
 
 	var err error
-	topics[1], err = cmn.MakeTopic(submitterAddress)
+	topics[1], err = cmn.MakeTopic(origin)
 	if err != nil {
 		return err
 	}
