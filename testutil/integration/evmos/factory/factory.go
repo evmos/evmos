@@ -149,6 +149,8 @@ func (tf *IntegrationTxFactory) populateEvmTxArgsWithDefault(
 			txArgs.GasFeeCap = baseFeeResp.BaseFee.BigInt()
 		}
 	}
+	fmt.Println("GasFeeCap: ", txArgs.GasFeeCap)
+	fmt.Println("GasTipCap: ", txArgs.GasTipCap)
 
 	// If the gas limit is not set, estimate it
 	// through the /simulate endpoint.
@@ -159,6 +161,7 @@ func (tf *IntegrationTxFactory) populateEvmTxArgsWithDefault(
 		}
 		txArgs.GasLimit = gasLimit
 	}
+	fmt.Println("GasLimit: ", txArgs.GasLimit)
 
 	return txArgs, nil
 }
