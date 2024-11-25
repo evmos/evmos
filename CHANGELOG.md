@@ -45,6 +45,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [#2929](https://github.com/evmos/evmos/pull/2929) Distribution: scale balance change entries to the statedb journal to support different EVM denom precision.
 - (precompiles) [#2927](https://github.com/evmos/evmos/pull/2927) Erc20: scale balance change entries to the statedb journal to support different EVM denom precision.
 - (erc20) [#2962](https://github.com/evmos/evmos/pull/2962) Register ERC-20 code hash also for native ERC-20 extensions.
+- (evm) [#3000](https://github.com/evmos/evmos/pull/3000) Move population of access list with precompile addresses into EVM hook.
 
 ### Improvements
 
@@ -68,7 +69,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (deps) [#2967](https://github.com/evmos/evmos/pull/2967) Bump CometBFT to `v0.38.15`.
 - (precompiles) [#2943](https://github.com/evmos/evmos/pull/2943) Add WERC-20 precompile.
 - (precompiles) [#2966](https://github.com/evmos/evmos/pull/2966) Add safety check that ERC-20 precompiles cannot receive funds.
-- (evm) [#3000](https://github.com/evmos/evmos/pull/3000) Move population of access list with precompile addresses into EVM hook.
 
 ### Bug Fixes
 
