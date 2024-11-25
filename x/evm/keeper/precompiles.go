@@ -57,9 +57,13 @@ func (k *Keeper) GetPrecompilesCallHook(ctx sdktypes.Context) types.CallHook {
 			return err
 		}
 
+		// If the precompile instance is created, we have to update the EVM with
+		// only the recipient precompile and add it's address to the access list.
 		if found {
 			evm.WithPrecompiles(precompiles.Map, precompiles.Addresses)
+			evm.StateDB.AddAddressToAccessList(recipient)
 		}
+
 		return nil
 	}
 }
