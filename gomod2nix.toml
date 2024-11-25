@@ -655,8 +655,8 @@ schema = 3
     version = "v0.5.2"
     hash = "sha256-VKYxrrFb1nkX6Wu3tE5DoP9+fCttwSl9pgLN6567nck="
   [mod."github.com/stretchr/testify"]
-    version = "v1.9.0"
-    hash = "sha256-uUp/On+1nK+lARkTVtb5RxlW15zxtw2kaAFuIASA+J0="
+    version = "v1.10.0"
+    hash = "sha256-fJ4gnPr0vnrOhjQYQwJ3ARDKPsOtA7d4olQmQWR+wpI="
   [mod."github.com/subosito/gotenv"]
     version = "v1.6.0"
     hash = "sha256-LspbjTniiq2xAICSXmgqP7carwlNaLqnCTQfw2pa80A="
