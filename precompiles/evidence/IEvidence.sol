@@ -23,7 +23,7 @@ struct Equivocation {
 
 /// @author The Evmos Core Team
 /// @title Evidence Precompile Contract
-/// @dev The interface through which solidity contracts will interact with Evidence
+/// @dev The interface through which solidity contracts will interact with the x/evidence module
 interface IEvidence {
     /// @dev Event emitted when evidence is submitted
     /// @param submitter The address of the submitter
