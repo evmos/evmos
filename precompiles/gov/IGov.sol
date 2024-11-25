@@ -87,6 +87,17 @@ interface IGov {
     /// @param options the options for voter
     event VoteWeighted(address indexed voter, uint64 proposalId, WeightedVoteOption[] options);
 
+    /// @dev Deposit defines an Event emitted when a deposit is made on a proposal
+    /// @param proposalId the proposal id
+    /// @param depositor the address of the depositor
+    /// @param amount the deposit amount
+    event Deposit(uint64 indexed proposalId, address indexed depositor, Coin[] amount);
+
+    /// @dev CancelProposal defines an Event emitted when a proposal is canceled
+    /// @param proposalId the proposal id
+    /// @param proposer the address of the proposer
+    event CancelProposal(uint64 indexed proposalId, address indexed proposer);
+
     /// TRANSACTIONS
 
     /// @dev vote defines a method to add a vote on a specific proposal.
@@ -114,7 +125,29 @@ interface IGov {
         WeightedVoteOption[] calldata options,
         string memory metadata
     ) external returns (bool success);
-     
+
+    /// @dev deposit defines a method to add a deposit to a proposal
+    /// @param depositor The address of the depositor
+    /// @param proposalId The proposal id
+    /// @param amount The deposit amount
+    /// @return success Whether the transaction was successful or not
+    function deposit(
+        address depositor,
+        uint64 proposalId,
+        Coin[] calldata amount
+    ) external returns (bool success);
+
+    /// @dev cancelProposal defines a method to cancel a proposal
+    /// @param proposer The address of the proposer
+    /// @param proposalId The proposal id
+    /// @return success Whether the transaction was successful or not
+    /// @return canceledTime The time when the proposal was canceled
+    /// @return canceledHeight The height when the proposal was canceled
+    function cancelProposal(
+        address proposer,
+        uint64 proposalId
+    ) external returns (bool success, uint64 canceledTime, uint64 canceledHeight);
+
     /// QUERIES
 
     /// @dev getVote returns the vote of a single voter for a

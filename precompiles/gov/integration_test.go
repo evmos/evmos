@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/ethereum/go-ethereum/common"
+	cmn "github.com/evmos/evmos/v20/precompiles/common"
 	"github.com/evmos/evmos/v20/precompiles/gov"
 	"github.com/evmos/evmos/v20/precompiles/testutil"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
@@ -206,6 +207,66 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 			expectedAbstainCount := math.NewInt(9e17) // 30% of 3e18
 			Expect(tallyResult.AbstainCount).To(Equal(expectedAbstainCount.String()), "expected tally result no count updated")
+		})
+	})
+
+	Describe("Execute CancelProposal transaction", func() {
+		const method = gov.CancelProposalMethod
+
+		BeforeEach(func() {
+			callArgs.MethodName = method
+		})
+
+		It("should cancel proposal successfully", func() {
+			callArgs.Args = []interface{}{
+				s.keyring.GetAddr(0), proposalID,
+			}
+
+			cancelCheck := passCheck.WithExpEvents(gov.EventTypeCancelProposal)
+
+			_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, cancelCheck)
+			Expect(err).To(BeNil(), "error while calling the precompile")
+
+			// Check that the proposal was deleted
+			found, err := s.network.App.GovKeeper.Proposals.Has(s.network.GetContext(), proposalID)
+			Expect(err).To(BeNil())
+			Expect(found).To(BeFalse(), "expected proposal to be deleted")
+		})
+	})
+
+	Describe("Execute Deposit transaction", func() {
+		const method = gov.DepositMethod
+
+		BeforeEach(func() {
+			callArgs.MethodName = method
+		})
+
+		It("should deposit to proposal successfully", func() {
+			depositAmount := big.NewInt(1e18)
+			coins := []cmn.Coin{
+				{
+					Denom:  evmtypes.GetEVMCoinDenom(),
+					Amount: depositAmount,
+				},
+			}
+			callArgs.Args = []interface{}{
+				s.keyring.GetAddr(0),
+				proposalID,
+				coins,
+			}
+
+			depositCheck := passCheck.WithExpEvents(gov.EventTypeDeposit)
+
+			_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, depositCheck)
+			Expect(err).To(BeNil(), "error while calling the precompile")
+
+			// Check that the deposit was added
+			deposits, err := s.network.App.GovKeeper.GetDeposits(s.network.GetContext(), proposalID)
+			Expect(err).To(BeNil())
+			Expect(deposits).To(HaveLen(1))
+			// The initial deposit was 100 wei, so we add the new deposit amount
+			expectedAmount := big.NewInt(0).Add(big.NewInt(100), depositAmount)
+			Expect(deposits[0].Amount[0].Amount.BigInt()).To(Equal(expectedAmount))
 		})
 	})
 
