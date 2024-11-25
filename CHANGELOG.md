@@ -50,6 +50,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (gov) [#3004](https://github.com/evmos/evmos/pull/3004) Add `Deposit` and `CancelProposal` tx to gov precompile.
 - (slashing) [#2911](https://github.com/evmos/evmos/pull/2991) Add `slashing` precompile with `unjail` and `signingInfo`.
 - (gov) [#2976](https://github.com/evmos/evmos/pull/2976) Add `Proposals` and `Proposal` queries to gov precompile.
 - (testnet) [#2826](https://github.com/evmos/evmos/pull/2826) Fix command `evmosd testnet init-files` for validator_address is error.
