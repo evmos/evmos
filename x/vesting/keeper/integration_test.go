@@ -52,25 +52,24 @@ type KeeperTestSuite struct {
 
 // Initialize general error variable for easier handling in loops throughout this test suite.
 var (
-	numTestMsgs                     = 3
-	vestingAccInitialBalance        = network.PrefundedAccountInitialBalance
-	remainingAmtToPayFees           = math.NewInt(1e16)
-	gasLimit                 uint64 = 400_000
-	gasPrice                        = remainingAmtToPayFees.QuoRaw(int64(gasLimit))
-	dest                            = utiltx.GenerateAddress()
-	stakeDenom                      = evmostypes.BaseDenom
-	accountGasCoverage              = sdk.NewCoins(sdk.NewCoin(stakeDenom, remainingAmtToPayFees))
-	amt                             = testutil.TestVestingSchedule.VestedCoinsPerPeriod[0].Amount
-	cliff                           = testutil.TestVestingSchedule.CliffMonths
-	cliffLength                     = testutil.TestVestingSchedule.CliffPeriodLength
-	vestingAmtTotal                 = testutil.TestVestingSchedule.TotalVestingCoins
-	vestingLength                   = testutil.TestVestingSchedule.VestingPeriodLength
-	numLockupPeriods                = testutil.TestVestingSchedule.NumLockupPeriods
-	periodsTotal                    = testutil.TestVestingSchedule.NumVestingPeriods
-	lockup                          = testutil.TestVestingSchedule.LockupMonths
-	lockupLength                    = testutil.TestVestingSchedule.LockupPeriodLength
-	unlockedPerLockup               = testutil.TestVestingSchedule.UnlockedCoinsPerLockup
-	unlockedPerLockupAmt            = unlockedPerLockup[0].Amount
+	numTestMsgs                  = 3
+	remainingAmtToPayFees        = math.NewInt(1e16)
+	gasLimit              uint64 = 400_000
+	gasPrice                     = remainingAmtToPayFees.QuoRaw(int64(gasLimit))
+	dest                         = utiltx.GenerateAddress()
+	stakeDenom                   = evmostypes.BaseDenom
+	accountGasCoverage           = sdk.NewCoins(sdk.NewCoin(stakeDenom, remainingAmtToPayFees))
+	amt                          = testutil.TestVestingSchedule.VestedCoinsPerPeriod[0].Amount
+	cliff                        = testutil.TestVestingSchedule.CliffMonths
+	cliffLength                  = testutil.TestVestingSchedule.CliffPeriodLength
+	vestingAmtTotal              = testutil.TestVestingSchedule.TotalVestingCoins
+	vestingLength                = testutil.TestVestingSchedule.VestingPeriodLength
+	numLockupPeriods             = testutil.TestVestingSchedule.NumLockupPeriods
+	periodsTotal                 = testutil.TestVestingSchedule.NumVestingPeriods
+	lockup                       = testutil.TestVestingSchedule.LockupMonths
+	lockupLength                 = testutil.TestVestingSchedule.LockupPeriodLength
+	unlockedPerLockup            = testutil.TestVestingSchedule.UnlockedCoinsPerLockup
+	unlockedPerLockupAmt         = unlockedPerLockup[0].Amount
 )
 
 // Clawback vesting with Cliff and Lock. In this case the cliff is reached
@@ -84,15 +83,16 @@ var (
 // 23/02 Lock ends
 var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	var (
-		s                 *KeeperTestSuite
-		funder            keyring.Key
-		vestingAccs       []keyring.Key
-		clawbackAccount   *types.ClawbackVestingAccount
-		unvested          sdk.Coins
-		vested            sdk.Coins
-		freeCoins         sdk.Coins
-		twoThirdsOfVested sdk.Coins
-		initialFreeCoins  sdk.Coins
+		s                        *KeeperTestSuite
+		funder                   keyring.Key
+		vestingAccs              []keyring.Key
+		clawbackAccount          *types.ClawbackVestingAccount
+		unvested                 sdk.Coins
+		vested                   sdk.Coins
+		freeCoins                sdk.Coins
+		twoThirdsOfVested        sdk.Coins
+		initialFreeCoins         sdk.Coins
+		vestingAccInitialBalance math.Int
 	)
 
 	BeforeEach(func() {
@@ -128,6 +128,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		}
 
 		initialFreeCoins = sdk.NewCoins(sdk.NewCoin(stakeDenom, vestingAccInitialBalance.Sub(remainingAmtToPayFees)))
+		vestingAccInitialBalance = s.network.GetPrefundedAccountInitialBalance()
 	})
 	Context("before first vesting period", func() {
 		BeforeEach(func() {

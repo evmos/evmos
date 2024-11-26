@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
@@ -29,6 +30,8 @@ type Network interface {
 	GetBaseDenom() string
 	GetOtherDenoms() []string
 	GetValidators() []stakingtypes.Validator
+	GetDefaultBondedAmount() sdkmath.Int
+	GetPrefundedAccountInitialBalance() sdkmath.Int
 
 	NextBlock() error
 	NextBlockAfter(duration time.Duration) error

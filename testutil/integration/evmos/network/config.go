@@ -10,12 +10,14 @@ import (
 
 	"golang.org/x/exp/maps"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	testtx "github.com/evmos/evmos/v20/testutil/tx"
+	"github.com/evmos/evmos/v20/types"
 	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/utils"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
@@ -35,6 +37,10 @@ type Config struct {
 	otherCoinDenom     []string
 	operatorsAddrs     []sdktypes.AccAddress
 	customBaseAppOpts  []func(*baseapp.BaseApp)
+	// prefundedAccountInitialBalance is the initial balance of the pre-funded accounts
+	prefundedAccountInitialBalance InitialBalanaces
+	// defaultBondedAmount is the amount of tokens that each validator will have initially bonded
+	defaultBondedAmount sdkmath.Int
 }
 
 type CustomGenesisState map[string]interface{}
@@ -49,6 +55,7 @@ func DefaultConfig() Config {
 	if err != nil {
 		panic("chain ID with invalid eip155 value")
 	}
+
 	return Config{
 		chainID:            chainID,
 		eip155ChainID:      eip155ChainID,
@@ -57,8 +64,10 @@ func DefaultConfig() Config {
 		// Only one account besides the validators
 		preFundedAccounts: []sdktypes.AccAddress{account},
 		// NOTE: Per default, the balances are left empty, and the pre-funded accounts are used.
-		balances:           nil,
-		customGenesisState: nil,
+		balances:                       nil,
+		customGenesisState:             nil,
+		prefundedAccountInitialBalance: DefaultInitialBalances(),
+		defaultBondedAmount:            sdktypes.TokensFromConsensusPower(1, types.PowerReduction),
 	}
 }
 
@@ -76,7 +85,7 @@ func getGenAccountsAndBalances(cfg Config, validators []stakingtypes.Validator) 
 
 		denomDecimals := cfg.chainCoins.DenomDecimalsMap()
 		denoms := maps.Keys(denomDecimals)
-		balances = createBalances(cfg.preFundedAccounts, append(cfg.otherCoinDenom, denoms...), denomDecimals)
+		balances = createBalances(cfg.preFundedAccounts, append(cfg.otherCoinDenom, denoms...), denomDecimals, cfg.prefundedAccountInitialBalance)
 	}
 
 	// append validators to genesis accounts and balances
@@ -146,9 +155,11 @@ func WithBalances(balances ...banktypes.Balance) ConfigOption {
 
 // WithBaseCoin sets the denom and decimals for the base coin in the network.
 func WithBaseCoin(denom string, decimals uint8) ConfigOption {
+	newDecimals := evmtypes.Decimals(decimals)
 	return func(cfg *Config) {
 		cfg.chainCoins.baseCoin.Denom = denom
-		cfg.chainCoins.baseCoin.Decimals = evmtypes.Decimals(decimals)
+		cfg.chainCoins.baseCoin.Decimals = newDecimals
+		cfg.defaultBondedAmount = cfg.defaultBondedAmount.Mul(newDecimals.ConversionFactor())
 	}
 }
 

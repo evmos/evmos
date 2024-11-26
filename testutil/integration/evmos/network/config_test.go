@@ -24,19 +24,23 @@ func TestWithChainID(t *testing.T) {
 		name             string
 		chainID          string
 		denom            string
-		expBalanceCosmos math.Int
+		expBalanceCosmos func(math.Int) math.Int
 	}{
 		{
-			name:             "18 decimals",
-			chainID:          utils.MainnetChainID + "-1",
-			denom:            "aevmos",
-			expBalanceCosmos: network.PrefundedAccountInitialBalance,
+			name:    "18 decimals",
+			chainID: utils.MainnetChainID + "-1",
+			denom:   "aevmos",
+			expBalanceCosmos: func(evmBalance math.Int) math.Int {
+				return evmBalance
+			},
 		},
 		{
-			name:             "6 decimals",
-			chainID:          utils.SixDecChainID + "-1",
-			denom:            "asevmos",
-			expBalanceCosmos: network.PrefundedAccountInitialBalance.QuoRaw(1e12),
+			name:    "6 decimals",
+			chainID: utils.SixDecChainID + "-1",
+			denom:   "asevmos",
+			expBalanceCosmos: func(evmBalance math.Int) math.Int {
+				return evmBalance.QuoRaw(1e12)
+			},
 		},
 	}
 
@@ -50,18 +54,19 @@ func TestWithChainID(t *testing.T) {
 				network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 			}
 			nw := network.New(opts...)
+			initialBalance := nw.GetPrefundedAccountInitialBalance()
 
 			handler := grpchandler.NewIntegrationHandler(nw)
 
 			// Evm balance should always be in 18 decimals
 			req, err := handler.GetBalanceFromEVM(keyring.GetAccAddr(0))
 			require.NoError(t, err, "error getting balances")
-			require.Equal(t, network.PrefundedAccountInitialBalance.String(), req.Balance, "expected amount to be in 18 decimals")
+			require.Equal(t, initialBalance.String(), req.Balance, "expected amount to be in 18 decimals")
 
 			// Bank balance should always be in the original amount
 			cReq, err := handler.GetBalanceFromBank(keyring.GetAccAddr(0), tc.denom)
 			require.NoError(t, err, "error getting balances")
-			require.Equal(t, tc.expBalanceCosmos.String(), cReq.Balance.Amount.String(), "expected amount to be in original decimals")
+			require.Equal(t, tc.expBalanceCosmos(initialBalance).String(), cReq.Balance.Amount.String(), "expected amount to be in original decimals")
 		})
 	}
 }

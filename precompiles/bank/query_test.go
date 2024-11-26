@@ -23,7 +23,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 		malleate    func() []interface{}
 		expPass     bool
 		errContains string
-		expBalances func(evmosAddr, xmplAddr common.Address) []bank.Balance
+		expBalances func(evmosAddr, xmplAddr common.Address, network network.UnitTestNetwork) []bank.Balance
 	}{
 		{
 			"fail - invalid number of arguments",
@@ -56,7 +56,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 			},
 			true,
 			"",
-			func(common.Address, common.Address) []bank.Balance { return []bank.Balance{} },
+			func(common.Address, common.Address, network.UnitTestNetwork) []bank.Balance { return []bank.Balance{} },
 		},
 		{
 			"pass - Initial balances present",
@@ -67,15 +67,15 @@ func (s *PrecompileTestSuite) TestBalances() {
 			},
 			true,
 			"",
-			func(evmosAddr, xmplAddr common.Address) []bank.Balance {
+			func(evmosAddr, xmplAddr common.Address, network network.UnitTestNetwork) []bank.Balance {
 				return []bank.Balance{
 					{
 						ContractAddress: evmosAddr,
-						Amount:          network.PrefundedAccountInitialBalance.BigInt(),
+						Amount:          network.GetPrefundedAccountInitialBalance().BigInt(),
 					},
 					{
 						ContractAddress: xmplAddr,
-						Amount:          network.PrefundedAccountInitialBalance.BigInt(),
+						Amount:          network.GetPrefundedAccountInitialBalance().BigInt(),
 					},
 				}
 			},
@@ -90,13 +90,13 @@ func (s *PrecompileTestSuite) TestBalances() {
 			},
 			true,
 			"",
-			func(evmosAddr, xmplAddr common.Address) []bank.Balance {
+			func(evmosAddr, xmplAddr common.Address, network network.UnitTestNetwork) []bank.Balance {
 				return []bank.Balance{{
 					ContractAddress: evmosAddr,
-					Amount:          network.PrefundedAccountInitialBalance.BigInt(),
+					Amount:          network.GetPrefundedAccountInitialBalance().BigInt(),
 				}, {
 					ContractAddress: xmplAddr,
-					Amount:          network.PrefundedAccountInitialBalance.Add(math.NewInt(1e18)).BigInt(),
+					Amount:          network.GetPrefundedAccountInitialBalance().Add(math.NewInt(1e18)).BigInt(),
 				}}
 			},
 		},
@@ -118,7 +118,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 				var balances []bank.Balance
 				err = s.precompile.UnpackIntoInterface(&balances, method.Name, bz)
 				s.Require().NoError(err)
-				s.Require().Equal(tc.expBalances(s.evmosAddr, s.xmplAddr), balances)
+				s.Require().Equal(tc.expBalances(s.evmosAddr, s.xmplAddr, *s.network), balances)
 			} else {
 				s.Require().Contains(err.Error(), tc.errContains)
 			}

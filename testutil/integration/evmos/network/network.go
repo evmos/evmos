@@ -94,15 +94,6 @@ func New(opts ...ConfigOption) *IntegrationNetwork {
 	return network
 }
 
-var (
-	// DefaultBondedAmount is the amount of tokens that each validator will have initially bonded
-	DefaultBondedAmount = sdktypes.TokensFromConsensusPower(1, types.PowerReduction)
-	// PrefundedAccountInitialBalance is the amount of tokens that each
-	// prefunded account has at genesis. It represents a 100k amount expressed
-	// in the 18 decimals representation.
-	PrefundedAccountInitialBalance, _ = sdkmath.NewIntFromString("100_000_000_000_000_000_000_000")
-)
-
 // configureAndInitChain initializes the network with the given configuration.
 // It creates the genesis state and starts the network.
 func (n *IntegrationNetwork) configureAndInitChain() error {
@@ -111,15 +102,15 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	baseDecimals := n.cfg.chainCoins.BaseDecimals()
 	// 1e18/1e18 = 1
 	// 1e6/1e18 * 1e12 = 1e6/1e6 = 1
-	DefaultBondedAmount = DefaultBondedAmount.Mul(baseDecimals.ConversionFactor())
+	bondedAmount := n.cfg.defaultBondedAmount.Mul(baseDecimals.ConversionFactor())
 
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
 	valSet, valSigners := createValidatorSetAndSigners(n.cfg.amountOfValidators)
-	totalBonded := DefaultBondedAmount.Mul(sdkmath.NewInt(int64(n.cfg.amountOfValidators)))
+	totalBonded := bondedAmount.Mul(sdkmath.NewInt(int64(n.cfg.amountOfValidators)))
 
 	// Build staking type validators and delegations
-	validators, err := createStakingValidators(valSet.Validators, DefaultBondedAmount, n.cfg.operatorsAddrs)
+	validators, err := createStakingValidators(valSet.Validators, bondedAmount, n.cfg.operatorsAddrs)
 	if err != nil {
 		return err
 	}
@@ -355,4 +346,15 @@ func (n *IntegrationNetwork) CheckTx(txBytes []byte) (*abcitypes.ResponseCheckTx
 		return nil, err
 	}
 	return res, nil
+}
+
+// GetDefaultBondedAmount returns the default bonded amount.
+func (n *IntegrationNetwork) GetDefaultBondedAmount() sdkmath.Int {
+	return n.cfg.defaultBondedAmount
+}
+
+// GetPrefundedAccountInitialBalance returns the prefunded account initial
+// balance.
+func (n *IntegrationNetwork) GetPrefundedAccountInitialBalance() sdkmath.Int {
+	return n.cfg.prefundedAccountInitialBalance
 }

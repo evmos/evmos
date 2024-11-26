@@ -15,7 +15,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
 	"github.com/evmos/evmos/v20/precompiles/distribution"
-	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
 )
 
@@ -200,7 +199,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 				s.Require().Equal(coins[0].Amount.Int64(), expRewardsAmt.Int64())
 				// Check bank balance after the withdrawal of rewards
 				balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), s.baseDenom)
-				s.Require().True(balance.Amount.GT(network.PrefundedAccountInitialBalance))
+				s.Require().True(balance.Amount.GT(s.network.GetPrefundedAccountInitialBalance()))
 			},
 			20000,
 			false,
@@ -541,7 +540,7 @@ func (s *PrecompileTestSuite) TestFundCommunityPool() {
 				expectedAmount := new(big.Int).Mul(big.NewInt(1e18), new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(math.LegacyPrecision)), nil))
 				s.Require().Equal(expectedAmount, coins.AmountOf(s.baseDenom).BigInt())
 				userBalance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), s.baseDenom)
-				s.Require().Equal(network.PrefundedAccountInitialBalance.Sub(math.NewInt(1e18)), userBalance.Amount)
+				s.Require().Equal(s.network.GetPrefundedAccountInitialBalance().Sub(math.NewInt(1e18)), userBalance.Amount)
 			},
 			20000,
 			false,
@@ -559,7 +558,7 @@ func (s *PrecompileTestSuite) TestFundCommunityPool() {
 
 			// Sanity check to make sure the starting balance is always 100k EVMOS
 			balance := s.network.App.BankKeeper.GetBalance(ctx, s.keyring.GetAddr(0).Bytes(), s.baseDenom)
-			s.Require().Equal(balance.Amount, network.PrefundedAccountInitialBalance)
+			s.Require().Equal(balance.Amount, s.network.GetPrefundedAccountInitialBalance())
 
 			bz, err := s.precompile.FundCommunityPool(ctx, s.keyring.GetAddr(0), contract, s.network.GetStateDB(), &method, tc.malleate())
 
