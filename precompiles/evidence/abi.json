@@ -2,7 +2,7 @@
   "_format": "hh-sol-artifact-1",
   "contractName": "IEvidence",
   "sourceName": "solidity/precompiles/evidence/IEvidence.sol",
-  "abi":[
+  "abi": [
     {
       "anonymous": false,
       "inputs": [
