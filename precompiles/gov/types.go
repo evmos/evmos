@@ -635,7 +635,7 @@ func NewMsgUpdateParams(authority string, args []interface{}) (*v1.MsgUpdatePara
 
 	params, ok := args[0].(v1.Params)
 	if !ok {
-		return nil, fmt.Errorf(cmn.ErrInvalidType, "params", "Params", args[1])
+		return nil, fmt.Errorf(cmn.ErrInvalidType, "params", "Params", args[0])
 	}
 
 	return &v1.MsgUpdateParams{
