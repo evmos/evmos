@@ -170,8 +170,8 @@ schema = 3
     version = "v0.0.0-20230118201751-21c54148d20b"
     hash = "sha256-7dQH6j1o99fuxHKkw0RhNC5wJKkvRLMDJpUiVnDx6h8="
   [mod."github.com/cockroachdb/pebble"]
-    version = "v1.1.1"
-    hash = "sha256-trb29HS9x1VrL1DoUVxCeAp92iyNdjNxaSSzSlcPVUE="
+    version = "v1.1.2"
+    hash = "sha256-btyS8BkdGK15BtbIaPERmDQ2ayVw9S05ciJw1YhoTLk="
   [mod."github.com/cockroachdb/redact"]
     version = "v1.1.5"
     hash = "sha256-0rtT7LRO0wxf9XovOK8GXRrhmx8OcbdPK/mXOKbJdog="
@@ -194,8 +194,8 @@ schema = 3
     version = "v1.0.5"
     hash = "sha256-t572Sr5iiHcuMKLMWa2i+LBAt192oa+G1oA371tG/eI="
   [mod."github.com/cosmos/cosmos-db"]
-    version = "v1.0.2"
-    hash = "sha256-WjDoB2AGoIyEW30LlGcQX5JVACJbs0jWSY58IuJHz0M="
+    version = "v1.1.0"
+    hash = "sha256-yoexGS3k7EFnKwbsT19TbCxaSBScaREUGP7ZIEw53y8="
   [mod."github.com/cosmos/cosmos-proto"]
     version = "v1.0.0-beta.5"
     hash = "sha256-Fy/PbsOsd6iq0Njy3DVWK6HqWsogI+MkE8QslHGWyVg="
