@@ -24,6 +24,19 @@ service Msg {
   // UpdateParams defines a governance operation for updating the x/erc20 module parameters.
   // The authority is hard-coded to the Cosmos SDK x/gov module account
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  // TransferContractOwnership defines a Msg to transfer the ownership of the ERC20 token pair to the new owner
+  rpc TransferContractOwnership(MsgTransferOwnership) returns (MsgTransferOwnershipResponse); 
+
+  // Mint mints ERC20 tokens
+  rpc Mint(MsgMint) returns (MsgMintResponse) {
+    option (google.api.http).post = "/evmos/erc20/v1/tx/mint";
+  };
+  // Burn burns ERC20 tokens
+  rpc Burn(MsgBurn) returns (MsgBurnResponse) {
+    option (google.api.http).post = "/evmos/erc20/v1/tx/burn";
+  };
+
   // RegisterERC20 defines a governance operation for registering a token pair for the specified erc20 contract.
   // The authority is hard-coded to the Cosmos SDK x/gov module account
   rpc RegisterERC20(MsgRegisterERC20) returns (MsgRegisterERC20Response);
@@ -83,6 +96,49 @@ message MsgUpdateParams {
 // MsgUpdateParams message.
 // Since: cosmos-sdk 0.47
 message MsgUpdateParamsResponse {}
+
+// MsgTransferOwnership defines a Msg to transfer the ownership of the ERC20 token pair to the new owner
+message MsgTransferOwnership {
+  option (cosmos.msg.v1.signer) = "authority";
+
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  // token identifier can be either the hex contract address of the ERC20 or the
+  // Cosmos base denomination
+  string token = 2;
+  // new_owner is the hex address of the new owner
+  string new_owner = 3; 
+}
+
+// MsgTransferOwnershipResponse returns no fields
+message MsgTransferOwnershipResponse {}
+
+// MsgMint defines a Msg to mint ERC20 tokens
+message MsgMint {
+  option (cosmos.msg.v1.signer) = "sender";
+  // contract_address of an ERC20 token contract, that is registered in a token pair
+  string contract_address = 1;
+  // amount of ERC20 tokens to mint
+  string amount = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
+  // to is the address to mint the tokens to
+  string to = 3;
+  // sender is the address of the sender
+  string sender = 4;
+}
+
+message MsgMintResponse {}
+
+// MsgBurn defines a Msg to burn ERC20 tokens
+message MsgBurn {
+  option (cosmos.msg.v1.signer) = "sender";
+  // contract_address of an ERC20 token contract, that is registered in a token pair
+  string contract_address = 1;
+  // amount of ERC20 tokens to burn
+  string amount = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
+  // sender is the address of the sender
+  string sender = 3;
+}
+
+message MsgBurnResponse {}
 
 // MsgRegisterERC20 is the Msg/RegisterERC20 request type for registering
 // an Erc20 contract token pair.
