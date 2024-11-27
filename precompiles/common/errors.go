@@ -28,6 +28,8 @@ const (
 	ErrInvalidNumberOfArgs = "invalid number of arguments; expected %d; got: %d"
 	// ErrUnknownMethod is raised when the method is not known.
 	ErrUnknownMethod = "unknown method: %s"
+	// ErrInvalidMethodInputs is raised when the method does not have the expected inputs defined.
+	ErrInvalidMethodInputs = "invalid method inputs"
 	// ErrIntegerOverflow is raised when an integer overflow occurs.
 	ErrIntegerOverflow = "integer overflow when increasing allowance"
 	// ErrNegativeAmount is raised when an amount is negative.

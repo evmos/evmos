@@ -125,6 +125,9 @@ func NewMsgDeposit(method *abi.Method, args []interface{}) (*v1.MsgDeposit, comm
 		return nil, common.Address{}, fmt.Errorf(ErrInvalidProposalID, proposalID)
 	}
 
+	if len(method.Inputs) <= 2 {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidMethodInputs)
+	}
 	var amount []cmn.Coin
 	arguments := abi.Arguments{method.Inputs[2]}
 	if err := arguments.Copy(&amount, []interface{}{args[2]}); err != nil {
@@ -224,6 +227,9 @@ func NewMsgVoteWeighted(method *abi.Method, args []interface{}) (*v1.MsgVoteWeig
 	}
 
 	// Unpack the input struct
+	if len(method.Inputs) <= 2 {
+		return nil, common.Address{}, WeightedVoteOptions{}, fmt.Errorf(cmn.ErrInvalidMethodInputs)
+	}
 	var options WeightedVoteOptions
 	arguments := abi.Arguments{method.Inputs[2]}
 	if err := arguments.Copy(&options, []interface{}{args[2]}); err != nil {
