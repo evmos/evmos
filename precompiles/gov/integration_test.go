@@ -273,7 +273,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				coins,
 			}
 
-			depositCheck := defaultLogCheck.WithErrContains("failed ETH tx")
+			depositCheck := defaultLogCheck.WithErrContains("not found: key '999'")
 
 			_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, depositCheck)
 			Expect(err).To(BeNil())
