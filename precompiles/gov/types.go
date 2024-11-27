@@ -166,7 +166,7 @@ func NewMsgCancelProposal(args []interface{}) (*v1.MsgCancelProposal, common.Add
 
 	proposer, ok := args[0].(common.Address)
 	if !ok || proposer == (common.Address{}) {
-		return nil, common.Address{}, fmt.Errorf(ErrInvalidProposer)
+		return nil, common.Address{}, errors.New(ErrInvalidProposer)
 	}
 
 	proposalID, ok := args[1].(uint64)
