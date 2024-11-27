@@ -30,7 +30,7 @@ const (
 	// ErrInvalidDepositor invalid depositor.
 	ErrInvalidDepositor = "invalid depositor %s "
 	// ErrInvalidProposer invalid proposer.
-	ErrInvalidProposer = "invalid proposer %s "
+	ErrInvalidProposer = "invalid proposer"
 	// ErrInvalidDeposit invalid deposit.
 	ErrInvalidDeposit = "invalid deposit"
 )

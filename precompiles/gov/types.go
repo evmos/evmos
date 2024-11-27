@@ -122,7 +122,7 @@ func NewMsgDeposit(method *abi.Method, args []interface{}) (*v1.MsgDeposit, comm
 
 	proposalID, ok := args[1].(uint64)
 	if !ok {
-		return nil, common.Address{}, fmt.Errorf(ErrInvalidProposalID, proposalID)
+		return nil, common.Address{}, fmt.Errorf(ErrInvalidProposalID, args[1])
 	}
 
 	if len(method.Inputs) <= 2 {
@@ -157,13 +157,13 @@ func NewMsgCancelProposal(args []interface{}) (*v1.MsgCancelProposal, common.Add
 	}
 
 	proposer, ok := args[0].(common.Address)
-	if !ok {
-		return nil, common.Address{}, fmt.Errorf(ErrInvalidProposer, proposer)
+	if !ok || proposer == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(ErrInvalidProposer)
 	}
 
 	proposalID, ok := args[1].(uint64)
 	if !ok {
-		return nil, common.Address{}, fmt.Errorf(ErrInvalidProposalID, proposalID)
+		return nil, common.Address{}, fmt.Errorf(ErrInvalidProposalID, args[1])
 	}
 
 	msg := &v1.MsgCancelProposal{
