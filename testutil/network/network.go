@@ -106,7 +106,7 @@ func DefaultConfig() Config {
 		panic(fmt.Sprintf("failed creating temporary directory: %v", err))
 	}
 	defer os.RemoveAll(dir)
-	app := app.NewEvmos(log.NewNopLogger(), dbm.NewMemDB(), nil, true, nil, dir, 0, simutils.NewAppOptionsWithFlagHome(dir), baseapp.SetChainID(chainID))
+	app := app.NewEvmos(log.NewNopLogger(), dbm.NewMemDB(), nil, true, nil, dir, 0, simutils.NewAppOptionsWithFlagHome(dir), app.NoOpAppConfig, baseapp.SetChainID(chainID))
 	return Config{
 		Codec:             app.AppCodec(),
 		TxConfig:          app.GetTxConfig(),
@@ -137,6 +137,7 @@ func NewAppConstructor(chainID string) AppConstructor {
 		return app.NewEvmos(
 			val.Ctx.Logger, dbm.NewMemDB(), nil, true, make(map[int64]bool), val.Ctx.Config.RootDir, 0,
 			simutils.NewAppOptionsWithFlagHome(val.Ctx.Config.RootDir),
+			app.AppConfigurator,
 			baseapp.SetPruning(pruningtypes.NewPruningOptionsFromString(val.AppConfig.Pruning)),
 			baseapp.SetMinGasPrices(val.AppConfig.MinGasPrices),
 			baseapp.SetChainID(chainID),

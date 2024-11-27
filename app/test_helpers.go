@@ -90,6 +90,7 @@ func Setup(
 		db, nil, true, map[int64]bool{},
 		DefaultNodeHome, 5,
 		simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
+		AppConfigurator,
 		baseapp.SetChainID(chainID),
 	)
 	if !isCheckTx {
@@ -202,6 +203,7 @@ func SetupTestingApp(chainID string) func() (ibctesting.TestingApp, map[string]j
 			map[int64]bool{},
 			DefaultNodeHome, 5,
 			simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
+			AppConfigurator,
 			baseapp.SetChainID(chainID),
 		)
 		return app, app.DefaultGenesis()

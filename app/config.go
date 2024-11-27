@@ -7,35 +7,35 @@
 package app
 
 import (
+	"fmt"
 	"strings"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v20/app/eips"
-	"github.com/evmos/evmos/v20/utils"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
+type AppConfig func(string) error
+
 var sealed = false
 
-// InitializeAppConfiguration allows to setup the global configuration
-// for the Evmos EVM.
-func InitializeAppConfiguration(chainID string) error {
-	if sealed {
-		return nil
-	}
+func NoOpAppConfigurator(chainID string) error {
+	return nil
+}
 
-	// When calling any CLI command, it creates a tempApp inside RootCmdHandler with an empty chainID.
-	if chainID == "" {
+// AppConfigurator allows to setup the global configuration
+// for the Evmos chain.
+func AppConfigurator(chainID string) error {
+	if sealed {
 		return nil
 	}
 
 	id := strings.Split(chainID, "-")[0]
 	coinInfo, found := evmtypes.ChainsCoinInfo[id]
 	if !found {
-		// default to mainnet coin info
-		coinInfo = evmtypes.ChainsCoinInfo[utils.MainnetChainID]
+		return fmt.Errorf("unknown chain id: %s", chainID)
 	}
 
 	if err := setBaseDenom(coinInfo); err != nil {

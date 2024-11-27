@@ -79,6 +79,7 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		tempDir(app.DefaultNodeHome),
 		0,
 		emptyAppOptions{},
+		app.NoOpAppConfig,
 	)
 	encodingConfig := sdktestutil.TestEncodingConfig{
 		InterfaceRegistry: tempApp.InterfaceRegistry(),
@@ -144,7 +145,7 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 
 			// If the chainID was set in a flag or in the client.toml file, we can init the config here.
 			// NOTE: if it is not set, it will default to "" and the function will be a no-op call.
-			if err := app.InitializeAppConfiguration(initClientCtx.ChainID); err != nil {
+			if err := app.AppConfigurator(initClientCtx.ChainID); err != nil {
 				return fmt.Errorf("failed to initialize app configuration: %w", err)
 			}
 
@@ -366,6 +367,7 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		cast.ToUint(appOpts.Get(sdkserver.FlagInvCheckPeriod)),
 		appOpts,
+		app.AppConfigurator,
 		baseapp.SetPruning(pruningOpts),
 		baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(sdkserver.FlagMinGasPrices))),
 		baseapp.SetHaltHeight(cast.ToUint64(appOpts.Get(sdkserver.FlagHaltHeight))),
@@ -402,13 +404,13 @@ func (a appCreator) appExport(
 	}
 
 	if height != -1 {
-		evmosApp = app.NewEvmos(logger, db, traceStore, false, map[int64]bool{}, "", uint(1), appOpts)
+		evmosApp = app.NewEvmos(logger, db, traceStore, false, map[int64]bool{}, "", uint(1), appOpts, app.NoOpAppConfig)
 
 		if err := evmosApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		evmosApp = app.NewEvmos(logger, db, traceStore, true, map[int64]bool{}, "", uint(1), appOpts)
+		evmosApp = app.NewEvmos(logger, db, traceStore, true, map[int64]bool{}, "", uint(1), appOpts, app.NoOpAppConfig)
 	}
 
 	return evmosApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)

@@ -7,25 +7,28 @@
 package app
 
 import (
+	"fmt"
 	"strings"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v20/app/eips"
-	"github.com/evmos/evmos/v20/utils"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
-// InitializeAppConfiguration allows to setup the global configuration
+func NoOpAppConfigurator(chainID string) error {
+	return nil
+}
+
+// AppConfiguratorj allows to setup the global configuration
 // for tests within the Evmos EVM. We're not using the sealed flag
 // and resetting the configuration to the provided one on every test setup
-func InitializeAppConfiguration(chainID string) error {
+func AppConfigurator(chainID string) error {
 	id := strings.Split(chainID, "-")[0]
 	coinInfo, found := evmtypes.ChainsCoinInfo[id]
 	if !found {
-		// default to mainnet coin info
-		coinInfo = evmtypes.ChainsCoinInfo[utils.MainnetChainID]
+		return fmt.Errorf("unknown chain id: %s", chainID)
 	}
 
 	// set the base denom considering if its mainnet or testnet

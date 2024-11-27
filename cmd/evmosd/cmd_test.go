@@ -15,7 +15,7 @@ import (
 )
 
 func TestInitCmd(t *testing.T) {
-	err := app.InitializeAppConfiguration("evmos_9001-1")
+	err := app.AppConfigurator("evmos_9001-1")
 	require.NoError(t, err)
 	target := t.TempDir()
 
