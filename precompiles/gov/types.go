@@ -4,6 +4,7 @@
 package gov
 
 import (
+	"errors"
 	"fmt"
 
 	"cosmossdk.io/math"
@@ -135,13 +136,13 @@ func NewMsgDeposit(method *abi.Method, args []interface{}) (*v1.MsgDeposit, comm
 	}
 
 	if len(amount) == 0 {
-		return nil, common.Address{}, fmt.Errorf(ErrInvalidDeposit)
+		return nil, common.Address{}, errors.New(ErrInvalidDeposit)
 	}
 
 	coins := make([]sdk.Coin, len(amount))
 	for i, c := range amount {
 		if c.Amount.Sign() <= 0 {
-			return nil, common.Address{}, fmt.Errorf(ErrInvalidDeposit)
+			return nil, common.Address{}, errors.New(ErrInvalidDeposit)
 		}
 		coins[i] = sdk.Coin{
 			Denom:  c.Denom,

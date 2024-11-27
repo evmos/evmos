@@ -4,6 +4,7 @@
 package gov
 
 import (
+	"errors"
 	"fmt"
 
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
@@ -110,7 +111,7 @@ func (p Precompile) Deposit(
 
 	// Deposit must have length 1
 	if len(msg.Amount) != 1 {
-		return nil, fmt.Errorf(ErrInvalidDeposit)
+		return nil, errors.New(ErrInvalidDeposit)
 	}
 
 	// If the contract is the depositor, we don't need an origin check
