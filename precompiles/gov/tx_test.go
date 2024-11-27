@@ -367,8 +367,12 @@ func (s *PrecompileTestSuite) TestDeposit() {
 			func() {
 				deposits, err := s.network.App.GovKeeper.GetDeposits(ctx, proposalID)
 				s.Require().NoError(err)
+				s.Require().Len(deposits, 1, "expected exactly one deposit")
+
 				// 100 is the initial deposit
-				s.Require().Equal(math.NewInt(1e18).AddRaw(100), deposits[0].Amount[0].Amount.BigInt())
+				s.Require().Equal(math.NewInt(1e18).AddRaw(100).BigInt(), deposits[0].Amount[0].Amount.BigInt())
+				s.Require().Equal(evmtypes.GetEVMCoinDenom(), deposits[0].Amount[0].Denom)
+				s.Require().Equal(s.keyring.GetAccAddr(0).String(), deposits[0].Depositor)
 			},
 			200000,
 			false,
