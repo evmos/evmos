@@ -589,7 +589,6 @@ func (s *PrecompileTestSuite) TestGetParams() {
 	testCases := []struct {
 		name        string
 		malleate    func() []interface{}
-		postCheck   func()
 		expPass     bool
 		errContains string
 	}{
@@ -598,7 +597,6 @@ func (s *PrecompileTestSuite) TestGetParams() {
 			func() []interface{} {
 				return []interface{}{}
 			},
-			func() {},
 			false,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 1, 0),
 		},
@@ -607,7 +605,6 @@ func (s *PrecompileTestSuite) TestGetParams() {
 			func() []interface{} {
 				return []interface{}{123} // invalid type
 			},
-			func() {},
 			false,
 			"invalid type for paramsType",
 		},
@@ -618,7 +615,6 @@ func (s *PrecompileTestSuite) TestGetParams() {
 					v1.ParamDeposit,
 				}
 			},
-			func() {},
 			true,
 			"",
 		},
@@ -629,7 +625,6 @@ func (s *PrecompileTestSuite) TestGetParams() {
 					v1.ParamVoting,
 				}
 			},
-			func() {},
 			true,
 			"",
 		},
@@ -640,7 +635,6 @@ func (s *PrecompileTestSuite) TestGetParams() {
 					v1.ParamTallying,
 				}
 			},
-			func() {},
 			true,
 			"",
 		},
@@ -659,8 +653,6 @@ func (s *PrecompileTestSuite) TestGetParams() {
 				s.Require().Error(err)
 				s.Require().Contains(err.Error(), tc.errContains)
 			}
-
-			tc.postCheck()
 		})
 	}
 }
