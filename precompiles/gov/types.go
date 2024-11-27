@@ -134,8 +134,15 @@ func NewMsgDeposit(method *abi.Method, args []interface{}) (*v1.MsgDeposit, comm
 		return nil, common.Address{}, fmt.Errorf("error while unpacking args to Coins struct: %s", err)
 	}
 
+	if len(amount) == 0 {
+		return nil, common.Address{}, fmt.Errorf(ErrInvalidDeposit)
+	}
+
 	coins := make([]sdk.Coin, len(amount))
 	for i, c := range amount {
+		if c.Amount.Sign() <= 0 {
+			return nil, common.Address{}, fmt.Errorf(ErrInvalidDeposit)
+		}
 		coins[i] = sdk.Coin{
 			Denom:  c.Denom,
 			Amount: math.NewIntFromBigInt(c.Amount),
