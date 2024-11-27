@@ -236,9 +236,41 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 	Describe("Execute Deposit transaction", func() {
 		const method = gov.DepositMethod
+		const initialDeposit = 100 // wei
 
 		BeforeEach(func() {
 			callArgs.MethodName = method
+		})
+
+		It("should fail when depositing to non-existent proposal", func() {
+			depositAmount := big.NewInt(1e18)
+			coins := []cmn.Coin{{Denom: evmtypes.GetEVMCoinDenom(), Amount: depositAmount}}
+			callArgs.Args = []interface{}{
+				s.keyring.GetAddr(0),
+				uint64(999),
+				coins,
+			}
+
+			depositCheck := defaultLogCheck.WithErrContains("failed ETH tx")
+
+			_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, depositCheck)
+			Expect(err).To(BeNil())
+		})
+
+		It("should fail when depositing with insufficient funds", func() {
+			// Set up a large deposit amount that exceeds the account balance
+			depositAmount := big.NewInt(2).Mul(big.NewInt(1e18), big.NewInt(1_000_000_000))
+			coins := []cmn.Coin{{Denom: evmtypes.GetEVMCoinDenom(), Amount: depositAmount}}
+			callArgs.Args = []interface{}{
+				s.keyring.GetAddr(0),
+				proposalID,
+				coins,
+			}
+
+			depositCheck := defaultLogCheck.WithErrContains("insufficient funds")
+
+			_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, depositCheck)
+			Expect(err).To(BeNil())
 		})
 
 		It("should deposit to proposal successfully", func() {
@@ -265,7 +297,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			Expect(err).To(BeNil())
 			Expect(deposits).To(HaveLen(1))
 			// The initial deposit was 100 wei, so we add the new deposit amount
-			expectedAmount := big.NewInt(0).Add(big.NewInt(100), depositAmount)
+			expectedAmount := big.NewInt(0).Add(big.NewInt(initialDeposit), depositAmount)
 			Expect(deposits[0].Amount[0].Amount.BigInt()).To(Equal(expectedAmount))
 		})
 	})
