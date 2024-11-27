@@ -217,6 +217,28 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			callArgs.MethodName = method
 		})
 
+		It("should fail when canceling non-existent proposal", func() {
+			callArgs.Args = []interface{}{
+				s.keyring.GetAddr(0), uint64(999),
+			}
+
+			cancelCheck := defaultLogCheck.WithErrContains("not found: key '999'")
+
+			_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, cancelCheck)
+			Expect(err).To(BeNil())
+		})
+
+		It("should fail when canceling with not proposer address", func() {
+			callArgs.Args = []interface{}{
+				differentAddr, proposalID,
+			}
+
+			cancelCheck := defaultLogCheck.WithErrContains("does not match the proposer address")
+
+			_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, callArgs, cancelCheck)
+			Expect(err).To(BeNil())
+		})
+
 		It("should cancel proposal successfully", func() {
 			callArgs.Args = []interface{}{
 				s.keyring.GetAddr(0), proposalID,
