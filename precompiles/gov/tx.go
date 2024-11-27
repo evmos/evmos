@@ -130,6 +130,10 @@ func (p Precompile) Deposit(
 		// when calling the precompile from a smart contract
 		// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
 		// Need to scale the amount to 18 decimals for the EVM balance change entry
+		if len(msg.Amount) != 1 {
+			return nil, fmt.Errorf(ErrInvalidDeposit)
+		}
+
 		scaledAmt := evmtypes.ConvertAmountTo18DecimalsBigInt(msg.Amount[0].Amount.BigInt())
 		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(depositorAddr, scaledAmt, cmn.Sub))
 
