@@ -2,7 +2,6 @@ package gov_test
 
 import (
 	"fmt"
-	"math/big"
 
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 
@@ -368,7 +367,8 @@ func (s *PrecompileTestSuite) TestDeposit() {
 			func() {
 				deposits, err := s.network.App.GovKeeper.GetDeposits(ctx, proposalID)
 				s.Require().NoError(err)
-				s.Require().Equal(big.NewInt(1000000000000000100), deposits[0].Amount[0].Amount.BigInt())
+				// 100 is the initial deposit
+				s.Require().Equal(math.NewInt(1e18).AddRaw(100), deposits[0].Amount[0].Amount.BigInt())
 			},
 			200000,
 			false,
@@ -410,6 +410,19 @@ func (s *PrecompileTestSuite) TestCancelProposal() {
 		expError    bool
 		errContains string
 	}{
+		{
+			"fail - non-existent proposal",
+			func() []interface{} {
+				return []interface{}{
+					s.keyring.GetAddr(0),
+					uint64(999),
+				}
+			},
+			func() {},
+			200000,
+			true,
+			"not found: key",
+		},
 		{
 			"fail - empty input args",
 			func() []interface{} {
