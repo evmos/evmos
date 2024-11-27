@@ -31,6 +31,4 @@ const (
 	ErrInvalidDepositor = "invalid depositor %s "
 	// ErrInvalidProposer invalid proposer.
 	ErrInvalidProposer = "invalid proposer %s "
-	// ErrInvalidCoin invalid coin.
-	ErrInvalidCoin = "invalid coins %s "
 )

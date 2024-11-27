@@ -200,7 +200,7 @@ func (s *PrecompileTestSuite) TestDepositEvent() {
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[gov.EventTypeDeposit]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight())) //nolint:gosec // G115
+				s.Require().Equal(uint64(ctx.BlockHeight()), log.BlockNumber) //nolint:gosec // G115
 
 				// Check the fully unpacked event matches the one emitted
 				var depositEvent gov.EventDeposit
