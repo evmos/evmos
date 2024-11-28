@@ -79,7 +79,7 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		tempDir(app.DefaultNodeHome),
 		0,
 		emptyAppOptions{},
-		app.NoOpAppConfig,
+		app.NoOpAppConfigurator,
 	)
 	encodingConfig := sdktestutil.TestEncodingConfig{
 		InterfaceRegistry: tempApp.InterfaceRegistry(),
@@ -404,13 +404,13 @@ func (a appCreator) appExport(
 	}
 
 	if height != -1 {
-		evmosApp = app.NewEvmos(logger, db, traceStore, false, map[int64]bool{}, "", uint(1), appOpts, app.NoOpAppConfig)
+		evmosApp = app.NewEvmos(logger, db, traceStore, false, map[int64]bool{}, "", uint(1), appOpts, app.NoOpAppConfigurator)
 
 		if err := evmosApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		evmosApp = app.NewEvmos(logger, db, traceStore, true, map[int64]bool{}, "", uint(1), appOpts, app.NoOpAppConfig)
+		evmosApp = app.NewEvmos(logger, db, traceStore, true, map[int64]bool{}, "", uint(1), appOpts, app.NoOpAppConfigurator)
 	}
 
 	return evmosApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)

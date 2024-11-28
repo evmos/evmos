@@ -58,10 +58,11 @@ var _ Network = (*IntegrationNetwork)(nil)
 
 // IntegrationNetwork is the implementation of the Network interface for integration tests.
 type IntegrationNetwork struct {
-	cfg        Config
-	ctx        sdktypes.Context
-	validators []stakingtypes.Validator
-	app        *app.Evmos
+	cfg          Config
+	ctx          sdktypes.Context
+	validators   []stakingtypes.Validator
+	app          *app.Evmos
+	configurator app.AppConfig
 
 	// This is only needed for IBC chain testing setup
 	valSet     *cmttypes.ValidatorSet
@@ -94,7 +95,36 @@ func New(opts ...ConfigOption) *IntegrationNetwork {
 	return network
 }
 
+// New configures and initializes a new integration Network instance with
+// the given configuration options. If no configuration options are provided
+// it uses the default configuration.
+//
+// It panics if an error occurs.
+func NewWithConfigurator(configurator app.AppConfig, opts ...ConfigOption) *IntegrationNetwork {
+	cfg := DefaultConfig()
+	// Modify the default config with the given options
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+
+	ctx := sdktypes.Context{}
+	network := &IntegrationNetwork{
+		cfg:          cfg,
+		ctx:          ctx,
+		configurator: configurator,
+		validators:   []stakingtypes.Validator{},
+	}
+
+	err := network.configureAndInitChain()
+	if err != nil {
+		panic(err)
+	}
+	return network
+}
+
 var (
+	// DefaultBondedAmount is the amount of tokens that each validator will have initially bonded
+	InitialBondedAmount = sdktypes.TokensFromConsensusPower(1, types.PowerReduction)
 	// DefaultBondedAmount is the amount of tokens that each validator will have initially bonded
 	DefaultBondedAmount = sdktypes.TokensFromConsensusPower(1, types.PowerReduction)
 	// PrefundedAccountInitialBalance is the amount of tokens that each
@@ -108,10 +138,18 @@ var (
 func (n *IntegrationNetwork) configureAndInitChain() error {
 	// The bonded denom should be updated to reflect the actual base denom
 	// decimals.
+
 	baseDecimals := n.cfg.chainCoins.BaseDecimals()
 	// 1e18/1e18 = 1
 	// 1e6/1e18 * 1e12 = 1e6/1e6 = 1
-	DefaultBondedAmount = DefaultBondedAmount.Mul(baseDecimals.ConversionFactor())
+	DefaultBondedAmount = InitialBondedAmount.Mul(baseDecimals.ConversionFactor())
+
+	if n.configurator == nil {
+		n.configurator = app.AppConfigurator
+	}
+
+	// Create a new EvmosApp with the following params
+	evmosApp := createEvmosApp(n.cfg.chainID, n.configurator, n.cfg.customBaseAppOpts...)
 
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
@@ -133,9 +171,6 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	)
 
 	delegations := createDelegations(validators, genAccounts[0].GetAddress())
-
-	// Create a new EvmosApp with the following params
-	evmosApp := createEvmosApp(n.cfg.chainID, n.cfg.customBaseAppOpts...)
 
 	stakingParams := StakingCustomGenesisState{
 		denom:       n.cfg.chainCoins.BaseDenom(),
