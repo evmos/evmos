@@ -145,7 +145,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	DefaultBondedAmount = InitialBondedAmount.Mul(baseDecimals.ConversionFactor())
 
 	if n.configurator == nil {
-		n.configurator = app.AppConfigurator
+		n.configurator = Test18DecimalsAppConfigurator
 	}
 
 	// Create a new EvmosApp with the following params

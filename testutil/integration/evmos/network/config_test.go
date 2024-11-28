@@ -4,6 +4,7 @@
 package network_test
 
 import (
+	"fmt"
 	"testing"
 
 	"cosmossdk.io/math"
@@ -16,6 +17,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/utils"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 
 	"github.com/stretchr/testify/require"
 )
@@ -29,18 +31,16 @@ func TestWithChainID(t *testing.T) {
 		expBalanceCosmos math.Int
 	}{
 		{
-			name:             "18 decimals",
-			chainID:          utils.MainnetChainID + "-1",
-			denom:            "aevmos",
-			configurator:     network.Test18DecimalsAppConfigurator,
-			expBalanceCosmos: network.PrefundedAccountInitialBalance,
+			name:         "18 decimals",
+			chainID:      utils.MainnetChainID + "-1",
+			denom:        "aevmos",
+			configurator: network.Test18DecimalsAppConfigurator,
 		},
 		{
-			name:             "6 decimals",
-			chainID:          utils.SixDecChainID + "-1",
-			denom:            "asevmos",
-			configurator:     network.Test6DecimalsAppConfigurator,
-			expBalanceCosmos: network.PrefundedAccountInitialBalance.QuoRaw(1e12),
+			name:         "6 decimals",
+			chainID:      utils.SixDecChainID + "-1",
+			denom:        "asevmos",
+			configurator: network.Test6DecimalsAppConfigurator,
 		},
 	}
 
@@ -58,15 +58,17 @@ func TestWithChainID(t *testing.T) {
 
 			handler := grpchandler.NewIntegrationHandler(nw)
 
+			fmt.Println(network.PrefundedAccountInitialBalance.String())
 			// Evm balance should always be in 18 decimals
 			req, err := handler.GetBalanceFromEVM(keyring.GetAccAddr(0))
 			require.NoError(t, err, "error getting balances")
-			require.Equal(t, network.PrefundedAccountInitialBalance.String(), req.Balance, "expected amount to be in 18 decimals")
+			evmCoinDecimal := evmtypes.GetEVMCoinDecimals()
+			require.Equal(t, network.PrefundedAccountInitialBalance.Mul(evmCoinDecimal.ConversionFactor()).String(), req.Balance, "expected amount to be in 18 decimals")
 
 			// Bank balance should always be in the original amount
 			cReq, err := handler.GetBalanceFromBank(keyring.GetAccAddr(0), tc.denom)
 			require.NoError(t, err, "error getting balances")
-			require.Equal(t, tc.expBalanceCosmos.String(), cReq.Balance.Amount.String(), "expected amount to be in original decimals")
+			require.Equal(t, network.PrefundedAccountInitialBalance.String(), cReq.Balance.Amount.String(), "expected amount to be in original decimals")
 		})
 	}
 }

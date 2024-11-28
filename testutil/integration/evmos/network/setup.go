@@ -147,13 +147,13 @@ func createBalances(
 	coins := make([]sdktypes.Coin, len(denoms))
 	for i, denom := range denoms {
 		amount := PrefundedAccountInitialBalance
-		dec, found := denomsDecimals[denom]
-		// If the denom is not in the map, the 18 decimals representation is
-		// used.
-		if found {
-			// amount is expressed in 18 decimals so it should be scaled down.
-			amount = amount.Quo(dec.ConversionFactor())
-		}
+		// dec, found := denomsDecimals[denom]
+		// // If the denom is not in the map, the 18 decimals representation is
+		// // used.
+		// // if found {
+		// // 	// amount is expressed in 18 decimals so it should be scaled down.
+		// // 	amount = amount.Quo(dec.ConversionFactor())
+		// // }
 		coins[i] = sdktypes.NewCoin(denom, amount)
 	}
 	fundedAccountBalances := make([]banktypes.Balance, 0, numberOfAccounts)

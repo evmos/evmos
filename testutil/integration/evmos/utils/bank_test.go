@@ -6,6 +6,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/evmos/evmos/v20/app"
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
@@ -18,23 +19,26 @@ func TestCheckBalances(t *testing.T) {
 	address := keyring.GetAccAddr(0).String()
 
 	testcases := []struct {
-		name        string
-		decimals    uint8
-		expAmount   math.Int
-		expPass     bool
-		errContains string
+		name         string
+		decimals     uint8
+		expAmount    math.Int
+		expPass      bool
+		configurator app.AppConfig
+		errContains  string
 	}{
 		{
-			name:      "pass - eighteen decimals",
-			decimals:  18,
-			expAmount: network.PrefundedAccountInitialBalance,
-			expPass:   true,
+			name:         "pass - eighteen decimals",
+			decimals:     18,
+			expAmount:    network.PrefundedAccountInitialBalance,
+			configurator: network.Test18DecimalsAppConfigurator,
+			expPass:      true,
 		},
 		{
-			name:      "pass - six decimals",
-			decimals:  6,
-			expAmount: network.PrefundedAccountInitialBalance.Quo(math.NewInt(1e12)),
-			expPass:   true,
+			name:         "pass - six decimals",
+			decimals:     6,
+			expAmount:    network.PrefundedAccountInitialBalance,
+			configurator: network.Test6DecimalsAppConfigurator,
+			expPass:      true,
 		},
 		{
 			name:        "fail - wrong amount",
@@ -53,7 +57,8 @@ func TestCheckBalances(t *testing.T) {
 				),
 			}}
 
-			nw := network.New(
+			nw := network.NewWithConfigurator(
+				tc.configurator,
 				network.WithBaseCoin(testDenom, tc.decimals),
 				network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 			)

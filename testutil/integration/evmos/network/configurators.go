@@ -17,6 +17,6 @@ func Test18DecimalsAppConfigurator(chainID string) error {
 
 func Test6DecimalsAppConfigurator(chainID string) error {
 	feemarkettypes.DefaultBaseFee = math.LegacyNewDec(1)
-	// PrefundedAccountInitialBalance, _ = math.NewIntFromString("100_000_000_000")
+	PrefundedAccountInitialBalance, _ = math.NewIntFromString("100_000_000_000")
 	return app.AppConfigurator(chainID)
 }
