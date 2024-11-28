@@ -116,8 +116,8 @@ func (p Precompile) Deposit(
 
 	// If the contract is the depositor, we don't need an origin check
 	// Otherwise check if the origin matches the depositor address
-	isOriginDepositor := contract.CallerAddress == origin
-	isContractDepositor := contract.CallerAddress == depositorAddr && !isOriginDepositor
+	isOriginCaller := contract.CallerAddress == origin
+	isContractDepositor := contract.CallerAddress == depositorAddr && !isOriginCaller
 	if !isContractDepositor && origin != depositorAddr {
 		return nil, fmt.Errorf(ErrDifferentOriginDepositor, origin.String(), depositorAddr.String())
 	}
@@ -131,7 +131,7 @@ func (p Precompile) Deposit(
 		return nil, err
 	}
 
-	if !isOriginDepositor {
+	if !isOriginCaller {
 		// NOTE: This ensures that the changes in the bank keeper are correctly mirrored to the EVM stateDB
 		// when calling the precompile from a smart contract
 		// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
