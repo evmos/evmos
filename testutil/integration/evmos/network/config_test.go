@@ -4,7 +4,6 @@
 package network_test
 
 import (
-	"fmt"
 	"testing"
 
 	"cosmossdk.io/math"
@@ -24,23 +23,25 @@ import (
 
 func TestWithChainID(t *testing.T) {
 	testCases := []struct {
-		name             string
-		chainID          string
-		denom            string
-		configurator     app.AppConfig
-		expBalanceCosmos math.Int
+		name         string
+		chainID      string
+		denom        string
+		configurator app.AppConfig
+		expBaseFee   math.LegacyDec
 	}{
 		{
 			name:         "18 decimals",
 			chainID:      utils.MainnetChainID + "-1",
 			denom:        "aevmos",
 			configurator: network.Test18DecimalsAppConfigurator,
+			expBaseFee:   math.LegacyNewDec(875_000_000),
 		},
 		{
 			name:         "6 decimals",
 			chainID:      utils.SixDecChainID + "-1",
 			denom:        "asevmos",
 			configurator: network.Test6DecimalsAppConfigurator,
+			expBaseFee:   math.LegacyNewDecWithPrec(875, 3),
 		},
 	}
 
@@ -58,17 +59,44 @@ func TestWithChainID(t *testing.T) {
 
 			handler := grpchandler.NewIntegrationHandler(nw)
 
-			fmt.Println(network.PrefundedAccountInitialBalance.String())
-			// Evm balance should always be in 18 decimals
+			// ------------------------------------------------------------------------------------
+			// Checks on initial balances.
+			// ------------------------------------------------------------------------------------
+
+			// Evm balance should always be in 18 decimals regardless of the
+			// chain ID.
 			req, err := handler.GetBalanceFromEVM(keyring.GetAccAddr(0))
 			require.NoError(t, err, "error getting balances")
+			// We retrieve the decimals used for the EVM coin used based on the
+			// chain ID.
 			evmCoinDecimal := evmtypes.GetEVMCoinDecimals()
-			require.Equal(t, network.PrefundedAccountInitialBalance.Mul(evmCoinDecimal.ConversionFactor()).String(), req.Balance, "expected amount to be in 18 decimals")
+			require.Equal(t,
+				network.PrefundedAccountInitialBalance.Mul(evmCoinDecimal.ConversionFactor()).String(),
+				req.Balance,
+				"expected amount to be in 18 decimals",
+			)
 
-			// Bank balance should always be in the original amount
+			// Bank balance should always be in the original amount.
 			cReq, err := handler.GetBalanceFromBank(keyring.GetAccAddr(0), tc.denom)
 			require.NoError(t, err, "error getting balances")
-			require.Equal(t, network.PrefundedAccountInitialBalance.String(), cReq.Balance.Amount.String(), "expected amount to be in original decimals")
+			require.Equal(t,
+				network.PrefundedAccountInitialBalance.String(),
+				cReq.Balance.Amount.String(),
+				"expected amount to be in original decimals",
+			)
+
+			// ------------------------------------------------------------------------------------
+			// Checks on the base fee.
+			// ------------------------------------------------------------------------------------
+			// Base fee should always be represented with the decimal
+			// representation of the EVM denom coin.
+			bfResp, err := handler.GetBaseFee()
+			require.NoError(t, err, "error getting base fee")
+			require.Equal(t,
+				tc.expBaseFee.String(),
+				bfResp.BaseFee.String(),
+				"expected amount to be in 18 decimals",
+			)
 		})
 	}
 }
