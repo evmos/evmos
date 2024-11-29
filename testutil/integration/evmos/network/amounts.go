@@ -6,7 +6,6 @@ import (
 	"math/big"
 
 	"cosmossdk.io/math"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v20/types"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 
@@ -55,7 +54,7 @@ func GetInitialBondedAmount(decimals evmtypes.Decimals) math.Int {
 	// initialBondedAmount represents the amount of tokens that each validator will
 	// have initially bonded expressed in the 18 decimals representation.
 	sdk.DefaultPowerReduction = math.NewIntFromBigInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(decimals)), nil))
-	initialBondedAmount := sdktypes.TokensFromConsensusPower(1, types.PowerReduction)
+	initialBondedAmount := sdk.TokensFromConsensusPower(1, types.PowerReduction)
 
 	// Since
 	return initialBondedAmount.Quo(decimals.ConversionFactor())
