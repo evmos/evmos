@@ -23,25 +23,28 @@ import (
 
 func TestWithChainID(t *testing.T) {
 	testCases := []struct {
-		name         string
-		chainID      string
-		denom        string
-		configurator app.AppConfig
-		expBaseFee   math.LegacyDec
+		name            string
+		chainID         string
+		denom           string
+		configurator    app.AppConfig
+		expBaseFee      math.LegacyDec
+		expCosmosAmount math.Int
 	}{
 		{
-			name:         "18 decimals",
-			chainID:      utils.MainnetChainID + "-1",
-			denom:        "aevmos",
-			configurator: network.Test18DecimalsAppConfigurator,
-			expBaseFee:   math.LegacyNewDec(875_000_000),
+			name:            "18 decimals",
+			chainID:         utils.MainnetChainID + "-1",
+			denom:           "aevmos",
+			configurator:    network.Test18DecimalsAppConfigurator,
+			expBaseFee:      math.LegacyNewDec(875_000_000),
+			expCosmosAmount: network.GetInitialAmount(evmtypes.EighteenDecimals),
 		},
 		{
-			name:         "6 decimals",
-			chainID:      utils.SixDecChainID + "-1",
-			denom:        "asevmos",
-			configurator: network.Test6DecimalsAppConfigurator,
-			expBaseFee:   math.LegacyNewDecWithPrec(875, 3),
+			name:            "6 decimals",
+			chainID:         utils.SixDecChainID + "-1",
+			denom:           "asevmos",
+			configurator:    network.Test6DecimalsAppConfigurator,
+			expBaseFee:      math.LegacyNewDecWithPrec(875, 3),
+			expCosmosAmount: network.GetInitialAmount(evmtypes.SixDecimals),
 		},
 	}
 
@@ -67,11 +70,8 @@ func TestWithChainID(t *testing.T) {
 			// chain ID.
 			req, err := handler.GetBalanceFromEVM(keyring.GetAccAddr(0))
 			require.NoError(t, err, "error getting balances")
-			// We retrieve the decimals used for the EVM coin used based on the
-			// chain ID.
-			evmCoinDecimal := evmtypes.GetEVMCoinDecimals()
 			require.Equal(t,
-				network.PrefundedAccountInitialBalance.Mul(evmCoinDecimal.ConversionFactor()).String(),
+				network.GetInitialAmount(evmtypes.EighteenDecimals).String(),
 				req.Balance,
 				"expected amount to be in 18 decimals",
 			)
@@ -80,7 +80,7 @@ func TestWithChainID(t *testing.T) {
 			cReq, err := handler.GetBalanceFromBank(keyring.GetAccAddr(0), tc.denom)
 			require.NoError(t, err, "error getting balances")
 			require.Equal(t,
-				network.PrefundedAccountInitialBalance.String(),
+				tc.expCosmosAmount.String(),
 				cReq.Balance.Amount.String(),
 				"expected amount to be in original decimals",
 			)

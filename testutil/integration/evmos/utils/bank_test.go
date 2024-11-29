@@ -10,6 +10,7 @@ import (
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -21,22 +22,22 @@ func TestCheckBalances(t *testing.T) {
 	testcases := []struct {
 		name         string
 		decimals     uint8
+		configurator app.AppConfig
 		expAmount    math.Int
 		expPass      bool
-		configurator app.AppConfig
 		errContains  string
 	}{
 		{
 			name:         "pass - eighteen decimals",
 			decimals:     18,
-			expAmount:    network.PrefundedAccountInitialBalance,
+			expAmount:    network.GetInitialAmount(evmtypes.EighteenDecimals),
 			configurator: network.Test18DecimalsAppConfigurator,
 			expPass:      true,
 		},
 		{
 			name:         "pass - six decimals",
 			decimals:     6,
-			expAmount:    network.PrefundedAccountInitialBalance,
+			expAmount:    network.GetInitialAmount(evmtypes.SixDecimals),
 			configurator: network.Test6DecimalsAppConfigurator,
 			expPass:      true,
 		},

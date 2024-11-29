@@ -10,6 +10,7 @@ import (
 	"time"
 
 	sdkmath "cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	gethparams "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v20/app"
@@ -122,6 +123,7 @@ func NewWithConfigurator(configurator app.AppConfig, opts ...ConfigOption) *Inte
 	return network
 }
 
+// TODO: remove these
 var (
 	// DefaultBondedAmount is the amount of tokens that each validator will have initially bonded
 	InitialBondedAmount = sdktypes.TokensFromConsensusPower(1, types.PowerReduction)
@@ -136,33 +138,36 @@ var (
 // configureAndInitChain initializes the network with the given configuration.
 // It creates the genesis state and starts the network.
 func (n *IntegrationNetwork) configureAndInitChain() error {
-	// The bonded denom should be updated to reflect the actual base denom
+	// --------------------------------------------------------------------------------------------
+	// Apply changes deriving from possible config options
+	// FIX: for sure there exists a better way to achieve that.
+	// --------------------------------------------------------------------------------------------
+	// The bonded amount should be updated to reflect the actual base denom
 	// decimals.
-
 	baseDecimals := n.cfg.chainCoins.BaseDecimals()
-	// 1e18/1e18 = 1
-	// 1e6/1e18 * 1e12 = 1e6/1e6 = 1
-	DefaultBondedAmount = InitialBondedAmount.Mul(baseDecimals.ConversionFactor())
-
-	if n.configurator == nil {
-		n.configurator = Test18DecimalsAppConfigurator
-	}
+	bondedAmount := GetInitialBondedAmount(baseDecimals)
 
 	// Create a new EvmosApp with the following params
-	evmosApp := createEvmosApp(n.cfg.chainID, n.configurator, n.cfg.customBaseAppOpts...)
+	evmosApp := createEvmosApp(
+		n.cfg.chainID,
+		app.AppConfigurator,
+		n.cfg.customBaseAppOpts...,
+	)
 
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
 	valSet, valSigners := createValidatorSetAndSigners(n.cfg.amountOfValidators)
-	totalBonded := DefaultBondedAmount.Mul(sdkmath.NewInt(int64(n.cfg.amountOfValidators)))
+	totalBonded := bondedAmount.Mul(sdkmath.NewInt(int64(n.cfg.amountOfValidators)))
 
+	fmt.Println("Bonded amount: ", bondedAmount)
+	fmt.Println("Power reduction: ", sdk.DefaultPowerReduction)
 	// Build staking type validators and delegations
-	validators, err := createStakingValidators(valSet.Validators, DefaultBondedAmount, n.cfg.operatorsAddrs)
+	validators, err := createStakingValidators(valSet.Validators, bondedAmount, n.cfg.operatorsAddrs)
 	if err != nil {
 		return err
 	}
 
-	// Create genesis accounts and funded balances based on the config
+	// Create genesis accounts and funded balances based on the config.
 	genAccounts, fundedAccountBalances := getGenAccountsAndBalances(n.cfg, validators)
 
 	fundedAccountBalances = addBondedModuleAccountToFundedBalances(
@@ -187,6 +192,11 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		balances:    fundedAccountBalances,
 	}
 
+	// Base fee should be adapted to the configured base decimals.
+	fmParams := FeeMarketCustomGenesisState{
+		baseFee: GetInitialBaseFeeAmount(n.cfg.chainCoins.BaseDecimals()),
+	}
+
 	// Get the corresponding slashing info and missed block info
 	// for the created validators
 	slashingParams, err := getValidatorsSlashingGen(validators, evmosApp.StakingKeeper)
@@ -203,6 +213,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 			bank:        bankParams,
 			slashing:    slashingParams,
 			gov:         govParams,
+			feeMarket:   fmParams,
 		},
 	)
 
