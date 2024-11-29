@@ -17,7 +17,7 @@ import (
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
-type Config func(string) error
+type ConfigFn func(string) error
 
 func NoOpConfigurator(chainID string) error {
 	return nil
