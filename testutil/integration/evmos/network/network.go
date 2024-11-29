@@ -10,7 +10,6 @@ import (
 	"time"
 
 	sdkmath "cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	gethparams "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v20/app"
@@ -159,8 +158,6 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	valSet, valSigners := createValidatorSetAndSigners(n.cfg.amountOfValidators)
 	totalBonded := bondedAmount.Mul(sdkmath.NewInt(int64(n.cfg.amountOfValidators)))
 
-	fmt.Println("Bonded amount: ", bondedAmount)
-	fmt.Println("Power reduction: ", sdk.DefaultPowerReduction)
 	// Build staking type validators and delegations
 	validators, err := createStakingValidators(valSet.Validators, bondedAmount, n.cfg.operatorsAddrs)
 	if err != nil {
