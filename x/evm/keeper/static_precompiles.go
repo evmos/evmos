@@ -8,6 +8,8 @@ import (
 	"maps"
 	"slices"
 
+	evidencekeeper "cosmossdk.io/x/evidence/keeper"
+
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
@@ -18,6 +20,7 @@ import (
 	bankprecompile "github.com/evmos/evmos/v20/precompiles/bank"
 	"github.com/evmos/evmos/v20/precompiles/bech32"
 	distprecompile "github.com/evmos/evmos/v20/precompiles/distribution"
+	evidenceprecompile "github.com/evmos/evmos/v20/precompiles/evidence"
 	govprecompile "github.com/evmos/evmos/v20/precompiles/gov"
 	ics20precompile "github.com/evmos/evmos/v20/precompiles/ics20"
 	"github.com/evmos/evmos/v20/precompiles/p256"
@@ -47,6 +50,7 @@ func NewAvailableStaticPrecompiles(
 	channelKeeper channelkeeper.Keeper,
 	govKeeper govkeeper.Keeper,
 	slashingKeeper slashingkeeper.Keeper,
+	evidenceKeeper evidencekeeper.Keeper,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
@@ -103,6 +107,11 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate slashing precompile: %w", err))
 	}
 
+	evidencePrecompile, err := evidenceprecompile.NewPrecompile(evidenceKeeper, authzKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to instantiate evidence precompile: %w", err))
+	}
+
 	// Stateless precompiles
 	precompiles[bech32Precompile.Address()] = bech32Precompile
 	precompiles[p256Precompile.Address()] = p256Precompile
@@ -115,6 +124,8 @@ func NewAvailableStaticPrecompiles(
 	precompiles[bankPrecompile.Address()] = bankPrecompile
 	precompiles[govPrecompile.Address()] = govPrecompile
 	precompiles[slashingPrecompile.Address()] = slashingPrecompile
+	precompiles[evidencePrecompile.Address()] = evidencePrecompile
+
 	return precompiles
 }
 

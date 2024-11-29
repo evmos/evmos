@@ -541,6 +541,7 @@ func NewEvmos(
 			app.IBCKeeper.ChannelKeeper,
 			app.GovKeeper,
 			app.SlashingKeeper,
+			app.EvidenceKeeper,
 		),
 	)
 
