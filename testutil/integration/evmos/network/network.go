@@ -95,33 +95,6 @@ func New(opts ...ConfigOption) *IntegrationNetwork {
 	return network
 }
 
-// New configures and initializes a new integration Network instance with
-// the given configuration options. If no configuration options are provided
-// it uses the default configuration.
-//
-// It panics if an error occurs.
-func NewWithConfigurator(configurator app.ConfigFn, opts ...ConfigOption) *IntegrationNetwork {
-	cfg := DefaultConfig()
-	// Modify the default config with the given options
-	for _, opt := range opts {
-		opt(&cfg)
-	}
-
-	ctx := sdktypes.Context{}
-	network := &IntegrationNetwork{
-		cfg:          cfg,
-		ctx:          ctx,
-		configurator: configurator,
-		validators:   []stakingtypes.Validator{},
-	}
-
-	err := network.configureAndInitChain()
-	if err != nil {
-		panic(err)
-	}
-	return network
-}
-
 // TODO: remove these
 var (
 	// DefaultBondedAmount is the amount of tokens that each validator will have initially bonded

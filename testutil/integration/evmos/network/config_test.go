@@ -10,7 +10,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/evmos/evmos/v20/app"
 	grpchandler "github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
@@ -26,7 +25,6 @@ func TestWithChainID(t *testing.T) {
 		name            string
 		chainID         string
 		denom           string
-		configurator    app.ConfigFn
 		expBaseFee      math.LegacyDec
 		expCosmosAmount math.Int
 	}{
@@ -34,7 +32,6 @@ func TestWithChainID(t *testing.T) {
 			name:            "18 decimals",
 			chainID:         utils.MainnetChainID + "-1",
 			denom:           "aevmos",
-			configurator:    app.Configurator,
 			expBaseFee:      math.LegacyNewDec(875_000_000),
 			expCosmosAmount: network.GetInitialAmount(evmtypes.EighteenDecimals),
 		},
@@ -42,7 +39,6 @@ func TestWithChainID(t *testing.T) {
 			name:            "6 decimals",
 			chainID:         utils.SixDecChainID + "-1",
 			denom:           "asevmos",
-			configurator:    app.Configurator,
 			expBaseFee:      math.LegacyNewDecWithPrec(875, 3),
 			expCosmosAmount: network.GetInitialAmount(evmtypes.SixDecimals),
 		},
@@ -58,7 +54,7 @@ func TestWithChainID(t *testing.T) {
 				network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 			}
 
-			nw := network.NewWithConfigurator(tc.configurator, opts...)
+			nw := network.New(opts...)
 
 			handler := grpchandler.NewIntegrationHandler(nw)
 
