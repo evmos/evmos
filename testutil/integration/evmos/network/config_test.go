@@ -26,7 +26,7 @@ func TestWithChainID(t *testing.T) {
 		name            string
 		chainID         string
 		denom           string
-		configurator    app.AppConfig
+		configurator    app.ConfigFn
 		expBaseFee      math.LegacyDec
 		expCosmosAmount math.Int
 	}{

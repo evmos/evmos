@@ -8,9 +8,9 @@ import (
 )
 
 func Test18DecimalsAppConfigurator(chainID string) error {
-	return app.AppConfigurator(chainID)
+	return app.Configurator(chainID)
 }
 
 func Test6DecimalsAppConfigurator(chainID string) error {
-	return app.AppConfigurator(chainID)
+	return app.Configurator(chainID)
 }

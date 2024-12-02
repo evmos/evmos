@@ -17,17 +17,17 @@ import (
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
-type AppConfig func(string) error
+type ConfigFn func(string) error
 
 var sealed = false
 
-func NoOpAppConfigurator(chainID string) error {
+func NoOpConfigurator(_ string) error {
 	return nil
 }
 
-// AppConfigurator allows to setup the global configuration
+// Configurator allows to setup the global configuration
 // for the Evmos chain.
-func AppConfigurator(chainID string) error {
+func Configurator(chainID string) error {
 	if sealed {
 		return nil
 	}

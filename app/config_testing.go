@@ -17,16 +17,16 @@ import (
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
-type AppConfig func(string) error
+type ConfigFn func(string) error
 
-func NoOpAppConfigurator(chainID string) error {
+func NoOpConfigurator(chainID string) error {
 	return nil
 }
 
-// AppConfiguratorj allows to setup the global configuration
+// Configurator allows to setup the global configuration
 // for tests within the Evmos EVM. We're not using the sealed flag
 // and resetting the configuration to the provided one on every test setup
-func AppConfigurator(chainID string) error {
+func Configurator(chainID string) error {
 	id := strings.Split(chainID, "-")[0]
 	coinInfo, found := evmtypes.ChainsCoinInfo[id]
 	if !found {

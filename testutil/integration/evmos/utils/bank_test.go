@@ -22,7 +22,7 @@ func TestCheckBalances(t *testing.T) {
 	testcases := []struct {
 		name         string
 		decimals     uint8
-		configurator app.AppConfig
+		configurator app.ConfigFn
 		expAmount    math.Int
 		expPass      bool
 		errContains  string

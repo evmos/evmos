@@ -19,7 +19,6 @@ import (
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 
 	"cosmossdk.io/log"
-	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
 	cmttypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
@@ -166,7 +165,7 @@ func createBalances(
 }
 
 // createEvmosApp creates an evmos app
-func createEvmosApp(chainID string, configurator app.AppConfig, customBaseAppOptions ...func(*baseapp.BaseApp)) *app.Evmos {
+func createEvmosApp(chainID string, configurator app.ConfigFn, customBaseAppOptions ...func(*baseapp.BaseApp)) *app.Evmos {
 	// Create evmos app
 	db := dbm.NewMemDB()
 	logger := log.NewNopLogger()
@@ -466,7 +465,7 @@ func setDefaultGovGenesisState(evmosApp *app.Evmos, genesisState evmostypes.Gene
 
 // GovCustomGenesisState defines the gov genesis state
 type FeeMarketCustomGenesisState struct {
-	baseFee math.LegacyDec
+	baseFee sdkmath.LegacyDec
 }
 
 // setDefaultFeeMarketGenesisState sets the default fee market genesis state

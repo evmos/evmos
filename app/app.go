@@ -294,7 +294,7 @@ func NewEvmos(
 	homePath string,
 	invCheckPeriod uint,
 	appOpts servertypes.AppOptions,
-	appConfig AppConfig,
+	appConfig ConfigFn,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *Evmos {
 	encodingConfig := encoding.MakeConfig()

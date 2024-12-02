@@ -62,7 +62,7 @@ type IntegrationNetwork struct {
 	ctx          sdktypes.Context
 	validators   []stakingtypes.Validator
 	app          *app.Evmos
-	configurator app.AppConfig
+	configurator app.ConfigFn
 
 	// This is only needed for IBC chain testing setup
 	valSet     *cmttypes.ValidatorSet
@@ -100,7 +100,7 @@ func New(opts ...ConfigOption) *IntegrationNetwork {
 // it uses the default configuration.
 //
 // It panics if an error occurs.
-func NewWithConfigurator(configurator app.AppConfig, opts ...ConfigOption) *IntegrationNetwork {
+func NewWithConfigurator(configurator app.ConfigFn, opts ...ConfigOption) *IntegrationNetwork {
 	cfg := DefaultConfig()
 	// Modify the default config with the given options
 	for _, opt := range opts {
@@ -149,7 +149,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Create a new EvmosApp with the following params
 	evmosApp := createEvmosApp(
 		n.cfg.chainID,
-		app.AppConfigurator,
+		app.Configurator,
 		n.cfg.customBaseAppOpts...,
 	)
 
