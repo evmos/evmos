@@ -31,14 +31,14 @@ func TestCheckBalances(t *testing.T) {
 			name:         "pass - eighteen decimals",
 			decimals:     18,
 			expAmount:    network.GetInitialAmount(evmtypes.EighteenDecimals),
-			configurator: network.Test18DecimalsAppConfigurator,
+			configurator: app.Configurator,
 			expPass:      true,
 		},
 		{
 			name:         "pass - six decimals",
 			decimals:     6,
 			expAmount:    network.GetInitialAmount(evmtypes.SixDecimals),
-			configurator: network.Test6DecimalsAppConfigurator,
+			configurator: app.Configurator,
 			expPass:      true,
 		},
 		{
