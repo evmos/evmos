@@ -69,7 +69,7 @@ func GetInitialBaseFeeAmount(decimals evmtypes.Decimals) math.LegacyDec {
 	case evmtypes.EighteenDecimals:
 		return math.LegacyNewDec(1_000_000_000)
 	case evmtypes.SixDecimals:
-		return math.LegacyNewDec(1)
+		return math.LegacyNewDecWithPrec(1, 3)
 	default:
 		panic("base fee not specified")
 	}
