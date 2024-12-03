@@ -39,7 +39,7 @@ func TestWithChainID(t *testing.T) {
 			name:            "6 decimals",
 			chainID:         utils.SixDecChainID + "-1",
 			denom:           "asevmos",
-			expBaseFee:      math.LegacyNewDecWithPrec(875, 3),
+			expBaseFee:      math.LegacyNewDecWithPrec(875, 6),
 			expCosmosAmount: network.GetInitialAmount(evmtypes.SixDecimals),
 		},
 	}
