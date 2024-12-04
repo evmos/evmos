@@ -15,18 +15,18 @@ import (
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
-// AppOptionsFn defines a function type for setting app options specifically for
+// EvmosOptionsFn defines a function type for setting app options specifically for
 // the Evmos app. The function should receive the chainID and return an error if
 // any.
-type AppOptionsFn func(string) error
+type EvmosOptionsFn func(string) error
 
-// NoOpAppOptions is a no-op function that can be used when the app does not
+// NoOpEvmosOptions is a no-op function that can be used when the app does not
 // need any specific configuration.
-func NoOpAppOptions(_ string) error {
+func NoOpEvmosOptions(_ string) error {
 	return nil
 }
 
-// EvmosChainConfigurator allows to setup the global configuration
+// EvmosAppOptions allows to setup the global configuration
 // for the Evmos chain.
 func EvmosAppOptions(chainID string) error {
 	id := strings.Split(chainID, "-")[0]
