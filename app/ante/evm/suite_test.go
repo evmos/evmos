@@ -20,14 +20,14 @@ type EvmAnteTestSuite struct {
 }
 
 func TestEvmAnteTestSuite(t *testing.T) {
-    txTypes := []int{gethtypes.DynamicFeeTxType, gethtypes.LegacyTxType, gethtypes.AccessListTxType}
+	txTypes := []int{gethtypes.DynamicFeeTxType, gethtypes.LegacyTxType, gethtypes.AccessListTxType}
 	chainIDs := []string{utils.MainnetChainID + "-1", utils.SixDecChainID + "-1"}
-    for _, txType := range txTypes {
-        for _, chainID := range chainIDs {
-            suite.Run(t, &EvmAnteTestSuite{
-                ethTxType: txType,
-                chainID:   chainID,
-            })
-        }
-    }
+	for _, txType := range txTypes {
+		for _, chainID := range chainIDs {
+			suite.Run(t, &EvmAnteTestSuite{
+				ethTxType: txType,
+				chainID:   chainID,
+			})
+		}
+	}
 }
