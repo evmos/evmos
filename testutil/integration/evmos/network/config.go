@@ -21,7 +21,7 @@ import (
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
-// defaultChain represents the default EIP155 chain ID used in the suite setup.
+// defaultChain represents the default chain ID used in the suite setup.
 const defaultChain string = utils.MainnetChainID
 
 // Config defines the configuration for a chain.
