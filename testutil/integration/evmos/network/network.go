@@ -58,11 +58,10 @@ var _ Network = (*IntegrationNetwork)(nil)
 
 // IntegrationNetwork is the implementation of the Network interface for integration tests.
 type IntegrationNetwork struct {
-	cfg          Config
-	ctx          sdktypes.Context
-	validators   []stakingtypes.Validator
-	app          *app.Evmos
-	configurator app.ConfigFn
+	cfg        Config
+	ctx        sdktypes.Context
+	validators []stakingtypes.Validator
+	app        *app.Evmos
 
 	// This is only needed for IBC chain testing setup
 	valSet     *cmttypes.ValidatorSet
