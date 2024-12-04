@@ -7,25 +7,32 @@
 package app
 
 import (
+	"fmt"
 	"strings"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v20/app/eips"
-	"github.com/evmos/evmos/v20/utils"
-	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
-// InitializeAppConfiguration allows to setup the global configuration
-// for tests within the Evmos EVM. We're not using the sealed flag
-// and resetting the configuration to the provided one on every test setup
-func InitializeAppConfiguration(chainID string) error {
+// AppOptionsFn defines a function type for setting app options specifically for
+// the Evmos app. The function should receive the chainID and return an error if
+// any.
+type AppOptionsFn func(string) error
+
+// NoOpAppOptions is a no-op function that can be used when the app does not
+// need any specific configuration.
+func NoOpAppOptions(_ string) error {
+	return nil
+}
+
+// EvmosChainConfigurator allows to setup the global configuration
+// for the Evmos chain.
+func EvmosAppOptions(chainID string) error {
 	id := strings.Split(chainID, "-")[0]
 	coinInfo, found := evmtypes.ChainsCoinInfo[id]
 	if !found {
-		// default to mainnet coin info
-		coinInfo = evmtypes.ChainsCoinInfo[utils.MainnetChainID]
+		return fmt.Errorf("unknown chain id: %s", chainID)
 	}
 
 	// set the base denom considering if its mainnet or testnet
@@ -53,14 +60,6 @@ func InitializeAppConfiguration(chainID string) error {
 	}
 
 	return nil
-}
-
-// EvmosActivators defines a map of opcode modifiers associated
-// with a key defining the corresponding EIP.
-var evmosActivators = map[string]func(*vm.JumpTable){
-	"evmos_0": eips.Enable0000,
-	"evmos_1": eips.Enable0001,
-	"evmos_2": eips.Enable0002,
 }
 
 // setBaseDenom registers the display denom and base denom and sets the

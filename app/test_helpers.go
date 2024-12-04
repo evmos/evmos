@@ -13,7 +13,6 @@ import (
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmttypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
-	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -81,7 +80,7 @@ func Setup(
 	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
 	balance := banktypes.Balance{
 		Address: acc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(baseDenom, math.NewInt(100000000000000))),
+		Coins:   sdk.NewCoins(sdk.NewCoin(baseDenom, math.NewInt(100_000_000_000_000))),
 	}
 
 	db := dbm.NewMemDB()
@@ -90,7 +89,7 @@ func Setup(
 		db, nil, true, map[int64]bool{},
 		DefaultNodeHome, 5,
 		simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
-		baseapp.SetChainID(chainID),
+		EvmosAppOptions,
 	)
 	if !isCheckTx {
 		// init chain must be called to stop deliverState from being nil
@@ -202,7 +201,7 @@ func SetupTestingApp(chainID string) func() (ibctesting.TestingApp, map[string]j
 			map[int64]bool{},
 			DefaultNodeHome, 5,
 			simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
-			baseapp.SetChainID(chainID),
+			EvmosAppOptions,
 		)
 		return app, app.DefaultGenesis()
 	}

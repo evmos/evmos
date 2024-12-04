@@ -20,7 +20,6 @@ import (
 	"github.com/evmos/evmos/v20/crypto/ethsecp256k1"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
 
-	"github.com/evmos/evmos/v20/app"
 	"github.com/evmos/evmos/v20/encoding"
 	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/x/evm/types"
@@ -55,9 +54,6 @@ func (suite *MsgsTestSuite) SetupTest() {
 
 	encodingConfig := encoding.MakeConfig()
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
-
-	err := app.InitializeAppConfiguration("evmos_9001-1")
-	suite.Require().NoError(err)
 }
 
 func (suite *MsgsTestSuite) TestMsgEthereumTx_Constructor() {

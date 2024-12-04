@@ -11,26 +11,24 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v20/app/eips"
 	"github.com/evmos/evmos/v20/utils"
-	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
-var sealed = false
+// EvmosOptionsFn defines a function type for setting app options specifically for
+// the Evmos app. The function should receive the chainID and return an error if
+// any.
+type EvmosOptionsFn func(string) error
 
-// InitializeAppConfiguration allows to setup the global configuration
-// for the Evmos EVM.
-func InitializeAppConfiguration(chainID string) error {
-	if sealed {
-		return nil
-	}
+// NoOpEvmosOptions is a no-op function that can be used when the app does not
+// need any specific configuration.
+func NoOpEvmosOptions(_ string) error {
+	return nil
+}
 
-	// When calling any CLI command, it creates a tempApp inside RootCmdHandler with an empty chainID.
-	if chainID == "" {
-		return nil
-	}
-
+// EvmosAppOptions allows to setup the global configuration
+// for the Evmos chain.
+func EvmosAppOptions(chainID string) error {
 	id := strings.Split(chainID, "-")[0]
 	coinInfo, found := evmtypes.ChainsCoinInfo[id]
 	if !found {
@@ -58,16 +56,7 @@ func InitializeAppConfiguration(chainID string) error {
 		return err
 	}
 
-	sealed = true
 	return nil
-}
-
-// EvmosActivators defines a map of opcode modifiers associated
-// with a key defining the corresponding EIP.
-var evmosActivators = map[string]func(*vm.JumpTable){
-	"evmos_0": eips.Enable0000,
-	"evmos_1": eips.Enable0001,
-	"evmos_2": eips.Enable0002,
 }
 
 // setBaseDenom registers the display denom and base denom and sets the
@@ -77,6 +66,7 @@ func setBaseDenom(ci evmtypes.EvmCoinInfo) error {
 	if err := sdk.RegisterDenom(ci.DisplayDenom, math.LegacyOneDec()); err != nil {
 		return err
 	}
-	// sdk.RegisterDenom will automatically overwrite the base denom when the new denom units are lower than the current base denom's units.
+	// sdk.RegisterDenom will automatically overwrite the base denom when the
+	// new setBaseDenom() are lower than the current base denom's units.
 	return sdk.RegisterDenom(ci.Denom, math.LegacyNewDecWithPrec(1, int64(ci.Decimals)))
 }
