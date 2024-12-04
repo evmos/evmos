@@ -71,6 +71,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (deps) [#2967](https://github.com/evmos/evmos/pull/2967) Bump CometBFT to `v0.38.15`.
 - (precompiles) [#2943](https://github.com/evmos/evmos/pull/2943) Add WERC-20 precompile.
 - (precompiles) [#2966](https://github.com/evmos/evmos/pull/2966) Add safety check that ERC-20 precompiles cannot receive funds.
+- (app) [#3009](https://github.com/evmos/evmos/pull/3009) Move internal Evmos app initialization to input function.
 
 ### Bug Fixes
 
