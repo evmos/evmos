@@ -80,7 +80,7 @@ func deductFees(
 	}
 
 	// If the account balance is not sufficient, try to withdraw enough staking rewards
-	if err := anteutils.ClaimStakingRewardsIfNecessary(
+	/*if err := anteutils.ClaimStakingRewardsIfNecessary(
 		ctx,
 		keepers.Bank,
 		keepers.Distribution,
@@ -89,7 +89,7 @@ func deductFees(
 		fees,
 	); err != nil {
 		return err
-	}
+	}*/
 
 	if err := keepers.Evm.DeductTxCostsFromUserBalance(
 		ctx,
