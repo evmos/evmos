@@ -70,6 +70,26 @@ struct ProposalData {
     address proposer;
 }
 
+/// @dev Params defines the governance parameters
+struct Params {
+    int64 votingPeriod;
+    Coin[] minDeposit;
+    int64 maxDepositPeriod;
+    string quorum;
+    string threshold;
+    string vetoThreshold;
+    string minInitialDepositRatio;
+    string proposalCancelRatio;
+    string proposalCancelDest;
+    int64 expeditedVotingPeriod;
+    string expeditedThreshold;
+    Coin[] expeditedMinDeposit;
+    bool burnVoteQuorum;
+    bool burnProposalDepositPrevote;
+    bool burnVoteVeto;
+    string minDepositRatio;
+}
+
 /// @author The Evmos Core Team
 /// @title Gov Precompile Contract
 /// @dev The interface through which solidity contracts will interact with Gov
@@ -86,6 +106,10 @@ interface IGov {
     /// @param proposalId the proposal of id
     /// @param options the options for voter
     event VoteWeighted(address indexed voter, uint64 proposalId, WeightedVoteOption[] options);
+
+    /// @dev UpdateParams defines an Event emitted when governance parameters are updated.
+    /// @param params The updated governance parameters
+    event UpdateParams(Params params);
 
     /// TRANSACTIONS
 
@@ -114,7 +138,14 @@ interface IGov {
         WeightedVoteOption[] calldata options,
         string memory metadata
     ) external returns (bool success);
-     
+
+    /// @dev updateParams defines a method to update the governance parameters.
+    /// @param params The new governance parameters
+    /// @return success Whether the transaction was successful or not
+    function updateParams(
+        Params calldata params
+    ) external returns (bool success);
+
     /// QUERIES
 
     /// @dev getVote returns the vote of a single voter for a
@@ -189,4 +220,11 @@ interface IGov {
         address depositor,
         PageRequest calldata pagination
     ) external view returns (ProposalData[] memory proposals, PageResponse memory pageResponse);
+
+    /// @dev getParams returns the current governance parameters.
+    /// @param paramsType The type of parameters to query (deposit, voting, tallying)
+    /// @return params The governance parameters
+    function getParams(
+        string calldata paramsType
+    ) external view returns (Params memory params);
 }
