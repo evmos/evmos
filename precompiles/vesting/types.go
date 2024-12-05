@@ -102,6 +102,9 @@ func NewMsgFundVestingAccount(args []interface{}, method *abi.Method) (*vestingt
 
 	startTimeTimestamp := time.Unix(int64(startTime), 0) //#nosec G115
 
+	if len(method.Inputs) <= 4 {
+		return nil, common.Address{}, common.Address{}, nil, nil, fmt.Errorf(cmn.ErrInvalidMethodInputs)
+	}
 	var lockupPeriodsInput LockupPeriods
 	lockupPeriod := abi.Arguments{method.Inputs[3]}
 	if err := lockupPeriod.Copy(&lockupPeriodsInput, []interface{}{args[3]}); err != nil {

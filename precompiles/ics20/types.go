@@ -136,6 +136,9 @@ func NewMsgTransfer(method *abi.Method, args []interface{}) (*transfertypes.MsgT
 		return nil, common.Address{}, fmt.Errorf(ErrInvalidReceiver, args[5])
 	}
 
+	if len(method.Inputs) <= 6 {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidMethodInputs)
+	}
 	var input height
 	heightArg := abi.Arguments{method.Inputs[6]}
 	if err := heightArg.Copy(&input, []interface{}{args[6]}); err != nil {
@@ -305,6 +308,9 @@ func checkTransferAuthzArgs(method *abi.Method, args []interface{}) (common.Addr
 		return common.Address{}, nil, fmt.Errorf(authorization.ErrInvalidGrantee, args[0])
 	}
 
+	if len(method.Inputs) <= 1 {
+		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidMethodInputs)
+	}
 	var input allocs
 	allocArg := abi.Arguments{method.Inputs[1]}
 	if err := allocArg.Copy(&input, []interface{}{args[1]}); err != nil {
