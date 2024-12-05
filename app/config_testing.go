@@ -66,16 +66,18 @@ func EvmosAppOptions(chainID string) error {
 // base denom for the chain. The function registers different values based on
 // the EvmCoinInfo to allow different configurations in mainnet and testnet.
 func setBaseDenom(ci evmtypes.EvmCoinInfo) (err error) {
-	// Defer setting the base denom, and capture any potential error from it.
-	// So when failing because the denom was already registered, we ignore it and set
-	// the corresponding denom to be base denom
-	defer func() {
-		err = sdk.SetBaseDenom(ci.Denom)
-	}()
-
 	if err := sdk.RegisterDenom(ci.DisplayDenom, math.LegacyOneDec()); err != nil {
+		if err.Error() != fmt.Sprintf("denom %s already registered", ci.DisplayDenom) {
+			return err
+		}
 		return err
 	}
-	// sdk.RegisterDenom will automatically overwrite the base denom when the new denom units are lower than the current base denom's units.
-	return sdk.RegisterDenom(ci.Denom, math.LegacyNewDecWithPrec(1, int64(ci.Decimals)))
+	// sdk.RegisterDenom will automatically overwrite the base denom when the
+	// new setBaseDenom() are lower than the current base denom's units.
+	if err := sdk.RegisterDenom(ci.Denom, math.LegacyNewDecWithPrec(1, int64(ci.Decimals))); err != nil {
+		if err.Error() != fmt.Sprintf("denom %s already registered", ci.Denom) {
+			return err
+		}
+	}
+	return nil
 }

@@ -256,7 +256,6 @@ func (s *IntegrationTestSuite) checkProposalPassed(ctx context.Context) {
 		"failed to query proposals;\nstdout: %s,\nstderr: %s", outBuf.String(), errBuf.String(),
 	)
 
-	sdk.RegisterDenom(ci.DisplayDenom, math.LegacyOneDec())
 	nw := network.New()
 	encodingConfig := nw.GetEncodingConfig()
 	protoCodec, ok := encodingConfig.Codec.(*codec.ProtoCodec)
