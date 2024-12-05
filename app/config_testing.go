@@ -26,9 +26,15 @@ func NoOpEvmosOptions(_ string) error {
 	return nil
 }
 
+var sealed = false
+
 // EvmosAppOptions allows to setup the global configuration
 // for the Evmos chain.
 func EvmosAppOptions(chainID string) error {
+	if sealed {
+		return nil
+	}
+
 	id := strings.Split(chainID, "-")[0]
 	coinInfo, found := evmtypes.ChainsCoinInfo[id]
 	if !found {
