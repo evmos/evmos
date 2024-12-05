@@ -13,6 +13,7 @@ import (
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmttypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -90,6 +91,7 @@ func Setup(
 		DefaultNodeHome, 5,
 		simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
 		EvmosAppOptions,
+		baseapp.SetChainID(chainID),
 	)
 	if !isCheckTx {
 		// init chain must be called to stop deliverState from being nil
@@ -202,6 +204,7 @@ func SetupTestingApp(chainID string) func() (ibctesting.TestingApp, map[string]j
 			DefaultNodeHome, 5,
 			simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
 			EvmosAppOptions,
+			baseapp.SetChainID(chainID),
 		)
 		return app, app.DefaultGenesis()
 	}
