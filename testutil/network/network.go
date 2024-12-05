@@ -106,7 +106,7 @@ func DefaultConfig() Config {
 		panic(fmt.Sprintf("failed creating temporary directory: %v", err))
 	}
 	defer os.RemoveAll(dir)
-	app := app.NewEvmos(log.NewNopLogger(), dbm.NewMemDB(), nil, true, nil, dir, 0, simutils.NewAppOptionsWithFlagHome(dir), app.NoOpEvmosOptions, baseapp.SetChainID(chainID))
+	app := app.NewEvmos(log.NewNopLogger(), dbm.NewMemDB(), nil, true, nil, dir, 0, simutils.NewAppOptionsWithFlagHome(dir), app.EvmosAppOptions, baseapp.SetChainID(chainID))
 	return Config{
 		Codec:             app.AppCodec(),
 		TxConfig:          app.GetTxConfig(),
