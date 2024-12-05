@@ -103,7 +103,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (rpc) [#2877](https://github.com/evmos/evmos/pull/2877) Add revert reason for `eth_estimateGas`.
 - (precompiles) [#2941](https://github.com/evmos/evmos/pull/2941) Gov: Added `getDeposit`, `getDeposits` and `getTallyResults` queries.
 
-## [v19.2.1](https://github.com/evmos/evmos/releases/tag/v19.2.1) - 2024-09-27 
+## [v19.2.1](https://github.com/evmos/evmos/releases/tag/v19.2.1) - 2024-09-27
 
 ### Bug Fixes
 
