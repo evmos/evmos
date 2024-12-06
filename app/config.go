@@ -7,11 +7,11 @@
 package app
 
 import (
+	"fmt"
 	"strings"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v20/utils"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
@@ -38,8 +38,7 @@ func EvmosAppOptions(chainID string) error {
 	id := strings.Split(chainID, "-")[0]
 	coinInfo, found := evmtypes.ChainsCoinInfo[id]
 	if !found {
-		// default to mainnet coin info
-		coinInfo = evmtypes.ChainsCoinInfo[utils.MainnetChainID]
+		return fmt.Errorf("unknown chain id: %s", chainID)
 	}
 
 	if err := setBaseDenom(coinInfo); err != nil {
@@ -62,6 +61,7 @@ func EvmosAppOptions(chainID string) error {
 		return err
 	}
 
+	sealed = true
 	return nil
 }
 
