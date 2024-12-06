@@ -26,15 +26,9 @@ func NoOpEvmosOptions(_ string) error {
 	return nil
 }
 
-var sealed = false
-
 // EvmosAppOptions allows to setup the global configuration
 // for the Evmos chain.
 func EvmosAppOptions(chainID string) error {
-	if sealed {
-		return nil
-	}
-
 	id := strings.Split(chainID, "-")[0]
 	coinInfo, found := evmtypes.ChainsCoinInfo[id]
 	if !found {
@@ -72,6 +66,13 @@ func EvmosAppOptions(chainID string) error {
 // base denom for the chain. The function registers different values based on
 // the EvmCoinInfo to allow different configurations in mainnet and testnet.
 func setBaseDenom(ci evmtypes.EvmCoinInfo) (err error) {
+	// Defer setting the base denom, and capture any potential error from it.
+	// So when failing because the denom was already registered, we ignore it and set
+	// the corresponding denom to be base denom
+	defer func() {
+		err = sdk.SetBaseDenom(ci.Denom)
+	}()
+
 	if err := sdk.RegisterDenom(ci.DisplayDenom, math.LegacyOneDec()); err != nil {
 		return err
 	}
