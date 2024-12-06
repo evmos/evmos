@@ -50,8 +50,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-- (evidence) [#2997](https://github.com/evmos/evmos/pull/2997) Add `evidence` precompile with `submitEvidence` and `evidence` queries.
-- (slashing) [#2911](https://github.com/evmos/evmos/pull/2991) Add `slashing` precompile with `unjail` and `signingInfo`.
+- (precompiles) [#2997](https://github.com/evmos/evmos/pull/2997) Add `evidence` precompile with `submitEvidence` and `evidence` queries.
+- (precompiles) [#2991](https://github.com/evmos/evmos/pull/2991) Add `slashing` precompile with `unjail` and `signingInfo`.
 - (gov) [#2976](https://github.com/evmos/evmos/pull/2976) Add `Proposals` and `Proposal` queries to gov precompile.
 - (testnet) [#2826](https://github.com/evmos/evmos/pull/2826) Fix command `evmosd testnet init-files` for validator_address is error.
 - (evm) [#2836](https://github.com/evmos/evmos/pull/2836) Recap the highest gas limit with account's available balance.
@@ -71,6 +71,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (deps) [#2967](https://github.com/evmos/evmos/pull/2967) Bump CometBFT to `v0.38.15`.
 - (precompiles) [#2943](https://github.com/evmos/evmos/pull/2943) Add WERC-20 precompile.
 - (precompiles) [#2966](https://github.com/evmos/evmos/pull/2966) Add safety check that ERC-20 precompiles cannot receive funds.
+- (app) [#3009](https://github.com/evmos/evmos/pull/3009) Move internal Evmos app initialization to input function.
 
 ### Bug Fixes
 
