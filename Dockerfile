@@ -1,5 +1,5 @@
 # hadolint global ignore=DL3018
-FROM golang:1.23.3-alpine3.20 AS build-env
+FROM golang:1.23.4-alpine3.20 AS build-env
 
 ARG DB_BACKEND=goleveldb
 ARG ROCKSDB_VERSION="9.7.3"
