@@ -31,5 +31,6 @@ const (
 	DefaultGasPrice = 20
 )
 
+// TODO: move to chain config struct
 // PowerReduction defines the default power reduction value for staking
 var PowerReduction = sdkmath.NewIntFromBigInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(BaseDenomUnit), nil))

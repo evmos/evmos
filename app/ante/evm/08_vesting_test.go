@@ -23,6 +23,7 @@ type AccountExpenses = map[string]*evm.EthVestingExpenseTracker
 func (suite *EvmAnteTestSuite) TestCheckVesting() {
 	keyring := testkeyring.New(1)
 	unitNetwork := network.NewUnitTestNetwork(
+		network.WithChainID(suite.chainID),
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)

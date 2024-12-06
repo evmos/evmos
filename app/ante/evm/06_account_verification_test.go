@@ -21,6 +21,7 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 	keyring := testkeyring.New(2)
 	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+		network.WithChainID(suite.chainID),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
 	txFactory := factory.New(unitNetwork, grpcHandler)
@@ -53,10 +54,12 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 				suite.Require().NoError(err)
 
 				// Make tx cost greater than balance
-				balanceResp, err := grpcHandler.GetBalanceFromBank(senderKey.AccAddr, unitNetwork.GetBaseDenom())
+				balanceResp, err := grpcHandler.GetBalanceFromEVM(senderKey.AccAddr)
 				suite.Require().NoError(err)
 
-				invalidAmount := balanceResp.Balance.Amount.Add(math.NewInt(100))
+				balance, ok := math.NewIntFromString(balanceResp.Balance)
+				suite.Require().True(ok)
+				invalidAmount := balance.Add(math.NewInt(100))
 				txArgs.Amount = invalidAmount.BigInt()
 				return statedbAccount, txArgs
 			},
@@ -98,7 +101,7 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 	}
 
 	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("%v_%v", evmtypes.GetTxTypeName(suite.ethTxType), tc.name), func() {
+		suite.Run(fmt.Sprintf("%v_%v_%v", evmtypes.GetTxTypeName(suite.ethTxType), suite.chainID, tc.name), func() {
 			// Perform test logic
 			statedbAccount, txArgs := tc.generateAccountAndArgs()
 			txData, err := txArgs.ToTxData()

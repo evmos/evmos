@@ -3,26 +3,30 @@
 package evm_test
 
 import (
+	"fmt"
+
 	storetypes "cosmossdk.io/store/types"
-	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/evmos/evmos/v20/app/ante/evm"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	integrationutils "github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 func (suite *EvmAnteTestSuite) TestCheckGasWanted() {
 	keyring := testkeyring.New(1)
 	unitNetwork := network.NewUnitTestNetwork(
+		network.WithChainID(suite.chainID),
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
 	txFactory := factory.New(unitNetwork, grpcHandler)
-	commonGasLimit := uint64(100000)
+	commonGasLimit := uint64(100_000)
 
 	testCases := []struct {
 		name                       string
@@ -69,6 +73,7 @@ func (suite *EvmAnteTestSuite) TestCheckGasWanted() {
 				// Set basefee param to false
 				feeMarketParams, err := grpcHandler.GetFeeMarketParams()
 				suite.Require().NoError(err)
+
 				feeMarketParams.Params.NoBaseFee = true
 				err = integrationutils.UpdateFeeMarketParams(integrationutils.UpdateParamsInput{
 					Tf:      txFactory,
@@ -76,9 +81,9 @@ func (suite *EvmAnteTestSuite) TestCheckGasWanted() {
 					Pk:      keyring.GetPrivKey(0),
 					Params:  feeMarketParams.Params,
 				})
-				suite.Require().NoError(err)
+				suite.Require().NoError(err, "expected no error when updating fee market params")
 
-				blockMeter := storetypes.NewGasMeter(commonGasLimit + 10000)
+				blockMeter := storetypes.NewGasMeter(commonGasLimit + 10_000)
 				return unitNetwork.GetContext().WithBlockGasMeter(blockMeter)
 			},
 			isLondon:                   true,
@@ -87,7 +92,7 @@ func (suite *EvmAnteTestSuite) TestCheckGasWanted() {
 	}
 
 	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
+		suite.Run(fmt.Sprintf("%v_%v_%v", evmtypes.GetTxTypeName(suite.ethTxType), suite.chainID, tc.name), func() {
 			sender := keyring.GetKey(0)
 			txArgs, err := txFactory.GenerateDefaultTxTypeArgs(
 				sender.Addr,
