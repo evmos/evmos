@@ -70,6 +70,7 @@ func EvmosAppOptions(chainID string) error {
 // the EvmCoinInfo to allow different configurations in mainnet and testnet.
 func setBaseDenom(ci evmtypes.EvmCoinInfo) error {
 	if err := sdk.RegisterDenom(ci.DisplayDenom, math.LegacyOneDec()); err != nil {
+		return err
 	}
 	// sdk.RegisterDenom will automatically overwrite the base denom when the
 	// new setBaseDenom() are lower than the current base denom's units.
