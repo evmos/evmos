@@ -77,7 +77,7 @@ func setBaseDenom(ci evmtypes.EvmCoinInfo) (err error) {
 		return err
 	}
 
-	// new setBaseDenom() are lower than the current base denom's units.
-	// sdk.RegisterDenom will automatically overwrite the base denom when the new denom units are lower than the current base denom's units.
+	// sdk.RegisterDenom will automatically overwrite the base denom when the
+	// new setBaseDenom() units are lower than the current base denom's units.
 	return sdk.RegisterDenom(ci.Denom, math.LegacyNewDecWithPrec(1, int64(ci.Decimals)))
 }
