@@ -81,7 +81,7 @@ func Setup(
 	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
 	balance := banktypes.Balance{
 		Address: acc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(baseDenom, math.NewInt(100000000000000))),
+		Coins:   sdk.NewCoins(sdk.NewCoin(baseDenom, math.NewInt(100_000_000_000_000))),
 	}
 
 	db := dbm.NewMemDB()
@@ -90,6 +90,7 @@ func Setup(
 		db, nil, true, map[int64]bool{},
 		DefaultNodeHome, 5,
 		simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
+		EvmosAppOptions,
 		baseapp.SetChainID(chainID),
 	)
 	if !isCheckTx {
@@ -202,6 +203,7 @@ func SetupTestingApp(chainID string) func() (ibctesting.TestingApp, map[string]j
 			map[int64]bool{},
 			DefaultNodeHome, 5,
 			simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
+			EvmosAppOptions,
 			baseapp.SetChainID(chainID),
 		)
 		return app, app.DefaultGenesis()

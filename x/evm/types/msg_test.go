@@ -9,18 +9,17 @@ import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
-	"github.com/stretchr/testify/suite"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/evmos/evmos/v20/app"
 	"github.com/evmos/evmos/v20/crypto/ethsecp256k1"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	"github.com/stretchr/testify/suite"
 
-	"github.com/evmos/evmos/v20/app"
 	"github.com/evmos/evmos/v20/encoding"
 	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/x/evm/types"
@@ -56,7 +55,7 @@ func (suite *MsgsTestSuite) SetupTest() {
 	encodingConfig := encoding.MakeConfig()
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 
-	err := app.InitializeAppConfiguration("evmos_9001-1")
+	err := app.EvmosAppOptions("evmos_9001-1")
 	suite.Require().NoError(err)
 }
 
