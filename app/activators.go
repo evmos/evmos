@@ -7,7 +7,7 @@ import (
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
 
-// EvmosActivators defines a map of opcode modifiers associated
+// evmosActivators defines a map of opcode modifiers associated
 // with a key defining the corresponding EIP.
 var evmosActivators = map[string]func(*vm.JumpTable){
 	"evmos_0": eips.Enable0000,
