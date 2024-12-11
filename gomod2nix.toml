@@ -23,8 +23,8 @@ schema = 3
     version = "v0.7.6"
     hash = "sha256-ubE78Xrsz+YQcOGyjpp/MwqUHwsGVbkcWXVzMFfFw0I="
   [mod."cosmossdk.io/client/v2"]
-    version = "v2.0.0-beta.5"
-    hash = "sha256-zivawuJLLbNn0zE9FRWjCtrpks7vlDprQ7DbNKqhwWc="
+    version = "v2.0.0-beta.7"
+    hash = "sha256-uabHs9mpTy0ggnPyPWf47opIdQY6J/fa/YbcCUuF1dg="
   [mod."cosmossdk.io/collections"]
     version = "v0.4.0"
     hash = "sha256-minFyzgO/D+Oda4E3B1qvOAN5qd65SjS6nmjca4cp/8="
