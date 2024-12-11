@@ -1,4 +1,4 @@
-package eip712
+package eip712_test
 
 import (
 	"encoding/json"
