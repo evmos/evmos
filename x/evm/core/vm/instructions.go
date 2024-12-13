@@ -17,6 +17,7 @@
 package vm
 
 import (
+	"errors"
 	"sync/atomic"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -704,7 +705,7 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]byt
 		temp.SetOne()
 	}
 	stack.Push(&temp)
-	if err == nil || err == ErrExecutionReverted {
+	if err == nil || errors.Is(err, ErrExecutionReverted) {
 		ret = common.CopyBytes(ret)
 		scope.Memory.Set(retOffset.Uint64(), retSize.Uint64(), ret)
 	}
@@ -740,7 +741,7 @@ func opCallCode(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([
 		temp.SetOne()
 	}
 	stack.Push(&temp)
-	if err == nil || err == ErrExecutionReverted {
+	if err == nil || errors.Is(err, ErrExecutionReverted) {
 		ret = common.CopyBytes(ret)
 		scope.Memory.Set(retOffset.Uint64(), retSize.Uint64(), ret)
 	}
@@ -769,7 +770,7 @@ func opDelegateCall(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext
 		temp.SetOne()
 	}
 	stack.Push(&temp)
-	if err == nil || err == ErrExecutionReverted {
+	if err == nil || errors.Is(err, ErrExecutionReverted) {
 		ret = common.CopyBytes(ret)
 		scope.Memory.Set(retOffset.Uint64(), retSize.Uint64(), ret)
 	}
@@ -798,7 +799,7 @@ func opStaticCall(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) 
 		temp.SetOne()
 	}
 	stack.Push(&temp)
-	if err == nil || err == ErrExecutionReverted {
+	if err == nil || errors.Is(err, ErrExecutionReverted) {
 		ret = common.CopyBytes(ret)
 		scope.Memory.Set(retOffset.Uint64(), retSize.Uint64(), ret)
 	}

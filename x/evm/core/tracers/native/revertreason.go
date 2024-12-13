@@ -19,6 +19,7 @@ package native
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"math/big"
 	"sync/atomic"
 	"time"
@@ -58,7 +59,7 @@ func (t *revertReasonTracer) CaptureStart(env *vm.EVM, _ common.Address, _ commo
 // CaptureEnd is called after the call finishes to finalize the tracing.
 func (t *revertReasonTracer) CaptureEnd(output []byte, _ uint64, _ time.Duration, err error) {
 	if err != nil {
-		if err == vm.ErrExecutionReverted && len(output) > 4 && bytes.Equal(output[:4], revertSelector) {
+		if errors.Is(err, vm.ErrExecutionReverted) && len(output) > 4 && bytes.Equal(output[:4], revertSelector) {
 			errMsg, _ := abi.UnpackRevert(output)
 			t.revertReason = err.Error() + ": " + errMsg
 		} else {
