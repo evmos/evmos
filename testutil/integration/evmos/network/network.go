@@ -121,7 +121,6 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Create a new EvmosApp with the following params
 	evmosApp := createEvmosApp(
 		n.cfg.chainID,
-		app.Configurator,
 		n.cfg.customBaseAppOpts...,
 	)
 
