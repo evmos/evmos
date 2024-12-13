@@ -294,7 +294,7 @@ func NewEvmos(
 	homePath string,
 	invCheckPeriod uint,
 	appOpts servertypes.AppOptions,
-	appConfig ConfigFn,
+	evmosAppOptions EvmosOptionsFn,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *Evmos {
 	encodingConfig := encoding.MakeConfig()
@@ -326,7 +326,7 @@ func NewEvmos(
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
-	if err := appConfig(bApp.ChainID()); err != nil {
+	if err := evmosAppOptions(bApp.ChainID()); err != nil {
 		panic(err)
 	}
 

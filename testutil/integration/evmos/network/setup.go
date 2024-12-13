@@ -165,7 +165,7 @@ func createBalances(
 }
 
 // createEvmosApp creates an evmos app
-func createEvmosApp(chainID string, configurator app.ConfigFn, customBaseAppOptions ...func(*baseapp.BaseApp)) *app.Evmos {
+func createEvmosApp(chainID string, customBaseAppOptions ...func(*baseapp.BaseApp)) *app.Evmos {
 	// Create evmos app
 	db := dbm.NewMemDB()
 	logger := log.NewNopLogger()
@@ -185,7 +185,7 @@ func createEvmosApp(chainID string, configurator app.ConfigFn, customBaseAppOpti
 		homePath,
 		invCheckPeriod,
 		appOptions,
-		configurator,
+		app.EvmosAppOptions,
 		baseAppOptions...,
 	)
 }

@@ -27,7 +27,7 @@ const (
 	MainnetChainID = "evmos_9001"
 	// TestnetChainID defines the Evmos EIP155 chain ID for testnet
 	TestnetChainID = "evmos_9000"
-	// TestinvChainID defines the Evmos EIP155 chain ID for testing purposes
+	// TestingChainID defines the Evmos EIP155 chain ID for testing purposes
 	// like the local node.
 	TestingChainID = "evmos_9002"
 	// SixDecChainID defines the Evmos EIP155 chain ID with 6 decimals precision
