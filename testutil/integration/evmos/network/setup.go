@@ -189,6 +189,7 @@ func createEvmosApp(chainID string, customBaseAppOptions ...func(*baseapp.BaseAp
 		homePath,
 		invCheckPeriod,
 		appOptions,
+		app.EvmosAppOptions,
 		baseAppOptions...,
 	)
 }
