@@ -463,8 +463,8 @@ schema = 3
     version = "v2.0.3"
     hash = "sha256-5VsJMQzJSNd4F7yAl3iF/q6JodWOlE4dUvTQ0UGPe+k="
   [mod."github.com/holiman/uint256"]
-    version = "v1.3.1"
-    hash = "sha256-Mx2kd5H0sph6Nq8hI55nEn31saXvmg3df7hb/t8bHrQ="
+    version = "v1.3.2"
+    hash = "sha256-R5ZNDTQy6ELF5Z6BLK/DeMg1JqEtPkDNfFi9XOKmncY="
   [mod."github.com/huandu/skiplist"]
     version = "v1.2.0"
     hash = "sha256-/r4QP1SldMlhpkr1ZQFHImSYaeMZEtqBW7R53yN+JtQ="
@@ -749,8 +749,8 @@ schema = 3
     version = "v0.3.0"
     hash = "sha256-Gus5o3I0+arNjRFglTP5FfCi0NDwKAUT/N3WtdhnLMQ="
   [mod."golang.org/x/crypto"]
-    version = "v0.30.0"
-    hash = "sha256-kxgjbJxcAxfJKpKjsNhUeMp8g3FsNH+dtNVwMHOBeTE="
+    version = "v0.31.0"
+    hash = "sha256-ZBjoG7ZOuTEmjaXPP9txAvjAjC46DeaLs0zrNzi8EQw="
   [mod."golang.org/x/exp"]
     version = "v0.0.0-20240719175910-8a7402abbf56"
     hash = "sha256-mHEPy0vbd/pFwq5ZAEKaehCeYVQLEFDGnXAoVgkCLPo="
