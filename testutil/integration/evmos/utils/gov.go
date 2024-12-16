@@ -26,6 +26,7 @@ import (
 // return the proposal ID.
 func SubmitProposal(tf factory.TxFactory, network network.Network, proposerPriv cryptotypes.PrivKey, title string, msgs ...sdk.Msg) (uint64, error) {
 	proposerAccAddr := sdk.AccAddress(proposerPriv.PubKey().Address()).String()
+	// Tokens send to submit the proposal has to be adjusted to take into account the EVM coin decimals.
 	proposal, err := govv1.NewMsgSubmitProposal(
 		msgs,
 		sdk.NewCoins(sdk.NewCoin(network.GetBaseDenom(), math.NewInt(1e18).Quo(evmtypes.GetEVMCoinDecimals().ConversionFactor()))),

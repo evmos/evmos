@@ -39,9 +39,11 @@ type Config struct {
 	operatorsAddrs      []sdktypes.AccAddress
 	initialBondedAmount math.Int
 
-	chainCoins        ChainCoins
-	initialAmounts    InitialAmounts
-	otherCoinDenom    []string
+	chainCoins     ChainCoins
+	initialAmounts InitialAmounts
+	// otherCoinDenoms represents the other possible coin denominations that can be passed during
+	// test suite intialization to provide other coins initial balances.
+	otherCoinDenoms   []string
 	preFundedAccounts []sdktypes.AccAddress
 	balances          []banktypes.Balance
 }
@@ -91,7 +93,7 @@ func getGenAccountsAndBalances(cfg Config, validators []stakingtypes.Validator) 
 		denomDecimals := cfg.chainCoins.DenomDecimalsMap()
 
 		// All extra denom specified are represented with the base coin decimal.
-		for _, denom := range cfg.otherCoinDenom {
+		for _, denom := range cfg.otherCoinDenoms {
 			denomDecimals[denom] = cfg.chainCoins.BaseDecimals()
 		}
 
@@ -188,7 +190,7 @@ func WithCustomGenesis(customGenesis CustomGenesisState) ConfigOption {
 // WithOtherDenoms sets other possible coin denominations for the network.
 func WithOtherDenoms(otherDenoms []string) ConfigOption {
 	return func(cfg *Config) {
-		cfg.otherCoinDenom = otherDenoms
+		cfg.otherCoinDenoms = otherDenoms
 	}
 }
 

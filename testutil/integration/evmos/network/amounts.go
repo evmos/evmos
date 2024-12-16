@@ -56,7 +56,6 @@ func GetInitialBondedAmount(decimals evmtypes.Decimals) math.Int {
 	sdk.DefaultPowerReduction = math.NewIntFromBigInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(decimals)), nil))
 	initialBondedAmount := sdk.TokensFromConsensusPower(1, types.PowerReduction)
 
-	// Since
 	return initialBondedAmount.Quo(decimals.ConversionFactor())
 }
 

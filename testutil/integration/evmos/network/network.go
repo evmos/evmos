@@ -94,17 +94,10 @@ func New(opts ...ConfigOption) *IntegrationNetwork {
 	return network
 }
 
-// TODO: remove these
-var (
-	// DefaultBondedAmount is the amount of tokens that each validator will have initially bonded
-	InitialBondedAmount = sdktypes.TokensFromConsensusPower(1, types.PowerReduction)
-	// DefaultBondedAmount is the amount of tokens that each validator will have initially bonded
-	DefaultBondedAmount = sdktypes.TokensFromConsensusPower(1, types.PowerReduction)
-	// PrefundedAccountInitialBalance is the amount of tokens that each
-	// prefunded account has at genesis. It represents a 100k amount expressed
-	// in the 18 decimals representation.
-	PrefundedAccountInitialBalance, _ = sdkmath.NewIntFromString("100_000_000_000_000_000_000_000")
-)
+// PrefundedAccountInitialBalance is the amount of tokens that each
+// prefunded account has at genesis. It represents a 100k amount expressed
+// in the 18 decimals representation.
+var PrefundedAccountInitialBalance, _ = sdkmath.NewIntFromString("100_000_000_000_000_000_000_000")
 
 // configureAndInitChain initializes the network with the given configuration.
 // It creates the genesis state and starts the network.
@@ -113,6 +106,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Apply changes deriving from possible config options
 	// FIX: for sure there exists a better way to achieve that.
 	// --------------------------------------------------------------------------------------------
+
 	// The bonded amount should be updated to reflect the actual base denom
 	// decimals.
 	baseDecimals := n.cfg.chainCoins.BaseDecimals()
@@ -302,7 +296,7 @@ func (n *IntegrationNetwork) GetEVMDenom() string {
 
 // GetOtherDenoms returns network's other supported denoms
 func (n *IntegrationNetwork) GetOtherDenoms() []string {
-	return n.cfg.otherCoinDenom
+	return n.cfg.otherCoinDenoms
 }
 
 // GetValidators returns the network's validators
