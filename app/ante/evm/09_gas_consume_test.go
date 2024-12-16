@@ -101,14 +101,14 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 		feesAmt       math.Int
 		getSender     func() sdktypes.AccAddress
 	}{
-		// {
-		// 	name: "success: fees are zero and event emitted",
-		// 	fees: sdktypes.Coins{},
-		// 	getSender: func() sdktypes.AccAddress {
-		// 		// Return prefunded sender
-		// 		return keyring.GetKey(0).AccAddr
-		// 	},
-		// },
+		{
+			name:    "success: fees are zero and event emitted",
+			feesAmt: math.NewInt(0),
+			getSender: func() sdktypes.AccAddress {
+				// Return prefunded sender
+				return keyring.GetKey(0).AccAddr
+			},
+		},
 		{
 			name:    "success: there are non zero fees, user has sufficient bank balances and event emitted",
 			feesAmt: math.NewInt(1000),
