@@ -73,6 +73,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (precompiles) [#2966](https://github.com/evmos/evmos/pull/2966) Add safety check that ERC-20 precompiles cannot receive funds.
 - (app) [#3009](https://github.com/evmos/evmos/pull/3009) Move internal Evmos app initialization to input function.
 - (tests) [#3006](https://github.com/evmos/evmos/pull/3006) Add support for custom decimals to test suite and fix ante tests.
+- (ci) [#3027](https://github.com/evmos/evmos/pull/3027) Disable `goreleaser` dry runs for pull requests to `main`.
 
 ### Bug Fixes
 

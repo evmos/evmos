@@ -3,7 +3,6 @@ name: goreleaser-dry-run
 on:
   pull_request:
     branches:
-      - main
       - release/**
 
 permissions: read-all
