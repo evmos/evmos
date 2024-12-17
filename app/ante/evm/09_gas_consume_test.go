@@ -3,17 +3,21 @@
 package evm_test
 
 import (
+	"fmt"
+
 	"cosmossdk.io/math"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	evmante "github.com/evmos/evmos/v20/app/ante/evm"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v20/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
 
 func (suite *EvmAnteTestSuite) TestUpdateCumulativeGasWanted() {
 	keyring := testkeyring.New(1)
 	unitNetwork := network.NewUnitTestNetwork(
+		network.WithChainID(suite.chainID),
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 
@@ -86,6 +90,7 @@ func (suite *EvmAnteTestSuite) TestUpdateCumulativeGasWanted() {
 func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 	keyring := testkeyring.New(1)
 	unitNetwork := network.NewUnitTestNetwork(
+		network.WithChainID(suite.chainID),
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
@@ -93,22 +98,20 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 	testCases := []struct {
 		name          string
 		expectedError string
-		fees          sdktypes.Coins
+		feesAmt       math.Int
 		getSender     func() sdktypes.AccAddress
 	}{
 		{
-			name: "success: fees are zero and event emitted",
-			fees: sdktypes.Coins{},
+			name:    "success: fees are zero and event emitted",
+			feesAmt: math.NewInt(0),
 			getSender: func() sdktypes.AccAddress {
 				// Return prefunded sender
 				return keyring.GetKey(0).AccAddr
 			},
 		},
 		{
-			name: "success: there are non zero fees, user has sufficient bank balances and event emitted",
-			fees: sdktypes.Coins{
-				sdktypes.NewCoin(unitNetwork.GetBaseDenom(), math.NewInt(1000)),
-			},
+			name:    "success: there are non zero fees, user has sufficient bank balances and event emitted",
+			feesAmt: math.NewInt(1000),
 			getSender: func() sdktypes.AccAddress {
 				// Return prefunded sender
 				return keyring.GetKey(0).AccAddr
@@ -117,9 +120,7 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 		{
 			name:          "fail: insufficient user balance, event is NOT emitted",
 			expectedError: "failed to deduct transaction costs from user balance",
-			fees: sdktypes.Coins{
-				sdktypes.NewCoin(unitNetwork.GetBaseDenom(), math.NewInt(1000)),
-			},
+			feesAmt:       math.NewInt(1000),
 			getSender: func() sdktypes.AccAddress {
 				// Return unfunded account
 				index := keyring.AddKey()
@@ -129,24 +130,28 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 	}
 
 	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
+		suite.Run(fmt.Sprintf("%v_%v_%v", evmtypes.GetTxTypeName(suite.ethTxType), suite.chainID, tc.name), func() {
 			keepers := &evmante.ConsumeGasKeepers{
-				Bank:         unitNetwork.App.BankKeeper,
-				Distribution: unitNetwork.App.DistrKeeper,
-				Evm:          unitNetwork.App.EvmKeeper,
-				Staking:      unitNetwork.App.StakingKeeper,
+				Evm: unitNetwork.App.EvmKeeper,
 			}
 			sender := tc.getSender()
-			prevBalance, err := grpcHandler.GetAllBalances(
-				sender,
-			)
+
+			resp, err := grpcHandler.GetBalanceFromEVM(sender)
 			suite.Require().NoError(err)
+			prevBalance, ok := math.NewIntFromString(resp.Balance)
+			suite.Require().True(ok)
+
+			suite.Require().NoError(err)
+
+			evmDecimals := evmtypes.GetEVMCoinDecimals()
+			feesAmt := tc.feesAmt.Mul(evmDecimals.ConversionFactor())
+			fees := sdktypes.NewCoins(sdktypes.NewCoin(unitNetwork.GetBaseDenom(), feesAmt))
 
 			// Function under test
 			err = evmante.ConsumeFeesAndEmitEvent(
 				unitNetwork.GetContext(),
 				keepers,
-				tc.fees,
+				fees,
 				sender,
 			)
 
@@ -156,24 +161,24 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 
 				// Check events are not present
 				events := unitNetwork.GetContext().EventManager().Events()
-				suite.Require().Zero(len(events))
+				suite.Require().Zero(len(events), "required no events to be emitted")
 			} else {
 				suite.Require().NoError(err)
 
 				// Check fees are deducted
-				afterBalance, err := grpcHandler.GetAllBalances(
-					sender,
-				)
+				resp, err := grpcHandler.GetBalanceFromEVM(sender)
 				suite.Require().NoError(err)
-				expectedBalance := prevBalance.Balances.Sub(tc.fees...)
-				suite.Require().True(
-					expectedBalance.Equal(afterBalance.Balances),
-				)
+				afterBalance, ok := math.NewIntFromString(resp.Balance)
+				suite.Require().True(ok)
+
+				suite.Require().NoError(err)
+				expectedBalance := prevBalance.Sub(feesAmt)
+				suite.Require().True(expectedBalance.Equal(afterBalance), "expected different balance after fees deduction")
 
 				// Event to be emitted
 				expectedEvent := sdktypes.NewEvent(
 					sdktypes.EventTypeTx,
-					sdktypes.NewAttribute(sdktypes.AttributeKeyFee, tc.fees.String()),
+					sdktypes.NewAttribute(sdktypes.AttributeKeyFee, fees.String()),
 				)
 				// Check events are present
 				events := unitNetwork.GetContext().EventManager().Events()
@@ -181,6 +186,7 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 				suite.Require().Contains(
 					events,
 					expectedEvent,
+					"expected different events after fees deduction",
 				)
 			}
 
