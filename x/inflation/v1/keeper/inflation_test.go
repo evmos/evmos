@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"cosmossdk.io/math"
@@ -12,6 +13,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/utils"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	"github.com/evmos/evmos/v20/x/inflation/v1/types"
 	"github.com/stretchr/testify/require"
 )
@@ -105,15 +107,6 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 		utils.EthHexToCosmosAddr(types.FoundationWallets[0]),
 		utils.EthHexToCosmosAddr(types.FoundationWallets[1]),
 	}
-	teamAllocation := network.PrefundedAccountInitialBalance.MulRaw(int64(len(foundationAcc)))
-
-	// Genesis available tokens are defined by the testing suite setup:
-	//- Validators' self delegation.
-	//- Tokens delegated by only one EOA.
-	//- Free EOA tokens.
-	valBondedAmt := network.DefaultBondedAmount.MulRaw(nVals)
-	accsBondAmount := math.OneInt().MulRaw(nVals)
-	bondedAmount := valBondedAmt.Add(accsBondAmount)
 
 	testCases := []struct {
 		name       string
@@ -146,15 +139,27 @@ func TestGetCirculatingSupplyAndInflationRate(t *testing.T) {
 	for _, isTestnet := range []bool{false, true} {
 		for _, tc := range testCases {
 			t.Run(fmt.Sprintf("Case %s, mainnet = %t", tc.name, !isTestnet), func(t *testing.T) {
-				// This variable consider all non bonded tokens during genesis but the team
-				// allocation.
-				accsFreeAmount := network.PrefundedAccountInitialBalance.MulRaw(nAccs).Sub(accsBondAmount)
-
-				chainID := utils.MainnetChainID + "-1"
-				if isTestnet {
+				var chainID string
+				var teamAllocation math.Int
+				switch isTestnet {
+				case true:
 					chainID = utils.TestnetChainID + "-1"
-					accsFreeAmount = accsFreeAmount.Add(teamAllocation)
+					teamAllocation = network.PrefundedAccountInitialBalance.MulRaw(int64(len(foundationAcc)))
+				default:
+					chainID = utils.MainnetChainID + "-1"
+					teamAllocation = math.ZeroInt()
 				}
+
+				baseCoinInfo := evmtypes.ChainsCoinInfo[strings.Split(chainID, "-")[0]]
+				valBondedAmt := network.GetInitialBondedAmount(baseCoinInfo.Decimals).MulRaw(nVals)
+				accsBondAmount := math.OneInt().MulRaw(nVals)
+				bondedAmount := valBondedAmt.Add(accsBondAmount)
+
+				accsFreeAmount := network.PrefundedAccountInitialBalance.
+					MulRaw(nAccs).
+					Sub(accsBondAmount).
+					Add(teamAllocation)
+
 				// reset
 				keyring := testkeyring.New(int(nAccs))
 				nw = network.NewUnitTestNetwork(
@@ -204,11 +209,6 @@ func TestBondedRatio(t *testing.T) {
 		utils.EthHexToCosmosAddr(types.FoundationWallets[0]),
 		utils.EthHexToCosmosAddr(types.FoundationWallets[1]),
 	}
-	teamAllocation := network.PrefundedAccountInitialBalance.MulRaw(int64(len(foundationAcc)))
-
-	valBondedAmt := network.DefaultBondedAmount.MulRaw(nVals)
-	accsBondAmount := math.OneInt().MulRaw(nVals)
-	bondedAmount := valBondedAmt.Add(accsBondAmount)
 
 	testCases := []struct {
 		name      string
@@ -225,13 +225,27 @@ func TestBondedRatio(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
-			totalSupply := network.PrefundedAccountInitialBalance.MulRaw(nAccs).Sub(accsBondAmount).Add(bondedAmount)
-
-			chainID := utils.MainnetChainID + "-1"
-			if !tc.isMainnet {
+			var chainID string
+			var teamAllocation math.Int
+			switch !tc.isMainnet {
+			case true:
 				chainID = utils.TestnetChainID + "-1"
-				totalSupply = totalSupply.Add(teamAllocation)
+				teamAllocation = network.PrefundedAccountInitialBalance.MulRaw(int64(len(foundationAcc)))
+			default:
+				chainID = utils.MainnetChainID + "-1"
+				teamAllocation = math.ZeroInt()
 			}
+
+			baseCoinInfo := evmtypes.ChainsCoinInfo[strings.Split(chainID, "-")[0]]
+			valBondedAmt := network.GetInitialBondedAmount(baseCoinInfo.Decimals).MulRaw(nVals)
+			accsBondAmount := math.OneInt().MulRaw(nVals)
+			bondedAmount := valBondedAmt.Add(accsBondAmount)
+
+			totalSupply := network.PrefundedAccountInitialBalance.
+				MulRaw(nAccs).
+				Sub(accsBondAmount).
+				Add(bondedAmount).
+				Add(teamAllocation)
 
 			// reset
 			keyring := testkeyring.New(int(nAccs))

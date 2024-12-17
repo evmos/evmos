@@ -8,6 +8,8 @@ import (
 	"slices"
 	"time"
 
+	"golang.org/x/exp/maps"
+
 	"github.com/evmos/evmos/v20/app"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -53,6 +55,7 @@ type defaultGenesisParams struct {
 	slashing    SlashingCustomGenesisState
 	bank        BankCustomGenesisState
 	gov         GovCustomGenesisState
+	feeMarket   FeeMarketCustomGenesisState
 }
 
 // genesisSetupFunctions contains the available genesis setup functions
@@ -137,23 +140,16 @@ func getAccAddrsFromBalances(balances []banktypes.Balance) []sdktypes.AccAddress
 // same value for all denoms.
 func createBalances(
 	accounts []sdktypes.AccAddress,
-	denoms []string,
-	denomsDecimals map[string]evmtypes.Decimals,
+	denomDecimals map[string]evmtypes.Decimals,
 ) []banktypes.Balance {
 	numberOfAccounts := len(accounts)
 
+	denoms := maps.Keys(denomDecimals)
 	slices.Sort(denoms)
 
 	coins := make([]sdktypes.Coin, len(denoms))
 	for i, denom := range denoms {
-		amount := PrefundedAccountInitialBalance
-		dec, found := denomsDecimals[denom]
-		// If the denom is not in the map, the 18 decimals representation is
-		// used.
-		if found {
-			// amount is expressed in 18 decimals so it should be scaled down.
-			amount = amount.Quo(dec.ConversionFactor())
-		}
+		amount := GetInitialAmount(denomDecimals[denom])
 		coins[i] = sdktypes.NewCoin(denom, amount)
 	}
 	fundedAccountBalances := make([]banktypes.Balance, 0, numberOfAccounts)
@@ -459,11 +455,24 @@ type GovCustomGenesisState struct {
 func setDefaultGovGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, overwriteParams GovCustomGenesisState) evmostypes.GenesisState {
 	govGen := govtypesv1.DefaultGenesisState()
 	updatedParams := govGen.Params
-	minDepositAmt := sdkmath.NewInt(1e18)
+	minDepositAmt := sdkmath.NewInt(1e18).Quo(evmtypes.GetEVMCoinDecimals().ConversionFactor())
 	updatedParams.MinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(overwriteParams.denom, minDepositAmt))
 	updatedParams.ExpeditedMinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(overwriteParams.denom, minDepositAmt))
 	govGen.Params = updatedParams
 	genesisState[govtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(govGen)
+	return genesisState
+}
+
+// GovCustomGenesisState defines the gov genesis state
+type FeeMarketCustomGenesisState struct {
+	baseFee sdkmath.LegacyDec
+}
+
+// setDefaultFeeMarketGenesisState sets the default fee market genesis state
+func setDefaultFeeMarketGenesisState(evmosApp *app.Evmos, genesisState evmostypes.GenesisState, overwriteParams FeeMarketCustomGenesisState) evmostypes.GenesisState {
+	fmGen := feemarkettypes.DefaultGenesisState()
+	fmGen.Params.BaseFee = overwriteParams.baseFee
+	genesisState[feemarkettypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(fmGen)
 	return genesisState
 }
 
@@ -484,6 +493,7 @@ func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) ev
 	genesisState = setDefaultBankGenesisState(evmosApp, genesisState, params.bank)
 	genesisState = setDefaultGovGenesisState(evmosApp, genesisState, params.gov)
 	genesisState = setDefaultSlashingGenesisState(evmosApp, genesisState, params.slashing)
+	genesisState = setDefaultFeeMarketGenesisState(evmosApp, genesisState, params.feeMarket)
 	genesisState = setDefaultErc20GenesisState(evmosApp, genesisState)
 
 	return genesisState
