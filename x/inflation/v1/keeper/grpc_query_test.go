@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"cosmossdk.io/math"
@@ -12,6 +13,7 @@ import (
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/network"
 	evmostypes "github.com/evmos/evmos/v20/types"
 	"github.com/evmos/evmos/v20/utils"
+	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 	"github.com/evmos/evmos/v20/x/inflation/v1/types"
 )
 
@@ -221,7 +223,9 @@ func TestQueryCirculatingSupply(t *testing.T) {
 	//
 	// NOTE: the EOA delegate 1 token to every validator but it is already
 	// accounted for in the expCirculatingSupply.
-	bondedAmount := network.DefaultBondedAmount.MulRaw(nVals)
+	chainID := strings.Split(nw.GetChainID(), "-")[0]
+	baseCoinInfo := evmtypes.ChainsCoinInfo[chainID]
+	bondedAmount := network.GetInitialBondedAmount(baseCoinInfo.Decimals).MulRaw(nVals)
 	bondedCoins := sdk.NewDecCoin(evmostypes.BaseDenom, bondedAmount)
 
 	res, err := qc.CirculatingSupply(ctx, &types.QueryCirculatingSupplyRequest{})
@@ -245,7 +249,9 @@ func TestQueryInflationRate(t *testing.T) {
 	//- Validators' self delegation.
 	//- Tokens delegated by EOA.
 	//- Free EOA tokens.
-	valBondedAmt := network.DefaultBondedAmount.MulRaw(nVals)
+	chainID := strings.Split(nw.GetChainID(), "-")[0]
+	baseCoinInfo := evmtypes.ChainsCoinInfo[chainID]
+	valBondedAmt := network.GetInitialBondedAmount(baseCoinInfo.Decimals).MulRaw(nVals)
 	accsBondAmount := math.OneInt().MulRaw(nVals)
 	accsFreeAmount := network.PrefundedAccountInitialBalance.MulRaw(nAccs).Sub(accsBondAmount)
 
