@@ -86,3 +86,10 @@ func (k Keeper) Params(c context.Context, _ *types.QueryParamsRequest) (*types.Q
 	params := k.GetParams(ctx)
 	return &types.QueryParamsResponse{Params: params}, nil
 }
+
+// OwnerAddress returns the owner address for a given ERC20 contract address
+func (k Keeper) OwnerAddress(c context.Context, req *types.QueryOwnerAddressRequest) (*types.QueryOwnerAddressResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	owner := k.GetOwnerAddress(ctx, req.ContractAddress)
+	return &types.QueryOwnerAddressResponse{OwnerAddress: owner}, nil
+}

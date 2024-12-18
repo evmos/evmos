@@ -3,6 +3,7 @@ package erc20_test
 import (
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v20/precompiles/erc20"
 	utiltx "github.com/evmos/evmos/v20/testutil/tx"
 )
@@ -295,6 +296,187 @@ func (s *PrecompileTestSuite) TestParseBalanceOfArgs() {
 				s.Require().Equal(account, tc.args[0], "expected different account address")
 			} else {
 				s.Require().Error(err, "expected an error parsing the balanceOf arguments")
+				s.Require().ErrorContains(err, tc.errContains, "expected different error message")
+			}
+		})
+	}
+}
+
+func (s *PrecompileTestSuite) TestParseMintArgs() {
+	minter := utiltx.GenerateAddress()
+	amount := big.NewInt(100)
+
+	testcases := []struct {
+		name        string
+		args        []interface{}
+		expPass     bool
+		errContains string
+	}{
+		{
+			name: "pass - correct arguments",
+			args: []interface{}{
+				minter,
+				amount,
+			},
+			expPass: true,
+		},
+		{
+			name: "fail - invalid minter address",
+			args: []interface{}{
+				"invalid address",
+				amount,
+			},
+			errContains: "invalid minter address",
+		},
+		{
+			name: "fail - invalid amount",
+			args: []interface{}{
+				minter,
+				"invalid amount",
+			},
+			errContains: "invalid amount",
+		},
+		{
+			name: "fail - invalid number of arguments",
+			args: []interface{}{
+				1, 2, 3,
+			},
+			errContains: "invalid number of arguments",
+		},
+	}
+
+	for _, tc := range testcases {
+		s.Run(tc.name, func() {
+			minter, amount, err := erc20.ParseMintArgs(tc.args)
+			if tc.expPass {
+				s.Require().NoError(err, "unexpected error parsing the mint arguments")
+				s.Require().Equal(minter, tc.args[0], "expected different minter address")
+				s.Require().Equal(amount, tc.args[1], "expected different amount")
+			}
+		})
+	}
+}
+
+func (s *PrecompileTestSuite) TestParseBurnArgs() {
+	amount := big.NewInt(100)
+
+	testcases := []struct {
+		name        string
+		args        []interface{}
+		expPass     bool
+		errContains string
+	}{
+		{
+			name: "pass - correct arguments",
+			args: []interface{}{
+				amount,
+			},
+			expPass: true,
+		},
+		{
+			name: "fail - invalid amount",
+			args: []interface{}{
+				"invalid amount",
+			},
+			errContains: "invalid amount",
+		},
+		{
+			name: "fail - invalid number of arguments",
+			args: []interface{}{
+				1, 2, 3,
+			},
+			errContains: "invalid number of arguments",
+		},
+	}
+
+	for _, tc := range testcases {
+		s.Run(tc.name, func() {
+			amount, err := erc20.ParseBurnArgs(tc.args)
+			if tc.expPass {
+				s.Require().NoError(err, "unexpected error parsing the burn arguments")
+				s.Require().Equal(amount, tc.args[0], "expected different amount")
+			} else {
+				s.Require().Error(err, "expected an error parsing the burn arguments")
+				s.Require().ErrorContains(err, tc.errContains, "expected different error message")
+			}
+		})
+	}
+}
+
+func (s *PrecompileTestSuite) TestParseOwnerArgs() {
+	testcases := []struct {
+		name        string
+		args        []interface{}
+		expPass     bool
+		errContains string
+	}{
+		{
+			name:    "pass - correct arguments",
+			args:    []interface{}{},
+			expPass: true,
+		},
+		{
+			name: "fail - invalid number of arguments",
+			args: []interface{}{
+				1, 2, 3,
+			},
+			errContains: "invalid number of arguments",
+		},
+	}
+
+	for _, tc := range testcases {
+		s.Run(tc.name, func() {
+			err := erc20.ParseOwnerArgs(tc.args)
+			if tc.expPass {
+				s.Require().NoError(err, "unexpected error parsing the owner arguments")
+			} else {
+				s.Require().Error(err, "expected an error parsing the owner arguments")
+				s.Require().ErrorContains(err, tc.errContains, "expected different error message")
+			}
+		})
+	}
+}
+
+func (s *PrecompileTestSuite) TestParseTransferOwnershipArgs() {
+	newOwner := common.Address(utiltx.GenerateAddress().Bytes())
+
+	testcases := []struct {
+		name        string
+		args        []interface{}
+		expPass     bool
+		errContains string
+	}{
+		{
+			name: "fail - invalid number of arguments",
+			args: []interface{}{
+				1, 2, 3,
+			},
+			errContains: "invalid number of arguments",
+		},
+		{
+			name: "fail - invalid new owner address",
+			args: []interface{}{
+				"invalid address",
+			},
+			errContains: "invalid new owner address",
+		},
+		{
+			name: "pass - correct arguments",
+			args: []interface{}{
+				newOwner,
+			},
+			expPass: true,
+		},
+	}
+
+	for _, tc := range testcases {
+		s.Run(tc.name, func() {
+			newOwner, err := erc20.ParseTransferOwnershipArgs(tc.args)
+			if tc.expPass {
+				s.Require().NoError(err, "unexpected error parsing the transferOwnership arguments")
+				s.Require().Equal(newOwner, tc.args[0], "expected different new owner address")
+			} else {
+				s.Require().Error(err, "expected an error parsing the transferOwnership arguments")
 				s.Require().ErrorContains(err, tc.errContains, "expected different error message")
 			}
 		})
