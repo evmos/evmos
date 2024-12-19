@@ -3,6 +3,7 @@
 package server
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
@@ -87,7 +88,7 @@ func StartJSONRPC(ctx *server.Context,
 	go func() {
 		ctx.Logger.Info("Starting JSON-RPC server", "address", config.JSONRPC.Address)
 		if err := httpSrv.Serve(ln); err != nil {
-			if err == http.ErrServerClosed {
+			if errors.Is(err, http.ErrServerClosed) {
 				close(httpSrvDone)
 				return
 			}
