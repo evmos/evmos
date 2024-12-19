@@ -9,7 +9,6 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
-	anteutils "github.com/evmos/evmos/v20/app/ante/utils"
 	"github.com/evmos/evmos/v20/types"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
@@ -35,10 +34,7 @@ func UpdateCumulativeGasWanted(
 }
 
 type ConsumeGasKeepers struct {
-	Bank         anteutils.BankKeeper
-	Distribution anteutils.DistributionKeeper
-	Evm          EVMKeeper
-	Staking      anteutils.StakingKeeper
+	Evm EVMKeeper
 }
 
 // ConsumeFeesAndEmitEvent deduces fees from sender and emits the event

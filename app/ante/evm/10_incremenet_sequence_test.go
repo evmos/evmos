@@ -14,6 +14,7 @@ import (
 func (suite *EvmAnteTestSuite) TestIncrementSequence() {
 	keyring := testkeyring.New(1)
 	unitNetwork := network.NewUnitTestNetwork(
+		network.WithChainID(suite.chainID),
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
