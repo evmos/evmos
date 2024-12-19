@@ -16,6 +16,8 @@ import (
 	auth "github.com/evmos/evmos/v20/precompiles/authorization"
 	"github.com/evmos/evmos/v20/precompiles/erc20"
 	"github.com/evmos/evmos/v20/testutil"
+	utiltx "github.com/evmos/evmos/v20/testutil/tx"
+	erc20types "github.com/evmos/evmos/v20/x/erc20/types"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	inflationtypes "github.com/evmos/evmos/v20/x/inflation/v1/types"
 )
@@ -110,13 +112,14 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 	symbolMethod := s.precompile.Methods[erc20.SymbolMethod]
 
 	testcases := []struct {
-		name        string
-		denom       string
-		malleate    func(sdk.Context, *app.Evmos)
-		expPass     bool
-		errContains string
-		expName     string
-		expSymbol   string
+		name              string
+		denom             string
+		contractOwnerAddr string
+		malleate          func(sdk.Context, *app.Evmos)
+		expPass           bool
+		errContains       string
+		expName           string
+		expSymbol         string
 	}{
 		{
 			name:        "fail - empty denom",
@@ -226,12 +229,13 @@ func (s *PrecompileTestSuite) TestDecimals() {
 	DecimalsMethod := s.precompile.Methods[erc20.DecimalsMethod]
 
 	testcases := []struct {
-		name        string
-		denom       string
-		malleate    func(sdk.Context, *app.Evmos)
-		expPass     bool
-		errContains string
-		expDecimals uint8
+		name              string
+		denom             string
+		contractOwnerAddr string
+		malleate          func(sdk.Context, *app.Evmos)
+		expPass           bool
+		errContains       string
+		expDecimals       uint8
 	}{
 		{
 			name:        "fail - empty denom",
@@ -580,6 +584,68 @@ func (s *PrecompileTestSuite) TestAllowance() {
 
 			// NOTE: all output and error checking happens in here
 			s.requireOut(bz, err, method, tc.expPass, tc.errContains, tc.expAllow)
+		})
+	}
+}
+
+func (s *PrecompileTestSuite) TestOwner() {
+	method := s.precompile.Methods[erc20.OwnerMethod]
+
+	testcases := []struct {
+		name        string
+		malleate    func() []interface{}
+		expPass     bool
+		errContains string
+		expOwner    common.Address
+	}{
+		{
+			name: "fail - invalid number of arguments",
+			malleate: func() []interface{} {
+				return []interface{}{1}
+			},
+			errContains: "invalid number of arguments; expected 0; got: 1",
+		},
+		{
+			name: "pass - owner is the contract owner address",
+			malleate: func() []interface{} {
+				return []interface{}{}
+			},
+			expPass:  true,
+			expOwner: common.Address(s.keyring.GetAccAddr(0).Bytes()),
+		},
+	}
+
+	for _, tc := range testcases {
+		s.Run(tc.name, func() {
+			s.SetupTest()
+
+			ctx := s.network.GetContext()
+
+			var ownerArgs []interface{}
+			if tc.malleate != nil {
+				ownerArgs = tc.malleate()
+			}
+
+			ownerAddr := tc.expOwner
+			tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), s.tokenDenom, erc20types.OWNER_MODULE)
+			tokenPair.SetOwnerAddress(sdk.AccAddress(ownerAddr.Bytes()).String())
+			s.network.App.Erc20Keeper.SetTokenPair(s.network.GetContext(), tokenPair)
+			s.network.App.Erc20Keeper.SetDenomMap(s.network.GetContext(), tokenPair.Denom, tokenPair.GetID())
+			s.network.App.Erc20Keeper.SetERC20Map(s.network.GetContext(), tokenPair.GetERC20Contract(), tokenPair.GetID())
+
+			precompile, err := setupERC20PrecompileForTokenPair(*s.network, tokenPair)
+			s.Require().NoError(err, "failed to set up %q erc20 precompile", tokenPair.Denom)
+
+			bz, err := precompile.Owner(
+				ctx,
+				nil,
+				nil,
+				&method,
+				ownerArgs,
+			)
+
+			// NOTE: all output and error checking happens in here
+			s.requireOut(bz, err, method, tc.expPass, tc.errContains, tc.expOwner)
 		})
 	}
 }
