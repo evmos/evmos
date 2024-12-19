@@ -90,7 +90,7 @@ func (w *ledgerDriver) Open(device io.ReadWriter, _ string) error {
 	_, _, err := w.ledgerDerive(gethaccounts.DefaultBaseDerivationPath)
 	if err != nil {
 		// Ethereum app is not running or in browser mode, nothing more to do, return
-		if err == errLedgerReplyInvalidHeader {
+		if errors.Is(err, errLedgerReplyInvalidHeader) {
 			w.browser = true
 		}
 		return nil

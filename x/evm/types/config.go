@@ -10,8 +10,7 @@
 package types
 
 import (
-	"fmt"
-
+	"errors"
 	geth "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 )
@@ -21,7 +20,7 @@ func (ec *EVMConfigurator) Configure() error {
 	// If Configure method has been already used in the object, return
 	// an error to avoid overriding configuration.
 	if ec.sealed {
-		return fmt.Errorf("error configuring EVMConfigurator: already sealed and cannot be modified")
+		return errors.New("error configuring EVMConfigurator: already sealed and cannot be modified")
 	}
 
 	if err := setChainConfig(ec.chainConfig); err != nil {

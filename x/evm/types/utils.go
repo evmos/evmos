@@ -5,6 +5,7 @@ package types
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"math/big"
 
@@ -69,7 +70,7 @@ func DecodeTransactionLogs(data []byte) (TransactionLogs, error) {
 // UnwrapEthereumMsg extracts MsgEthereumTx from wrapping sdk.Tx
 func UnwrapEthereumMsg(tx *sdk.Tx, ethHash common.Hash) (*MsgEthereumTx, error) {
 	if tx == nil {
-		return nil, fmt.Errorf("invalid tx: nil")
+		return nil, errors.New("invalid tx: nil")
 	}
 
 	for _, msg := range (*tx).GetMsgs() {
