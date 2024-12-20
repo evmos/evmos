@@ -277,6 +277,66 @@ func (k *Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams)
 	return &types.MsgUpdateParamsResponse{}, nil
 }
 
+// TransferOwnership implements the MsgServer interface for the ERC20 module.
+func (k Keeper) TransferContractOwnership(goCtx context.Context, msg *types.MsgTransferOwnership) (*types.MsgTransferOwnershipResponse, error) {
+	if err := k.validateAuthority(msg.Authority); err != nil {
+		return nil, err
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	newOwner, err := sdk.AccAddressFromBech32(msg.NewOwner)
+	if err != nil {
+		return nil, err
+	}
+
+	err = k.TransferOwnershipProposal(ctx, newOwner, msg.Token)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgTransferOwnershipResponse{}, nil
+}
+
+// Mint implements the MsgServer interface for the ERC20 module. It mints ERC20 tokens to a given address.
+func (k Keeper) Mint(goCtx context.Context, msg *types.MsgMint) (*types.MsgMintResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return nil, err
+	}
+
+	receiver, err := sdk.AccAddressFromBech32(msg.To)
+	if err != nil {
+		return nil, err
+	}
+
+	err = k.MintCoins(ctx, sender, receiver, math.NewIntFromBigInt(msg.Amount.BigInt()), msg.ContractAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgMintResponse{}, nil
+}
+
+// Burn implements the MsgServer interface for the ERC20 module. It burns ERC20 tokens from a given address.
+func (k Keeper) Burn(goCtx context.Context, msg *types.MsgBurn) (*types.MsgBurnResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return nil, err
+	}
+
+	err = k.BurnCoins(ctx, sender, math.NewIntFromBigInt(msg.Amount.BigInt()), msg.ContractAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgBurnResponse{}, nil
+}
+
 // RegisterERC20 implements the gRPC MsgServer interface. After a successful governance vote
 // it updates creates the token pair for an ERC20 contract if the requested authority
 // is the Cosmos SDK governance module account

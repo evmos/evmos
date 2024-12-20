@@ -52,10 +52,10 @@ func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.
 	}
 
 	if hasWrappedMethods {
-		return werc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
+		return werc20.NewPrecompile(k, pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
 	}
 
-	return erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
+	return erc20.NewPrecompile(k, pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
 }
 
 // IsAvailableERC20Precompile returns true if the given precompile address

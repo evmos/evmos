@@ -35,6 +35,9 @@ const (
 	GasTotalSupply       = 2_477
 	GasBalanceOf         = 2_851
 	GasAllowance         = 3_246
+	GasMint              = 50_000
+	GasBurn              = 50_000
+	GasTransferOwnership = 25_000
 )
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.
@@ -47,6 +50,7 @@ var _ vm.PrecompiledContract = &Precompile{}
 // Precompile defines the precompiled contract for ERC-20.
 type Precompile struct {
 	cmn.Precompile
+	erc20Keeper    Keeper
 	tokenPair      erc20types.TokenPair
 	transferKeeper transferkeeper.Keeper
 	// BankKeeper is a public field so that the werc20 precompile can use it.
@@ -56,6 +60,7 @@ type Precompile struct {
 // NewPrecompile creates a new ERC-20 Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
+	erc20Keeper Keeper,
 	tokenPair erc20types.TokenPair,
 	bankKeeper bankkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
@@ -67,6 +72,7 @@ func NewPrecompile(
 	}
 
 	p := &Precompile{
+		erc20Keeper: erc20Keeper,
 		Precompile: cmn.Precompile{
 			ABI:                  newABI,
 			AuthzKeeper:          authzKeeper,
@@ -111,6 +117,12 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 		return GasIncreaseAllowance
 	case auth.DecreaseAllowanceMethod:
 		return GasDecreaseAllowance
+	case MintMethod:
+		return GasMint
+	case BurnMethod:
+		return GasBurn
+	case TransferOwnershipMethod:
+		return GasTransferOwnership
 	// ERC-20 queries
 	case NameMethod:
 		return GasName
@@ -147,7 +159,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// This handles any out of gas errors that may occur during the execution of a precompile tx or query.
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
-
 	bz, err = p.HandleMethod(ctx, contract, stateDB, method, args)
 	if err != nil {
 		return nil, err
@@ -171,7 +182,10 @@ func (Precompile) IsTransaction(method *abi.Method) bool {
 		TransferFromMethod,
 		auth.ApproveMethod,
 		auth.IncreaseAllowanceMethod,
-		auth.DecreaseAllowanceMethod:
+		auth.DecreaseAllowanceMethod,
+		MintMethod,
+		BurnMethod,
+		TransferOwnershipMethod:
 		return true
 	default:
 		return false
@@ -198,6 +212,12 @@ func (p *Precompile) HandleMethod(
 		bz, err = p.IncreaseAllowance(ctx, contract, stateDB, method, args)
 	case auth.DecreaseAllowanceMethod:
 		bz, err = p.DecreaseAllowance(ctx, contract, stateDB, method, args)
+	case MintMethod:
+		bz, err = p.Mint(ctx, contract, stateDB, method, args)
+	case BurnMethod:
+		bz, err = p.Burn(ctx, contract, stateDB, method, args)
+	case TransferOwnershipMethod:
+		bz, err = p.TransferOwnership(ctx, contract, stateDB, method, args)
 	// ERC-20 queries
 	case NameMethod:
 		bz, err = p.Name(ctx, contract, stateDB, method, args)
@@ -209,6 +229,8 @@ func (p *Precompile) HandleMethod(
 		bz, err = p.TotalSupply(ctx, contract, stateDB, method, args)
 	case BalanceOfMethod:
 		bz, err = p.BalanceOf(ctx, contract, stateDB, method, args)
+	case OwnerMethod:
+		bz, err = p.Owner(ctx, contract, stateDB, method, args)
 	case auth.AllowanceMethod:
 		bz, err = p.Allowance(ctx, contract, stateDB, method, args)
 	default:
