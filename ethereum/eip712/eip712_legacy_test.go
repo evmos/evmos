@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"github.com/evmos/evmos/v20/ethereum/eip712"
 	"github.com/stretchr/testify/require"
 )
@@ -86,4 +87,15 @@ func TestLegacyWrapTxToTypedData(t *testing.T) {
 	require.Equal(t, "from_address", value["from_address"])
 	require.Equal(t, "to_address", value["to_address"])
 	require.Equal(t, "1000stake", value["amount"])
+
+	// Validate types structure
+	require.Contains(t, typedData.Types, "EIP712Domain")
+	require.Contains(t, typedData.Types, "Tx")
+}
+
+func assertTypedDataDomain(t *testing.T, typedData *apitypes.TypedData) {
+	t.Helper()
+	require.Equal(t, "Cosmos Web3", typedData.Domain.Name)
+	require.Equal(t, "1.0.0", typedData.Domain.Version)
+	require.Equal(t, "cosmos", typedData.Domain.VerifyingContract)
 }
