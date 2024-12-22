@@ -4,6 +4,8 @@
 package staking
 
 import (
+	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth/exported"
@@ -31,6 +33,8 @@ type AppModuleBasic struct {
 type AppModule struct {
 	*staking.AppModule
 	keeper *keeper.Keeper
+
+	legacySubspace exported.Subspace
 }
 
 // NewAppModule creates a wrapper for the staking module.
@@ -43,8 +47,9 @@ func NewAppModule(
 ) AppModule {
 	am := staking.NewAppModule(cdc, k.Keeper, ak, bk, ls)
 	return AppModule{
-		AppModule: &am,
-		keeper:    k,
+		AppModule:      &am,
+		keeper:         k,
+		legacySubspace: ls,
 	}
 }
 
@@ -58,4 +63,8 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	// !! NOTE: when upgrading to a new cosmos-sdk version
 	// !! Check if there're store migrations for the staking module
 	// !! if so, you'll need to add them here
+	m := stakingkeeper.NewMigrator(am.keeper.Keeper, am.legacySubspace)
+	if err := cfg.RegisterMigration(types.ModuleName, 3, m.Migrate3to4); err != nil {
+		panic(fmt.Sprintf("failed to migrate x/%s from version 3 to 4: %v", types.ModuleName, err))
+	}
 }
