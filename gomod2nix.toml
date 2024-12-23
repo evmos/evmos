@@ -61,8 +61,8 @@ schema = 3
     version = "v0.1.1"
     hash = "sha256-aps3LfnQau1TYeccGwtqHQvy1Rudc9+O+iVAwXBKyDw="
   [mod."cosmossdk.io/x/tx"]
-    version = "v0.13.6"
-    hash = "sha256-5qXDPuIZZPk720nNO218DrvEYIUonzyLkqknBYf59j0="
+    version = "v0.13.7"
+    hash = "sha256-IL+oWDnqKsena8ut1GWBpDQETH3hQTVtbhUscWHyK3w="
   [mod."cosmossdk.io/x/upgrade"]
     version = "v0.1.4"
     hash = "sha256-lm0Ccc9zWs1ldWv1cArXuzRxq45zMir1ZNvoPY+9n7o="
@@ -637,8 +637,8 @@ schema = 3
     version = "v1.11.0"
     hash = "sha256-+rV3cDZr13N8E0rJ7iHmwsKYKH+EhV+IXBut+JbBiIE="
   [mod."github.com/spf13/cast"]
-    version = "v1.7.0"
-    hash = "sha256-xO2kSmNmMHaJ1i3T0ou0pcaBCusuO6Ep3xtF1P7ZadA="
+    version = "v1.7.1"
+    hash = "sha256-BjX0aY/PC37gIdMc7JhMgvhWFsksGdAcp2FgzpuvkPo="
   [mod."github.com/spf13/cobra"]
     version = "v1.8.1"
     hash = "sha256-yDF6yAHycV1IZOrt3/hofR+QINe+B2yqkcIaVov3Ky8="
@@ -794,8 +794,8 @@ schema = 3
     version = "v1.69.0"
     hash = "sha256-ww9VYpbEs7UimkV+X1hv4UozkO1QDS87HJsvpqnc+Mc="
   [mod."google.golang.org/protobuf"]
-    version = "v1.35.2"
-    hash = "sha256-kS8fLAUgGNFn/nuIv/KUzJktRYK/nzpuJYwqzDIc7b8="
+    version = "v1.36.0"
+    hash = "sha256-7LfDxB2/x6sSzJdQ3sixWMaY0WZ/juwuz3rPBJxNzXQ="
   [mod."gopkg.in/ini.v1"]
     version = "v1.67.0"
     hash = "sha256-V10ahGNGT+NLRdKUyRg1dos5RxLBXBk1xutcnquc/+4="
