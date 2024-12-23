@@ -5,10 +5,9 @@ package network
 
 import (
 	"fmt"
+	"maps"
 	"slices"
 	"time"
-
-	"golang.org/x/exp/maps"
 
 	"github.com/evmos/evmos/v20/app"
 
@@ -144,8 +143,7 @@ func createBalances(
 ) []banktypes.Balance {
 	numberOfAccounts := len(accounts)
 
-	denoms := maps.Keys(denomDecimals)
-	slices.Sort(denoms)
+	denoms := slices.Sorted(maps.Keys(denomDecimals))
 
 	coins := make([]sdktypes.Coin, len(denoms))
 	for i, denom := range denoms {
