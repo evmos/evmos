@@ -2,7 +2,7 @@
 FROM golang:1.23.4-alpine3.20 AS build-env
 
 ARG DB_BACKEND=goleveldb
-ARG ROCKSDB_VERSION="9.7.3"
+ARG ROCKSDB_VERSION="9.8.4"
 
 WORKDIR /go/src/github.com/evmos/evmos
 
