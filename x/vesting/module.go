@@ -80,7 +80,7 @@ func (AppModuleBasic) GetTxCmd() *cobra.Command {
 	return cli.NewTxCmd()
 }
 
-// GetTxCmd returns the root query command for the erc20 module.
+// GetQueryCmd returns the root query command for the vesting module.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return cli.GetQueryCmd()
 }
