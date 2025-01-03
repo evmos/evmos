@@ -93,9 +93,3 @@ func TestLegacyWrapTxToTypedData(t *testing.T) {
 	require.Contains(t, typedData.Types, "Tx")
 }
 
-func assertTypedDataDomain(t *testing.T, typedData *apitypes.TypedData) {
-	t.Helper()
-	require.Equal(t, "Cosmos Web3", typedData.Domain.Name)
-	require.Equal(t, "1.0.0", typedData.Domain.Version)
-	require.Equal(t, "cosmos", typedData.Domain.VerifyingContract)
-}
