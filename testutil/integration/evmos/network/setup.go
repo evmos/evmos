@@ -5,10 +5,9 @@ package network
 
 import (
 	"fmt"
+	"maps"
 	"slices"
 	"time"
-
-	"golang.org/x/exp/maps"
 
 	"github.com/evmos/evmos/v20/app"
 

@@ -5,10 +5,9 @@ package vm
 
 import (
 	"fmt"
+	"maps"
 	"sort"
 	"strings"
-
-	"golang.org/x/exp/maps"
 )
 
 // OpCodeInfo contains information required to identify an EVM operation.
