@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"github.com/evmos/evmos/v20/ethereum/eip712"
 	"github.com/stretchr/testify/require"
 )
@@ -92,4 +91,3 @@ func TestLegacyWrapTxToTypedData(t *testing.T) {
 	require.Contains(t, typedData.Types, "EIP712Domain")
 	require.Contains(t, typedData.Types, "Tx")
 }
-
