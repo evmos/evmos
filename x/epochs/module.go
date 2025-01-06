@@ -88,7 +88,7 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 	}
 }
 
-// GetTxCmd returns the root query command for the erc20 module.
+// GetQueryCmd returns the root query command for the epochs module.
 func (b AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return cli.GetQueryCmd()
 }
