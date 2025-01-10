@@ -8,7 +8,7 @@ import (
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v20/precompiles/gov"
 	"github.com/evmos/evmos/v20/precompiles/testutil"
@@ -494,7 +494,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 				// Check proposal details
 				Expect(out.Proposal.Id).To(Equal(uint64(1)))
-				Expect(out.Proposal.Status).To(Equal(uint32(v1.StatusVotingPeriod)))
+				Expect(out.Proposal.Status).To(Equal(uint32(govv1.StatusVotingPeriod)))
 				Expect(out.Proposal.Proposer).To(Equal(s.keyring.GetAddr(0)))
 				Expect(out.Proposal.Metadata).To(Equal("ipfs://CID"))
 				Expect(out.Proposal.Title).To(Equal("test prop"))
@@ -555,7 +555,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 				proposal := out.Proposals[0]
 				Expect(proposal.Id).To(Equal(uint64(1)))
-				Expect(proposal.Status).To(Equal(uint32(v1.StatusVotingPeriod)))
+				Expect(proposal.Status).To(Equal(uint32(govv1.StatusVotingPeriod)))
 				Expect(proposal.Proposer).To(Equal(s.keyring.GetAddr(0)))
 				Expect(proposal.Messages).To(HaveLen(1))
 				Expect(proposal.Messages[0]).To(Equal("/cosmos.bank.v1beta1.MsgSend"))
@@ -563,7 +563,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 			It("should filter proposals by status", func() {
 				callArgs.Args = []interface{}{
-					uint32(v1.StatusVotingPeriod),
+					uint32(govv1.StatusVotingPeriod),
 					common.Address{},
 					common.Address{},
 					query.PageRequest{
@@ -584,8 +584,8 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				Expect(err).To(BeNil())
 
 				Expect(out.Proposals).To(HaveLen(2))
-				Expect(out.Proposals[0].Status).To(Equal(uint32(v1.StatusVotingPeriod)))
-				Expect(out.Proposals[1].Status).To(Equal(uint32(v1.StatusVotingPeriod)))
+				Expect(out.Proposals[0].Status).To(Equal(uint32(govv1.StatusVotingPeriod)))
+				Expect(out.Proposals[1].Status).To(Equal(uint32(govv1.StatusVotingPeriod)))
 			})
 
 			It("should filter proposals by voter", func() {
@@ -594,7 +594,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 					ContractABI: s.precompile.ABI,
 					MethodName:  gov.VoteMethod,
 					Args: []interface{}{
-						s.keyring.GetAddr(0), uint64(1), uint8(v1.OptionYes), "",
+						s.keyring.GetAddr(0), uint64(1), uint8(govv1.OptionYes), "",
 					},
 				}
 				_, _, err := s.factory.CallContractAndCheckLogs(
