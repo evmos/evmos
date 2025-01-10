@@ -35,12 +35,13 @@ func (s *PrecompileTestSuite) TestGetVotes() {
 	var ctx sdk.Context
 	method := s.precompile.Methods[gov.GetVotesMethod]
 	testCases := []struct {
-		name     string
-		malleate func() []gov.WeightedVote
-		args     []interface{}
-		expPass  bool
-		expTotal uint64
-		gas      uint64
+		name        string
+		malleate    func() []gov.WeightedVote
+		args        []interface{}
+		expPass     bool
+		errContains string
+		expTotal    uint64
+		gas         uint64
 	}{
 		{
 			name: "valid query",
@@ -78,13 +79,23 @@ func (s *PrecompileTestSuite) TestGetVotes() {
 			gas:      200_000,
 		},
 		{
-			name:    "invalid proposal ID",
-			args:    []interface{}{uint64(0), query.PageRequest{Limit: 10, CountTotal: true}},
-			expPass: false,
-			gas:     200_000,
-			malleate: func() []gov.WeightedVote {
-				return []gov.WeightedVote{}
-			},
+			name:        "invalid proposal ID",
+			args:        []interface{}{uint64(0), query.PageRequest{Limit: 10, CountTotal: true}},
+			expPass:     false,
+			gas:         200_000,
+			errContains: "proposal id can not be 0",
+		},
+		{
+			name:        "fail - invalid number of args",
+			args:        []interface{}{},
+			errContains: fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 2, 0),
+			gas:         200_000,
+		},
+		{
+			name:        "fail - invalid arg types",
+			args:        []interface{}{"string argument 1", 2},
+			errContains: "error while unpacking args to VotesInput",
+			gas:         200_000,
 		},
 	}
 
@@ -93,7 +104,11 @@ func (s *PrecompileTestSuite) TestGetVotes() {
 			s.SetupTest()
 			ctx = s.network.GetContext()
 
-			votes := tc.malleate()
+			var votes []gov.WeightedVote
+			if tc.malleate != nil {
+				votes = tc.malleate()
+			}
+
 			var contract *vm.Contract
 			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
 
@@ -107,6 +122,7 @@ func (s *PrecompileTestSuite) TestGetVotes() {
 				s.Require().Equal(tc.expTotal, out.PageResponse.Total)
 			} else {
 				s.Require().Error(err)
+				s.Require().ErrorContains(err, tc.errContains)
 			}
 		})
 	}
@@ -114,71 +130,102 @@ func (s *PrecompileTestSuite) TestGetVotes() {
 
 func (s *PrecompileTestSuite) TestGetVote() {
 	var voter sdk.AccAddress
+	var voterAddr common.Address
+
 	method := s.precompile.Methods[gov.GetVoteMethod]
+
 	testCases := []struct {
 		name          string
-		malleate      func()
-		propNumber    uint64
+		malleate      func() []interface{}
 		expPass       bool
 		expPropNumber uint64
 		expVoter      common.Address
-		gas           uint64
 		errContains   string
 	}{
 		{
 			name: "valid query",
-			malleate: func() {
+			malleate: func() []interface{} {
+				fmt.Printf("adding votes for %s\n", voter.String())
+				fmt.Printf("adding votes for addr %s\n", voterAddr.Hex())
+
 				err := s.network.App.GovKeeper.AddVote(s.network.GetContext(), 1, voter, []*govv1.WeightedVoteOption{{Option: govv1.OptionYes, Weight: "1.0"}}, "")
 				s.Require().NoError(err)
+
+				return []interface{}{uint64(1), voterAddr}
 			},
-			propNumber:    uint64(1),
 			expPropNumber: uint64(1),
 			expVoter:      common.BytesToAddress(voter.Bytes()),
 			expPass:       true,
-			gas:           200_000,
 		},
 		{
-			name:       "invalid proposal ID",
-			propNumber: uint64(10),
-			expPass:    false,
-			gas:        200_000,
-			malleate: func() {
+			name:    "invalid proposal ID",
+			expPass: false,
+			malleate: func() []interface{} {
 				err := s.network.App.GovKeeper.AddVote(s.network.GetContext(), 1, voter, []*govv1.WeightedVoteOption{{Option: govv1.OptionYes, Weight: "1.0"}}, "")
 				s.Require().NoError(err)
+
+				return []interface{}{uint64(10), voterAddr}
 			},
 			errContains: "not found for proposal",
 		},
 		{
-			name:        "non-existent vote",
-			propNumber:  uint64(1),
+			name: "non-existent vote",
+			malleate: func() []interface{} {
+				return []interface{}{uint64(1), voterAddr}
+			},
 			expPass:     false,
-			gas:         200_000,
-			malleate:    func() {},
 			errContains: "not found for proposal",
+		},
+		{
+			name: "invalid number of args",
+			malleate: func() []interface{} {
+				return []interface{}{}
+			},
+			errContains: fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 2, 0),
+		},
+		{
+			name: "fail - invalid proposal id",
+			malleate: func() []interface{} {
+				return []interface{}{"string argument 1", 2}
+			},
+			errContains: "invalid proposal id",
+		},
+		{
+			name: "fail - invalid voter address",
+			malleate: func() []interface{} {
+				return []interface{}{uint64(0), 2}
+			},
+			errContains: "invalid voter address",
 		},
 	}
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest()
+
 			voter = s.keyring.GetAccAddr(0)
+			voterAddr = s.keyring.GetAddr(0)
+			gas := uint64(200_000)
 
-			tc.malleate()
+			var args []interface{}
+			if tc.malleate != nil {
+				args = tc.malleate()
+			}
 
-			contract, ctx := testutil.NewPrecompileContract(s.T(), s.network.GetContext(), s.keyring.GetAddr(0), s.precompile, tc.gas)
+			contract, ctx := testutil.NewPrecompileContract(s.T(), s.network.GetContext(), voterAddr, s.precompile, gas)
 
-			args := []interface{}{tc.propNumber, common.BytesToAddress(voter.Bytes())}
 			bz, err := s.precompile.GetVote(ctx, &method, contract, args)
 
 			expVote := gov.WeightedVote{
 				ProposalId: tc.expPropNumber,
-				Voter:      common.BytesToAddress(voter.Bytes()),
+				Voter:      voterAddr,
 				Options:    []gov.WeightedVoteOption{{Option: uint8(govv1.OptionYes), Weight: "1.0"}},
 				Metadata:   "",
 			}
 
 			if tc.expPass {
 				s.Require().NoError(err)
+
 				var out gov.VoteOutput
 				err = s.precompile.UnpackIntoInterface(&out, gov.GetVoteMethod, bz)
 
@@ -189,7 +236,7 @@ func (s *PrecompileTestSuite) TestGetVote() {
 				s.Require().Equal(expVote.Metadata, out.Vote.Metadata)
 			} else {
 				s.Require().Error(err)
-				s.Require().Contains(err.Error(), tc.errContains)
+				s.Require().ErrorContains(err, tc.errContains)
 			}
 		})
 	}
