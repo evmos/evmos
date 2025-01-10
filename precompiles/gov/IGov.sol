@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-3.0-only
+/// SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.8.17;
 
 import "../common/Types.sol";
@@ -107,10 +107,6 @@ interface IGov {
     /// @param options the options for voter
     event VoteWeighted(address indexed voter, uint64 proposalId, WeightedVoteOption[] options);
 
-    /// @dev UpdateParams defines an Event emitted when governance parameters are updated.
-    /// @param params The updated governance parameters
-    event UpdateParams(Params params);
-
     /// TRANSACTIONS
 
     /// @dev vote defines a method to add a vote on a specific proposal.
@@ -137,13 +133,6 @@ interface IGov {
         uint64 proposalId,
         WeightedVoteOption[] calldata options,
         string memory metadata
-    ) external returns (bool success);
-
-    /// @dev updateParams defines a method to update the governance parameters.
-    /// @param params The new governance parameters
-    /// @return success Whether the transaction was successful or not
-    function updateParams(
-        Params calldata params
     ) external returns (bool success);
 
     /// QUERIES
