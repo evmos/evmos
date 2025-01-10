@@ -23,6 +23,13 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+type TestCallType int8
+
+const (
+	directCall          TestCallType = iota
+	callingWithContract TestCallType = iota
+)
+
 // General variables used for integration tests
 var (
 	// differentAddr is an address generated for testing purposes that e.g. raises the different origin error
@@ -665,7 +672,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				callArgs.MethodName = method
 			})
 
-			It("should return all params", func() {
+			DescribeTable("should return all params", func(callType TestCallType) {
 				callArgs.Args = []interface{}{
 					"", // empty string to get all params
 				}
@@ -691,7 +698,11 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				Expect(output.Params.Quorum).NotTo(BeNil())
 				Expect(output.Params.Threshold).NotTo(BeNil())
 				Expect(output.Params.VetoThreshold).NotTo(BeNil())
-			})
+			},
+				// TODO: will have to adjust the implementation to support both call types
+				Entry("directly calling the precompile", directCall),
+				Entry("through a caller contract", callingWithContract),
+			)
 		})
 	})
 })
