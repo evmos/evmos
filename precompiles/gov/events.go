@@ -18,8 +18,6 @@ const (
 	EventTypeVote = "Vote"
 	// EventTypeVoteWeighted defines the event type for the gov VoteWeightedMethod transaction.
 	EventTypeVoteWeighted = "VoteWeighted"
-	// EventTypeUpdateParams defines the event type for the gov UpdateParams transaction.
-	EventTypeUpdateParams = "UpdateParams"
 )
 
 // EmitVoteEvent creates a new event emitted on a Vote transaction.
