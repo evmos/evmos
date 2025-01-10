@@ -94,37 +94,42 @@ func New(opts ...ConfigOption) *IntegrationNetwork {
 	return network
 }
 
-var (
-	// DefaultBondedAmount is the amount of tokens that each validator will have initially bonded
-	DefaultBondedAmount = sdktypes.TokensFromConsensusPower(1, types.PowerReduction)
-	// PrefundedAccountInitialBalance is the amount of tokens that each
-	// prefunded account has at genesis. It represents a 100k amount expressed
-	// in the 18 decimals representation.
-	PrefundedAccountInitialBalance, _ = sdkmath.NewIntFromString("100_000_000_000_000_000_000_000")
-)
+// PrefundedAccountInitialBalance is the amount of tokens that each
+// prefunded account has at genesis. It represents a 100k amount expressed
+// in the 18 decimals representation.
+var PrefundedAccountInitialBalance, _ = sdkmath.NewIntFromString("100_000_000_000_000_000_000_000")
 
 // configureAndInitChain initializes the network with the given configuration.
 // It creates the genesis state and starts the network.
 func (n *IntegrationNetwork) configureAndInitChain() error {
-	// The bonded denom should be updated to reflect the actual base denom
+	// --------------------------------------------------------------------------------------------
+	// Apply changes deriving from possible config options
+	// FIX: for sure there exists a better way to achieve that.
+	// --------------------------------------------------------------------------------------------
+
+	// The bonded amount should be updated to reflect the actual base denom
 	// decimals.
 	baseDecimals := n.cfg.chainCoins.BaseDecimals()
-	// 1e18/1e18 = 1
-	// 1e6/1e18 * 1e12 = 1e6/1e6 = 1
-	DefaultBondedAmount = DefaultBondedAmount.Mul(baseDecimals.ConversionFactor())
+	bondedAmount := GetInitialBondedAmount(baseDecimals)
+
+	// Create a new EvmosApp with the following params
+	evmosApp := createEvmosApp(
+		n.cfg.chainID,
+		n.cfg.customBaseAppOpts...,
+	)
 
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
 	valSet, valSigners := createValidatorSetAndSigners(n.cfg.amountOfValidators)
-	totalBonded := DefaultBondedAmount.Mul(sdkmath.NewInt(int64(n.cfg.amountOfValidators)))
+	totalBonded := bondedAmount.Mul(sdkmath.NewInt(int64(n.cfg.amountOfValidators)))
 
 	// Build staking type validators and delegations
-	validators, err := createStakingValidators(valSet.Validators, DefaultBondedAmount, n.cfg.operatorsAddrs)
+	validators, err := createStakingValidators(valSet.Validators, bondedAmount, n.cfg.operatorsAddrs)
 	if err != nil {
 		return err
 	}
 
-	// Create genesis accounts and funded balances based on the config
+	// Create genesis accounts and funded balances based on the config.
 	genAccounts, fundedAccountBalances := getGenAccountsAndBalances(n.cfg, validators)
 
 	fundedAccountBalances = addBondedModuleAccountToFundedBalances(
@@ -133,9 +138,6 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	)
 
 	delegations := createDelegations(validators, genAccounts[0].GetAddress())
-
-	// Create a new EvmosApp with the following params
-	evmosApp := createEvmosApp(n.cfg.chainID, n.cfg.customBaseAppOpts...)
 
 	stakingParams := StakingCustomGenesisState{
 		denom:       n.cfg.chainCoins.BaseDenom(),
@@ -150,6 +152,11 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	bankParams := BankCustomGenesisState{
 		totalSupply: totalSupply,
 		balances:    fundedAccountBalances,
+	}
+
+	// Base fee should be adapted to the configured base decimals.
+	fmParams := FeeMarketCustomGenesisState{
+		baseFee: GetInitialBaseFeeAmount(n.cfg.chainCoins.BaseDecimals()),
 	}
 
 	// Get the corresponding slashing info and missed block info
@@ -168,6 +175,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 			bank:        bankParams,
 			slashing:    slashingParams,
 			gov:         govParams,
+			feeMarket:   fmParams,
 		},
 	)
 
@@ -288,7 +296,7 @@ func (n *IntegrationNetwork) GetEVMDenom() string {
 
 // GetOtherDenoms returns network's other supported denoms
 func (n *IntegrationNetwork) GetOtherDenoms() []string {
-	return n.cfg.otherCoinDenom
+	return n.cfg.otherCoinDenoms
 }
 
 // GetValidators returns the network's validators

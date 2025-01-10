@@ -20,6 +20,7 @@ import (
 func (suite *EvmAnteTestSuite) TestCanTransfer() {
 	keyring := testkeyring.New(1)
 	unitNetwork := network.NewUnitTestNetwork(
+		network.WithChainID(suite.chainID),
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
@@ -45,9 +46,12 @@ func (suite *EvmAnteTestSuite) TestCanTransfer() {
 			expectedError: errortypes.ErrInsufficientFunds,
 			isLondon:      true,
 			malleate: func(txArgs *evmtypes.EvmTxArgs) {
-				balanceResp, err := grpcHandler.GetBalanceFromBank(senderKey.AccAddr, unitNetwork.GetBaseDenom())
+				balanceResp, err := grpcHandler.GetBalanceFromEVM(senderKey.AccAddr)
 				suite.Require().NoError(err)
-				invalidAmount := balanceResp.Balance.Amount.Add(math.NewInt(1)).BigInt()
+
+				balance, ok := math.NewIntFromString(balanceResp.Balance)
+				suite.Require().True(ok)
+				invalidAmount := balance.Add(math.NewInt(1)).BigInt()
 				txArgs.Amount = invalidAmount
 			},
 		},
@@ -61,7 +65,7 @@ func (suite *EvmAnteTestSuite) TestCanTransfer() {
 	}
 
 	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("%v_%v", evmtypes.GetTxTypeName(suite.ethTxType), tc.name), func() {
+		suite.Run(fmt.Sprintf("%v_%v_%v", evmtypes.GetTxTypeName(suite.ethTxType), suite.chainID, tc.name), func() {
 			baseFeeResp, err := grpcHandler.GetEvmBaseFee()
 			suite.Require().NoError(err)
 			ethCfg := unitNetwork.GetEVMChainConfig()
