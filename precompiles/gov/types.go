@@ -611,8 +611,9 @@ func (o *ParamsOutput) FromResponse(res *govv1.QueryParamsResponse) *ParamsOutpu
 	return o
 }
 
-// ParseParamsArgs parses the arguments for the params query
-func ParseParamsArgs(args []interface{}) (*govv1.QueryParamsRequest, error) {
+// BuildQueryParamsRequest parses the arguments for the parameters query and
+// build the corresponding parameter query request.
+func BuildQueryParamsRequest(args []interface{}) (*govv1.QueryParamsRequest, error) {
 	if len(args) != 1 {
 		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
 	}
@@ -624,22 +625,5 @@ func ParseParamsArgs(args []interface{}) (*govv1.QueryParamsRequest, error) {
 
 	return &govv1.QueryParamsRequest{
 		ParamsType: paramsType,
-	}, nil
-}
-
-// NewMsgUpdateParams creates a new MsgUpdateParams instance
-func NewMsgUpdateParams(authority string, args []interface{}) (*govv1.MsgUpdateParams, error) {
-	if len(args) != 1 {
-		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
-	}
-
-	params, ok := args[0].(govv1.Params)
-	if !ok {
-		return nil, fmt.Errorf(cmn.ErrInvalidType, "params", "Params", args[0])
-	}
-
-	return &govv1.MsgUpdateParams{
-		Authority: authority,
-		Params:    params,
 	}, nil
 }

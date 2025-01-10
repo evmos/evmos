@@ -45,11 +45,26 @@ func (s *PrecompileTestSuite) TestGetVotes() {
 		{
 			name: "valid query",
 			malleate: func() []gov.WeightedVote {
-				err := s.network.App.GovKeeper.AddVote(s.network.GetContext(), 1, s.keyring.GetAccAddr(0), []*govv1.WeightedVoteOption{{Option: govv1.OptionYes, Weight: "1.0"}}, "")
-				s.Require().NoError(err)
-				return []gov.WeightedVote{
-					{ProposalId: 1, Voter: s.keyring.GetAddr(0), Options: []gov.WeightedVoteOption{{Option: uint8(govv1.OptionYes), Weight: "1.0"}}},
+				proposalID := uint64(1)
+				voter := s.keyring.GetAccAddr(0)
+				voteOption := &govv1.WeightedVoteOption{
+					Option: govv1.OptionYes,
+					Weight: "1.0",
 				}
+
+				err := s.network.App.GovKeeper.AddVote(
+					s.network.GetContext(),
+					proposalID,
+					voter, []*govv1.WeightedVoteOption{voteOption},
+					"",
+				)
+				s.Require().NoError(err)
+
+				return []gov.WeightedVote{{
+					ProposalId: proposalID,
+					Voter:      s.keyring.GetAddr(0),
+					Options:    []gov.WeightedVoteOption{{Option: uint8(voteOption.Option), Weight: voteOption.Weight}},
+				}}
 			},
 			args:     []interface{}{uint64(1), query.PageRequest{Limit: 10, CountTotal: true}},
 			expPass:  true,

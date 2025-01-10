@@ -192,7 +192,7 @@ func (p *Precompile) GetParams(
 	_ *vm.Contract,
 	args []interface{},
 ) ([]byte, error) {
-	queryParamsReq, err := ParseParamsArgs(args)
+	queryParamsReq, err := BuildQueryParamsRequest(args)
 	if err != nil {
 		return nil, err
 	}
