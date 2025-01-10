@@ -5,7 +5,6 @@ package gov
 
 import (
 	"fmt"
-	"strings"
 
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
@@ -21,8 +20,6 @@ const (
 	VoteMethod = "vote"
 	// VoteWeightedMethod defines the ABI method name for the gov VoteWeighted transaction.
 	VoteWeightedMethod = "voteWeighted"
-	// UpdateParamsMethod defines the ABI method name for the gov UpdateParams transaction.
-	UpdateParamsMethod = "updateParams"
 )
 
 // Vote defines a method to add a vote on a specific proposal.
@@ -85,52 +82,6 @@ func (p Precompile) VoteWeighted(
 	}
 
 	if err = p.EmitVoteWeightedEvent(ctx, stateDB, voterHexAddr, msg.ProposalId, options); err != nil {
-		return nil, err
-	}
-
-	return method.Outputs.Pack(true)
-}
-
-// UpdateParams updates the governance parameters
-func (p Precompile) UpdateParams(
-	ctx sdk.Context,
-	origin common.Address,
-	_ *vm.Contract,
-	stateDB vm.StateDB,
-	method *abi.Method,
-	args []interface{},
-) ([]byte, error) {
-	authority := p.govKeeper.GetAuthority()
-
-	bech32Prefix := strings.SplitN(authority, "1", 2)[0]
-	if bech32Prefix == authority {
-		return nil, fmt.Errorf("invalid bech32 address: %s", authority)
-	}
-
-	addressBz, err := sdk.GetFromBech32(authority, bech32Prefix)
-	if err != nil {
-		return nil, err
-	}
-	authorityAddress := common.BytesToAddress(addressBz)
-
-	// TODO: Not sure if the caller authority will be origin or msg.sender ?
-	// Would this require changes in the SDK so that transactions from the gov handler go through the Precompile ?
-	if origin != authorityAddress {
-		return nil, fmt.Errorf(ErrInvalidAuthority, origin)
-	}
-
-	params, err := NewMsgUpdateParams(authority, args)
-	if err != nil {
-		return nil, err
-	}
-
-	msgSrv := govkeeper.NewMsgServerImpl(&p.govKeeper)
-	if _, err = msgSrv.UpdateParams(ctx, params); err != nil {
-		return nil, err
-	}
-
-	if err = p.EmitUpdateParamsEvent(ctx, stateDB, params.Params); err != nil {
-		fmt.Println("error emitting update params event", err)
 		return nil, err
 	}
 

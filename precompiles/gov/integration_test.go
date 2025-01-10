@@ -209,15 +209,6 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 		})
 	})
 
-	Describe("Execute UpdateParams transaction", func() {
-		const method = gov.UpdateParamsMethod
-
-		// TODO: add test for updating params once the rewiring of the gov handler is done
-		BeforeEach(func() {
-			callArgs.MethodName = method
-		})
-	})
-
 	// =====================================
 	// 				QUERIES
 	// =====================================

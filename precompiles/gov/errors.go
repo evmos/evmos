@@ -25,6 +25,4 @@ const (
 	ErrInvalidWeightedVoteOptionWeight = "invalid weighted vote option weight %s "
 	// ErrInvalidDepositor invalid depositor.
 	ErrInvalidDepositor = "invalid depositor %s "
-	// ErrInvalidAuthority invalid authority for transaction.
-	ErrInvalidAuthority = "invalid authority %s"
 )
