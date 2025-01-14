@@ -677,30 +677,40 @@ func (s *PrecompileTestSuite) TestGetParams() {
 			"invalid type for paramsType",
 		},
 		{
-			"success - get deposit params",
+			"fail - get deposit params is legacy",
 			func() []interface{} {
 				return []interface{}{
 					govv1.ParamDeposit,
 				}
 			},
-			true,
-			"",
+			false,
+			"unknown params type",
 		},
 		{
-			"success - get voting params",
+			"fail - get voting params is legacy",
 			func() []interface{} {
 				return []interface{}{
 					govv1.ParamVoting,
 				}
 			},
-			true,
-			"",
+			false,
+			"unknown params type",
 		},
 		{
-			"success - get tallying params",
+			"fail - get tallying params is legacy",
 			func() []interface{} {
 				return []interface{}{
 					govv1.ParamTallying,
+				}
+			},
+			false,
+			"unknown params type",
+		},
+		{
+			"success - get all params",
+			func() []interface{} {
+				return []interface{}{
+					"",
 				}
 			},
 			true,

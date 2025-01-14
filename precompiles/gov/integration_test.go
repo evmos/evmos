@@ -695,9 +695,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			})
 
 			DescribeTable("should return all params", func(callType callType) {
-				txArgs, callArgs = callsData.getTxAndCallArgs(callArgs, txArgs, callType, []interface{}{
-					"", // empty string to get all params
-				}...)
+				txArgs, callArgs = callsData.getTxAndCallArgs(callArgs, txArgs, callType, "")
 
 				switch callType {
 				case directCall:
@@ -727,8 +725,8 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				Expect(output.Params.Quorum).NotTo(BeNil())
 				Expect(output.Params.Threshold).NotTo(BeNil())
 				Expect(output.Params.VetoThreshold).NotTo(BeNil())
+				Expect(output.Params.VotingPeriod).NotTo(BeNil())
 			},
-				// TODO: will have to adjust the implementation to support both call types
 				Entry("directly calling the precompile", directCall),
 				Entry("through a caller contract", contractCall),
 			)
