@@ -3,14 +3,14 @@
 package v6
 
 import (
-	"strconv"
+	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v19/x/evm/types"
 	v5types "github.com/evmos/evmos/v19/x/evm/migrations/v6/types"
+	"github.com/evmos/evmos/v19/x/evm/types"
 )
 
 // MigrateStore migrates the x/evm module state from the consensus version 5 to
@@ -31,8 +31,9 @@ func MigrateStore(
 	cdc.MustUnmarshal(paramsV5Bz, &paramsV5)
 
 	params.EvmDenom = paramsV5.EvmDenom
+	params.ExtraEIPs = make([]string, 0, len(paramsV5.ExtraEIPs))
 	for _, eip := range paramsV5.ExtraEIPs {
-		params.ExtraEIPs = append(params.ExtraEIPs, strconv.FormatInt(eip, 10))
+		params.ExtraEIPs = append(params.ExtraEIPs, fmt.Sprintf("ethereum_%d", eip))
 	}
 	params.ChainConfig = types.ChainConfig{
 		HomesteadBlock:      paramsV5.ChainConfig.HomesteadBlock,

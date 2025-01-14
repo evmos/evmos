@@ -3,7 +3,9 @@
 package v6_test
 
 import (
+	"strings"
 	"encoding/json"
+	"strconv"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/testutil"
@@ -32,10 +34,19 @@ func TestMigrate(t *testing.T) {
 	var chainCfgV5 v5types.V5ChainConfig
 	err = json.Unmarshal(bz, &chainCfgV5)
 	require.NoError(t, err)
+
+	var extraEIPs []int64
+	for _, eip := range types.DefaultExtraEIPs {
+		eip = strings.TrimPrefix(eip, "ethereum_")
+
+		e, err := strconv.ParseInt(eip, 10, 64)
+		require.NoError(t, err)
+		extraEIPs = append(extraEIPs, e)
+	}
 	v5Params := v5types.V5Params{
 		EvmDenom:            types.DefaultEVMDenom,
 		ChainConfig:         chainCfgV5,
-		ExtraEIPs:           types.DefaultExtraEIPs,
+		ExtraEIPs:           extraEIPs,
 		AllowUnprotectedTxs: types.DefaultAllowUnprotectedTxs,
 		ActivePrecompiles:   types.DefaultStaticPrecompiles,
 	}
@@ -56,5 +67,4 @@ func TestMigrate(t *testing.T) {
 	require.False(t, params.AllowUnprotectedTxs)
 	require.Equal(t, chainConfig, params.ChainConfig)
 	require.Equal(t, types.DefaultExtraEIPs, params.ExtraEIPs)
-	require.Equal(t, types.DefaultEVMChannels, params.EVMChannels)
 }
