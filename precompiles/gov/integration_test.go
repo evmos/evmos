@@ -667,11 +667,8 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				govCallerContractAddr common.Address
 				govCallerContract     evmtypes.CompiledContract
 			)
-			method := gov.GetParamsMethod
 
 			BeforeEach(func() {
-				callArgs.MethodName = method
-
 				// Setting gas tip cap to zero to have zero gas price.
 				txArgs.GasTipCap = new(big.Int).SetInt64(0)
 
@@ -702,6 +699,13 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 					"", // empty string to get all params
 				}...)
 
+				switch callType {
+				case directCall:
+					callArgs.MethodName = gov.GetParamsMethod
+				case contractCall:
+					callArgs.MethodName = "getParams"
+				}
+
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(
 					s.keyring.GetPrivKey(0),
 					txArgs,
@@ -713,7 +717,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				var output struct {
 					Params gov.ParamsOutput `json:"params"`
 				}
-				err = s.precompile.UnpackIntoInterface(&output, method, ethRes.Ret)
+				err = s.precompile.UnpackIntoInterface(&output, gov.GetParamsMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
 
 				// Verify default params
@@ -726,7 +730,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			},
 				// TODO: will have to adjust the implementation to support both call types
 				Entry("directly calling the precompile", directCall),
-				// Entry("through a caller contract", contractCall),
+				Entry("through a caller contract", contractCall),
 			)
 		})
 	})

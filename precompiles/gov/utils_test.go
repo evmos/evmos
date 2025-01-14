@@ -45,7 +45,8 @@ func (cd CallsData) getTxAndCallArgs(
 		txArgs.To = &cd.precompileAddr
 		callArgs.ContractABI = cd.precompileABI
 	case contractCall:
-		panic("implement contract to call precompile")
+		txArgs.To = &cd.precompileCallerAddr
+		callArgs.ContractABI = cd.precompileCallerABI
 	}
 
 	callArgs.Args = args
