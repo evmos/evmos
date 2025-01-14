@@ -11,6 +11,7 @@ import (
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v20/precompiles/gov"
+	"github.com/evmos/evmos/v20/precompiles/gov/testdata"
 	"github.com/evmos/evmos/v20/precompiles/testutil"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
 	testutiltx "github.com/evmos/evmos/v20/testutil/tx"
@@ -660,7 +661,12 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 		})
 
 		Context("params query", func() {
-			var callsData CallsData
+			var (
+				err                   error
+				callsData             CallsData
+				govCallerContractAddr common.Address
+				govCallerContract     evmtypes.CompiledContract
+			)
 			method := gov.GetParamsMethod
 
 			BeforeEach(func() {
@@ -669,9 +675,25 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				// Setting gas tip cap to zero to have zero gas price.
 				txArgs.GasTipCap = new(big.Int).SetInt64(0)
 
+				govCallerContract, err = testdata.LoadGovCallerContract()
+				Expect(err).ToNot(HaveOccurred(), "failed to load GovCaller contract")
+
+				govCallerContractAddr, err = s.factory.DeployContract(
+					s.keyring.GetPrivKey(0),
+					evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+					factory.ContractDeploymentData{
+						Contract: govCallerContract,
+					},
+				)
+				Expect(err).ToNot(HaveOccurred(), "failed to deploy gov caller contract")
+				Expect(s.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+
 				callsData = CallsData{
 					precompileAddr: s.precompile.Address(),
 					precompileABI:  s.precompile.ABI,
+
+					precompileCallerAddr: govCallerContractAddr,
+					precompileCallerABI:  govCallerContract.ABI,
 				}
 			})
 

@@ -50,7 +50,7 @@ func (cd CallsData) getTxAndCallArgs(
 
 	callArgs.Args = args
 
-	// Setting gas tip cap to zero to have zero gas price.
+	// Setting gas tip cap to zero to have zero gas price and simplify the tests.
 	txArgs.GasTipCap = new(big.Int).SetInt64(0)
 
 	return txArgs, callArgs
