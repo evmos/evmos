@@ -695,7 +695,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 			})
 
 			DescribeTable("should return all params", func(callType callType) {
-				txArgs, callArgs = callsData.getTxAndCallArgs(callArgs, txArgs, callType, "")
+				txArgs, callArgs = callsData.getTxAndCallArgs(callArgs, txArgs, callType)
 
 				switch callType {
 				case directCall:
