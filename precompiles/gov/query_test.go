@@ -34,6 +34,7 @@ var (
 func (s *PrecompileTestSuite) TestGetVotes() {
 	var ctx sdk.Context
 	method := s.precompile.Methods[gov.GetVotesMethod]
+	gas := uint64(200_000)
 	testCases := []struct {
 		name        string
 		malleate    func() []gov.WeightedVote
@@ -41,7 +42,6 @@ func (s *PrecompileTestSuite) TestGetVotes() {
 		expPass     bool
 		errContains string
 		expTotal    uint64
-		gas         uint64
 	}{
 		{
 			name: "valid query",
@@ -76,26 +76,22 @@ func (s *PrecompileTestSuite) TestGetVotes() {
 			args:     []interface{}{uint64(1), query.PageRequest{Limit: 10, CountTotal: true}},
 			expPass:  true,
 			expTotal: 1,
-			gas:      200_000,
 		},
 		{
 			name:        "invalid proposal ID",
 			args:        []interface{}{uint64(0), query.PageRequest{Limit: 10, CountTotal: true}},
 			expPass:     false,
-			gas:         200_000,
 			errContains: "proposal id can not be 0",
 		},
 		{
 			name:        "fail - invalid number of args",
 			args:        []interface{}{},
 			errContains: fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 2, 0),
-			gas:         200_000,
 		},
 		{
 			name:        "fail - invalid arg types",
 			args:        []interface{}{"string argument 1", 2},
 			errContains: "error while unpacking args to VotesInput",
-			gas:         200_000,
 		},
 	}
 
@@ -110,7 +106,7 @@ func (s *PrecompileTestSuite) TestGetVotes() {
 			}
 
 			var contract *vm.Contract
-			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, tc.gas)
+			contract, ctx = testutil.NewPrecompileContract(s.T(), ctx, s.keyring.GetAddr(0), s.precompile, gas)
 
 			bz, err := s.precompile.GetVotes(ctx, &method, contract, tc.args)
 
