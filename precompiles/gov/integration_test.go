@@ -718,14 +718,29 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				err = s.precompile.UnpackIntoInterface(&output, gov.GetParamsMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
 
-				// Verify default params
-				Expect(output.Params.VotingPeriod).NotTo(BeNil())
-				Expect(output.Params.MaxDepositPeriod).NotTo(BeNil())
-				Expect(output.Params.MinDeposit).NotTo(BeNil())
-				Expect(output.Params.Quorum).NotTo(BeNil())
-				Expect(output.Params.Threshold).NotTo(BeNil())
-				Expect(output.Params.VetoThreshold).NotTo(BeNil())
-				Expect(output.Params.VotingPeriod).NotTo(BeNil())
+				params, err := s.network.GetGovClient().Params(s.network.GetContext(), &govv1.QueryParamsRequest{})
+				Expect(err).To(BeNil())
+
+				Expect(output.Params.MinDeposit).To(HaveLen(len(params.Params.MinDeposit)), "expected min deposit to have same amount of token")
+				Expect(output.Params.MinDeposit[0].Denom).To(Equal(params.Params.MinDeposit[0].Denom), "expected min deposit to have same denom")
+				Expect(output.Params.MinDeposit[0].Amount.String()).To(Equal(params.Params.MinDeposit[0].Amount.String()), "expected min deposit to have same amount")
+				Expect(output.Params.MaxDepositPeriod).To(Equal(int64(*params.Params.MaxDepositPeriod)), "expected max deposit period to be equal")
+				Expect(output.Params.VotingPeriod).To(Equal(int64(*params.Params.VotingPeriod)), "expected voting period to be equal")
+				Expect(output.Params.Quorum).To(Equal(params.Params.Quorum), "expected quorum to be equal")
+				Expect(output.Params.Threshold).To(Equal(params.Params.Threshold), "expected threshold to be equal")
+				Expect(output.Params.VetoThreshold).To(Equal(params.Params.VetoThreshold), "expected veto threshold to be equal")
+				Expect(output.Params.MinDepositRatio).To(Equal(params.Params.MinDepositRatio), "expected min deposit ratio to be equal")
+				Expect(output.Params.ProposalCancelRatio).To(Equal(params.Params.ProposalCancelRatio), "expected proposal cancel ratio to be equal")
+				Expect(output.Params.ProposalCancelDest).To(Equal(params.Params.ProposalCancelDest), "expected proposal cancel dest to be equal")
+				Expect(output.Params.ExpeditedVotingPeriod).To(Equal(int64(*params.Params.ExpeditedVotingPeriod)), "expected expedited voting period to be equal")
+				Expect(output.Params.ExpeditedThreshold).To(Equal(params.Params.ExpeditedThreshold), "expected expedited threshold to be equal")
+				Expect(output.Params.ExpeditedMinDeposit).To(HaveLen(len(params.Params.ExpeditedMinDeposit)), "expected expedited min deposit to have same amount of token")
+				Expect(output.Params.ExpeditedMinDeposit[0].Denom).To(Equal(params.Params.ExpeditedMinDeposit[0].Denom), "expected expedited min deposit to have same denom")
+				Expect(output.Params.ExpeditedMinDeposit[0].Amount.String()).To(Equal(params.Params.ExpeditedMinDeposit[0].Amount.String()), "expected expedited min deposit to have same amount")
+				Expect(output.Params.BurnVoteQuorum).To(Equal(params.Params.BurnVoteQuorum), "expected burn vote quorum to be equal")
+				Expect(output.Params.BurnProposalDepositPrevote).To(Equal(params.Params.BurnProposalDepositPrevote), "expected burn proposal deposit prevote to be equal")
+				Expect(output.Params.BurnVoteVeto).To(Equal(params.Params.BurnVoteVeto), "expected burn vote veto to be equal")
+				Expect(output.Params.MinDepositRatio).To(Equal(params.Params.MinDepositRatio), "expected min deposit ratio to be equal")
 			},
 				Entry("directly calling the precompile", directCall),
 				Entry("through a caller contract", contractCall),
