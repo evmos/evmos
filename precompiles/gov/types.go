@@ -4,7 +4,6 @@
 package gov
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -571,11 +570,6 @@ func (po *ProposalsOutput) FromResponse(res *govv1.QueryProposalsResponse) *Prop
 	return po
 }
 
-type DepositParamsOutput struct {
-	MinDeposit       []cmn.Coin `abi:"minDeposit"`
-	MaxDepositPeriod int64      `abi:"maxDepositPeriod"`
-}
-
 // ParamsOutput contains the output data for the governance parameters query
 type ParamsOutput struct {
 	VotingPeriod               int64      `abi:"votingPeriod"`
@@ -617,24 +611,13 @@ func (o *ParamsOutput) FromResponse(res *govv1.QueryParamsResponse) *ParamsOutpu
 	return o
 }
 
-// BuildQueryParamsRequest parses the arguments for the parameters query and
-// build the corresponding parameter query request.
+// BuildQueryParamsRequest returns the structure for the governance parameters query.
 func BuildQueryParamsRequest(args []interface{}) (*govv1.QueryParamsRequest, error) {
-	if len(args) != 1 {
-		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
-	}
-
-	paramsType, ok := args[0].(string)
-	if !ok {
-		return nil, fmt.Errorf(cmn.ErrInvalidType, "paramsType", "string", args[0])
-	}
-
-	// NOTE: the governance module supports only the query of Params released with cosmos-sdk 0.47.
-	if paramsType != "" {
-		return nil, errors.New("unknown params type, supported only \"\"")
+	if len(args) != 0 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 0, len(args))
 	}
 
 	return &govv1.QueryParamsRequest{
-		ParamsType: paramsType,
+		ParamsType: "",
 	}, nil
 }

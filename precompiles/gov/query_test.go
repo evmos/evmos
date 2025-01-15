@@ -145,9 +145,6 @@ func (s *PrecompileTestSuite) TestGetVote() {
 		{
 			name: "valid query",
 			malleate: func() []interface{} {
-				fmt.Printf("adding votes for %s\n", voter.String())
-				fmt.Printf("adding votes for addr %s\n", voterAddr.Hex())
-
 				err := s.network.App.GovKeeper.AddVote(s.network.GetContext(), 1, voter, []*govv1.WeightedVoteOption{{Option: govv1.OptionYes, Weight: "1.0"}}, "")
 				s.Require().NoError(err)
 
@@ -661,57 +658,17 @@ func (s *PrecompileTestSuite) TestGetParams() {
 		errContains string
 	}{
 		{
-			"fail - empty input args",
+			"fail - not empty input args",
 			func() []interface{} {
-				return []interface{}{}
+				return []interface{}{""}
 			},
 			false,
-			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 1, 0),
-		},
-		{
-			"fail - invalid params type",
-			func() []interface{} {
-				return []interface{}{123} // invalid type
-			},
-			false,
-			"invalid type for paramsType",
-		},
-		{
-			"fail - get deposit params is legacy",
-			func() []interface{} {
-				return []interface{}{
-					govv1.ParamDeposit,
-				}
-			},
-			false,
-			"unknown params type",
-		},
-		{
-			"fail - get voting params is legacy",
-			func() []interface{} {
-				return []interface{}{
-					govv1.ParamVoting,
-				}
-			},
-			false,
-			"unknown params type",
-		},
-		{
-			"fail - get tallying params is legacy",
-			func() []interface{} {
-				return []interface{}{
-					govv1.ParamTallying,
-				}
-			},
-			false,
-			"unknown params type",
+			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 0, 1),
 		},
 		{
 			"success - get all params",
 			func() []interface{} {
-				return []interface{}{
-					"",
-				}
+				return []interface{}{}
 			},
 			true,
 			"",

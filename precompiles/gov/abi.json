@@ -216,13 +216,7 @@
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "paramsType",
-          "type": "string"
-        }
-      ],
+      "inputs": [],
       "name": "getParams",
       "outputs": [
         {

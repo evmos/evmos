@@ -94,7 +94,6 @@ struct Params {
 /// @title Gov Precompile Contract
 /// @dev The interface through which solidity contracts will interact with Gov
 interface IGov {
-
     /// @dev Vote defines an Event emitted when a proposal voted.
     /// @param voter the address of the voter
     /// @param proposalId the proposal of id
@@ -105,7 +104,11 @@ interface IGov {
     /// @param voter the address of the voter
     /// @param proposalId the proposal of id
     /// @param options the options for voter
-    event VoteWeighted(address indexed voter, uint64 proposalId, WeightedVoteOption[] options);
+    event VoteWeighted(
+        address indexed voter,
+        uint64 proposalId,
+        WeightedVoteOption[] options
+    );
 
     /// TRANSACTIONS
 
@@ -180,7 +183,10 @@ interface IGov {
     )
         external
         view
-        returns (DepositData[] memory deposits, PageResponse memory pageResponse);
+        returns (
+            DepositData[] memory deposits,
+            PageResponse memory pageResponse
+        );
 
     /// @dev getTallyResult returns the tally result of a proposal.
     /// @param proposalId The proposal id
@@ -208,12 +214,16 @@ interface IGov {
         address voter,
         address depositor,
         PageRequest calldata pagination
-    ) external view returns (ProposalData[] memory proposals, PageResponse memory pageResponse);
+    )
+        external
+        view
+        returns (
+            ProposalData[] memory proposals,
+            PageResponse memory pageResponse
+        );
 
     /// @dev getParams returns the current governance parameters.
-    /// @param paramsType The type of parameters to query (deposit, voting, tallying)
     /// @return params The governance parameters
-    function getParams(
-        string calldata paramsType
-    ) external view returns (Params memory params);
+    function getParams() external view returns (Params memory params);
 }
+
