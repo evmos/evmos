@@ -216,6 +216,125 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "getParams",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "int64",
+              "name": "votingPeriod",
+              "type": "int64"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "denom",
+                  "type": "string"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Coin[]",
+              "name": "minDeposit",
+              "type": "tuple[]"
+            },
+            {
+              "internalType": "int64",
+              "name": "maxDepositPeriod",
+              "type": "int64"
+            },
+            {
+              "internalType": "string",
+              "name": "quorum",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "threshold",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "vetoThreshold",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "minInitialDepositRatio",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proposalCancelRatio",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proposalCancelDest",
+              "type": "string"
+            },
+            {
+              "internalType": "int64",
+              "name": "expeditedVotingPeriod",
+              "type": "int64"
+            },
+            {
+              "internalType": "string",
+              "name": "expeditedThreshold",
+              "type": "string"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "denom",
+                  "type": "string"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Coin[]",
+              "name": "expeditedMinDeposit",
+              "type": "tuple[]"
+            },
+            {
+              "internalType": "bool",
+              "name": "burnVoteQuorum",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "burnProposalDepositPrevote",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "burnVoteVeto",
+              "type": "bool"
+            },
+            {
+              "internalType": "string",
+              "name": "minDepositRatio",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Params",
+          "name": "params",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "uint64",

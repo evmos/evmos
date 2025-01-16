@@ -8,9 +8,10 @@ import (
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v20/precompiles/gov"
+	"github.com/evmos/evmos/v20/precompiles/gov/testdata"
 	"github.com/evmos/evmos/v20/precompiles/testutil"
 	"github.com/evmos/evmos/v20/testutil/integration/evmos/factory"
 	testutiltx "github.com/evmos/evmos/v20/testutil/tx"
@@ -494,7 +495,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 				// Check proposal details
 				Expect(out.Proposal.Id).To(Equal(uint64(1)))
-				Expect(out.Proposal.Status).To(Equal(uint32(v1.StatusVotingPeriod)))
+				Expect(out.Proposal.Status).To(Equal(uint32(govv1.StatusVotingPeriod)))
 				Expect(out.Proposal.Proposer).To(Equal(s.keyring.GetAddr(0)))
 				Expect(out.Proposal.Metadata).To(Equal("ipfs://CID"))
 				Expect(out.Proposal.Title).To(Equal("test prop"))
@@ -555,7 +556,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 				proposal := out.Proposals[0]
 				Expect(proposal.Id).To(Equal(uint64(1)))
-				Expect(proposal.Status).To(Equal(uint32(v1.StatusVotingPeriod)))
+				Expect(proposal.Status).To(Equal(uint32(govv1.StatusVotingPeriod)))
 				Expect(proposal.Proposer).To(Equal(s.keyring.GetAddr(0)))
 				Expect(proposal.Messages).To(HaveLen(1))
 				Expect(proposal.Messages[0]).To(Equal("/cosmos.bank.v1beta1.MsgSend"))
@@ -563,7 +564,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 			It("should filter proposals by status", func() {
 				callArgs.Args = []interface{}{
-					uint32(v1.StatusVotingPeriod),
+					uint32(govv1.StatusVotingPeriod),
 					common.Address{},
 					common.Address{},
 					query.PageRequest{
@@ -584,8 +585,8 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 				Expect(err).To(BeNil())
 
 				Expect(out.Proposals).To(HaveLen(2))
-				Expect(out.Proposals[0].Status).To(Equal(uint32(v1.StatusVotingPeriod)))
-				Expect(out.Proposals[1].Status).To(Equal(uint32(v1.StatusVotingPeriod)))
+				Expect(out.Proposals[0].Status).To(Equal(uint32(govv1.StatusVotingPeriod)))
+				Expect(out.Proposals[1].Status).To(Equal(uint32(govv1.StatusVotingPeriod)))
 			})
 
 			It("should filter proposals by voter", func() {
@@ -594,7 +595,7 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 					ContractABI: s.precompile.ABI,
 					MethodName:  gov.VoteMethod,
 					Args: []interface{}{
-						s.keyring.GetAddr(0), uint64(1), uint8(v1.OptionYes), "",
+						s.keyring.GetAddr(0), uint64(1), uint8(govv1.OptionYes), "",
 					},
 				}
 				_, _, err := s.factory.CallContractAndCheckLogs(
@@ -657,6 +658,93 @@ var _ = Describe("Calling governance precompile from EOA", func() {
 
 				Expect(out.Proposals).To(HaveLen(1))
 			})
+		})
+
+		Context("params query", func() {
+			var (
+				err                   error
+				callsData             CallsData
+				govCallerContractAddr common.Address
+				govCallerContract     evmtypes.CompiledContract
+			)
+
+			BeforeEach(func() {
+				// Setting gas tip cap to zero to have zero gas price.
+				txArgs.GasTipCap = new(big.Int).SetInt64(0)
+
+				govCallerContract, err = testdata.LoadGovCallerContract()
+				Expect(err).ToNot(HaveOccurred(), "failed to load GovCaller contract")
+
+				govCallerContractAddr, err = s.factory.DeployContract(
+					s.keyring.GetPrivKey(0),
+					evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+					factory.ContractDeploymentData{
+						Contract: govCallerContract,
+					},
+				)
+				Expect(err).ToNot(HaveOccurred(), "failed to deploy gov caller contract")
+				Expect(s.network.NextBlock()).ToNot(HaveOccurred(), "error on NextBlock")
+
+				callsData = CallsData{
+					precompileAddr: s.precompile.Address(),
+					precompileABI:  s.precompile.ABI,
+
+					precompileCallerAddr: govCallerContractAddr,
+					precompileCallerABI:  govCallerContract.ABI,
+				}
+			})
+
+			DescribeTable("should return all params", func(callType callType) {
+				txArgs, callArgs = callsData.getTxAndCallArgs(callArgs, txArgs, callType)
+
+				switch callType {
+				case directCall:
+					callArgs.MethodName = gov.GetParamsMethod
+				case contractCall:
+					callArgs.MethodName = "getParams"
+				}
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(
+					s.keyring.GetPrivKey(0),
+					txArgs,
+					callArgs,
+					passCheck,
+				)
+				Expect(err).To(BeNil())
+
+				var output struct {
+					Params gov.ParamsOutput `json:"params"`
+				}
+				err = s.precompile.UnpackIntoInterface(&output, gov.GetParamsMethod, ethRes.Ret)
+				Expect(err).To(BeNil())
+
+				params, err := s.network.GetGovClient().Params(s.network.GetContext(), &govv1.QueryParamsRequest{})
+				Expect(err).To(BeNil())
+
+				Expect(output.Params.MinDeposit).To(HaveLen(len(params.Params.MinDeposit)), "expected min deposit to have same amount of token")
+				Expect(output.Params.MinDeposit[0].Denom).To(Equal(params.Params.MinDeposit[0].Denom), "expected min deposit to have same denom")
+				Expect(output.Params.MinDeposit[0].Amount.String()).To(Equal(params.Params.MinDeposit[0].Amount.String()), "expected min deposit to have same amount")
+				Expect(output.Params.MaxDepositPeriod).To(Equal(int64(*params.Params.MaxDepositPeriod)), "expected max deposit period to be equal")
+				Expect(output.Params.VotingPeriod).To(Equal(int64(*params.Params.VotingPeriod)), "expected voting period to be equal")
+				Expect(output.Params.Quorum).To(Equal(params.Params.Quorum), "expected quorum to be equal")
+				Expect(output.Params.Threshold).To(Equal(params.Params.Threshold), "expected threshold to be equal")
+				Expect(output.Params.VetoThreshold).To(Equal(params.Params.VetoThreshold), "expected veto threshold to be equal")
+				Expect(output.Params.MinDepositRatio).To(Equal(params.Params.MinDepositRatio), "expected min deposit ratio to be equal")
+				Expect(output.Params.ProposalCancelRatio).To(Equal(params.Params.ProposalCancelRatio), "expected proposal cancel ratio to be equal")
+				Expect(output.Params.ProposalCancelDest).To(Equal(params.Params.ProposalCancelDest), "expected proposal cancel dest to be equal")
+				Expect(output.Params.ExpeditedVotingPeriod).To(Equal(int64(*params.Params.ExpeditedVotingPeriod)), "expected expedited voting period to be equal")
+				Expect(output.Params.ExpeditedThreshold).To(Equal(params.Params.ExpeditedThreshold), "expected expedited threshold to be equal")
+				Expect(output.Params.ExpeditedMinDeposit).To(HaveLen(len(params.Params.ExpeditedMinDeposit)), "expected expedited min deposit to have same amount of token")
+				Expect(output.Params.ExpeditedMinDeposit[0].Denom).To(Equal(params.Params.ExpeditedMinDeposit[0].Denom), "expected expedited min deposit to have same denom")
+				Expect(output.Params.ExpeditedMinDeposit[0].Amount.String()).To(Equal(params.Params.ExpeditedMinDeposit[0].Amount.String()), "expected expedited min deposit to have same amount")
+				Expect(output.Params.BurnVoteQuorum).To(Equal(params.Params.BurnVoteQuorum), "expected burn vote quorum to be equal")
+				Expect(output.Params.BurnProposalDepositPrevote).To(Equal(params.Params.BurnProposalDepositPrevote), "expected burn proposal deposit prevote to be equal")
+				Expect(output.Params.BurnVoteVeto).To(Equal(params.Params.BurnVoteVeto), "expected burn vote veto to be equal")
+				Expect(output.Params.MinDepositRatio).To(Equal(params.Params.MinDepositRatio), "expected min deposit ratio to be equal")
+			},
+				Entry("directly calling the precompile", directCall),
+				Entry("through a caller contract", contractCall),
+			)
 		})
 	})
 })
