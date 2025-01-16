@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-3.0-only
+/// SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.8.17;
 
 import "../common/Types.sol";
@@ -70,11 +70,30 @@ struct ProposalData {
     address proposer;
 }
 
+/// @dev Params defines the governance parameters
+struct Params {
+    int64 votingPeriod;
+    Coin[] minDeposit;
+    int64 maxDepositPeriod;
+    string quorum;
+    string threshold;
+    string vetoThreshold;
+    string minInitialDepositRatio;
+    string proposalCancelRatio;
+    string proposalCancelDest;
+    int64 expeditedVotingPeriod;
+    string expeditedThreshold;
+    Coin[] expeditedMinDeposit;
+    bool burnVoteQuorum;
+    bool burnProposalDepositPrevote;
+    bool burnVoteVeto;
+    string minDepositRatio;
+}
+
 /// @author The Evmos Core Team
 /// @title Gov Precompile Contract
 /// @dev The interface through which solidity contracts will interact with Gov
 interface IGov {
-
     /// @dev Vote defines an Event emitted when a proposal voted.
     /// @param voter the address of the voter
     /// @param proposalId the proposal of id
@@ -85,7 +104,11 @@ interface IGov {
     /// @param voter the address of the voter
     /// @param proposalId the proposal of id
     /// @param options the options for voter
-    event VoteWeighted(address indexed voter, uint64 proposalId, WeightedVoteOption[] options);
+    event VoteWeighted(
+        address indexed voter,
+        uint64 proposalId,
+        WeightedVoteOption[] options
+    );
 
     /// TRANSACTIONS
 
@@ -114,7 +137,7 @@ interface IGov {
         WeightedVoteOption[] calldata options,
         string memory metadata
     ) external returns (bool success);
-     
+
     /// QUERIES
 
     /// @dev getVote returns the vote of a single voter for a
@@ -160,7 +183,10 @@ interface IGov {
     )
         external
         view
-        returns (DepositData[] memory deposits, PageResponse memory pageResponse);
+        returns (
+            DepositData[] memory deposits,
+            PageResponse memory pageResponse
+        );
 
     /// @dev getTallyResult returns the tally result of a proposal.
     /// @param proposalId The proposal id
@@ -188,5 +214,16 @@ interface IGov {
         address voter,
         address depositor,
         PageRequest calldata pagination
-    ) external view returns (ProposalData[] memory proposals, PageResponse memory pageResponse);
+    )
+        external
+        view
+        returns (
+            ProposalData[] memory proposals,
+            PageResponse memory pageResponse
+        );
+
+    /// @dev getParams returns the current governance parameters.
+    /// @return params The governance parameters
+    function getParams() external view returns (Params memory params);
 }
+
