@@ -83,6 +83,7 @@ func (s *PrecompileTestSuite) getStakingPrecompile() (*staking.Precompile, error
 	return staking.NewPrecompile(
 		s.network.App.StakingKeeper,
 		s.network.App.AuthzKeeper,
+		s.network.App.BankKeeper,
 	)
 }
 

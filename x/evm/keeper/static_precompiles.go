@@ -63,7 +63,7 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate bech32 precompile: %w", err))
 	}
 
-	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, authzKeeper)
+	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, authzKeeper, bankKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate staking precompile: %w", err))
 	}

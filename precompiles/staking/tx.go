@@ -6,6 +6,7 @@ package staking
 import (
 	"errors"
 	"fmt"
+	"math/big"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -216,6 +217,9 @@ func (p *Precompile) Delegate(
 		}
 	}
 
+	// Get the previous coin balance of the delegator
+	prevCoin := p.bankKeeper.GetBalance(ctx, sdk.AccAddress(delegatorHexAddr.Bytes()), bondDenom)
+
 	// Execute the transaction using the message server
 	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
 	if _, err = msgSrv.Delegate(ctx, msg); err != nil {
@@ -243,8 +247,15 @@ func (p *Precompile) Delegate(
 		// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
 
 		// Need to scale the amount to 18 decimals for the EVM balance change entry
-		scaledAmt := evmtypes.ConvertAmountTo18DecimalsBigInt(msg.Amount.Amount.BigInt())
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(delHexAddr, scaledAmt, cmn.Sub))
+		lastCoin := p.bankKeeper.GetBalance(ctx, sdk.AccAddress(delegatorHexAddr.Bytes()), bondDenom)
+		diffAmt := new(big.Int).Sub(lastCoin.Amount.BigInt(), prevCoin.Amount.BigInt())
+		scaledAmt := evmtypes.ConvertAmountTo18DecimalsBigInt(diffAmt)
+		if scaledAmt.Sign() <= 0 {
+			p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(delHexAddr, new(big.Int).Abs(scaledAmt), cmn.Sub))
+		} else {
+			p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(delHexAddr, new(big.Int).Abs(scaledAmt), cmn.Add))
+		}
+
 	}
 
 	return method.Outputs.Pack(true)
