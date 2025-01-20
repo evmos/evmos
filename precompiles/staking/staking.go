@@ -11,6 +11,7 @@ import (
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v20/precompiles/authorization"
@@ -31,6 +32,7 @@ var f embed.FS
 type Precompile struct {
 	cmn.Precompile
 	stakingKeeper stakingkeeper.Keeper
+	bankKeeper    bankkeeper.Keeper
 }
 
 // LoadABI loads the staking ABI from the embedded abi.json file
@@ -44,6 +46,7 @@ func LoadABI() (abi.ABI, error) {
 func NewPrecompile(
 	stakingKeeper stakingkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
+	bankKeeper bankkeeper.Keeper,
 ) (*Precompile, error) {
 	abi, err := LoadABI()
 	if err != nil {
@@ -59,6 +62,7 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
 		stakingKeeper: stakingKeeper,
+		bankKeeper:    bankKeeper,
 	}
 	// SetAddress defines the address of the staking precompiled contract.
 	p.SetAddress(common.HexToAddress(evmtypes.StakingPrecompileAddress))
