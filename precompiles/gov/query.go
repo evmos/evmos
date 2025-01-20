@@ -25,6 +25,8 @@ const (
 	GetProposalMethod = "getProposal"
 	// GetProposalsMethod defines the method name for the proposals precompile request.
 	GetProposalsMethod = "getProposals"
+	// GetParamsMethod defines the method name for the get params precompile request.
+	GetParamsMethod = "getParams"
 )
 
 // GetVotes implements the query logic for getting votes for a proposal.
@@ -181,4 +183,26 @@ func (p *Precompile) GetProposals(
 	output := new(ProposalsOutput).FromResponse(res)
 
 	return method.Outputs.Pack(output.Proposals, output.PageResponse)
+}
+
+// GetParams implements the query logic for getting governance parameters
+func (p *Precompile) GetParams(
+	ctx sdk.Context,
+	method *abi.Method,
+	_ *vm.Contract,
+	args []interface{},
+) ([]byte, error) {
+	queryParamsReq, err := BuildQueryParamsRequest(args)
+	if err != nil {
+		return nil, err
+	}
+
+	queryServer := govkeeper.NewQueryServer(&p.govKeeper)
+	res, err := queryServer.Params(ctx, queryParamsReq)
+	if err != nil {
+		return nil, err
+	}
+
+	output := new(ParamsOutput).FromResponse(res)
+	return method.Outputs.Pack(output)
 }

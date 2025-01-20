@@ -569,3 +569,55 @@ func (po *ProposalsOutput) FromResponse(res *govv1.QueryProposalsResponse) *Prop
 	}
 	return po
 }
+
+// ParamsOutput contains the output data for the governance parameters query
+type ParamsOutput struct {
+	VotingPeriod               int64      `abi:"votingPeriod"`
+	MinDeposit                 []cmn.Coin `abi:"minDeposit"`
+	MaxDepositPeriod           int64      `abi:"maxDepositPeriod"`
+	Quorum                     string     `abi:"quorum"`
+	Threshold                  string     `abi:"threshold"`
+	VetoThreshold              string     `abi:"vetoThreshold"`
+	MinInitialDepositRatio     string     `abi:"minInitialDepositRatio"`
+	ProposalCancelRatio        string     `abi:"proposalCancelRatio"`
+	ProposalCancelDest         string     `abi:"proposalCancelDest"`
+	ExpeditedVotingPeriod      int64      `abi:"expeditedVotingPeriod"`
+	ExpeditedThreshold         string     `abi:"expeditedThreshold"`
+	ExpeditedMinDeposit        []cmn.Coin `abi:"expeditedMinDeposit"`
+	BurnVoteQuorum             bool       `abi:"burnVoteQuorum"`
+	BurnProposalDepositPrevote bool       `abi:"burnProposalDepositPrevote"`
+	BurnVoteVeto               bool       `abi:"burnVoteVeto"`
+	MinDepositRatio            string     `abi:"minDepositRatio"`
+}
+
+// FromResponse populates the ParamsOutput from a query response
+func (o *ParamsOutput) FromResponse(res *govv1.QueryParamsResponse) *ParamsOutput {
+	o.VotingPeriod = res.Params.VotingPeriod.Nanoseconds()
+	o.MinDeposit = cmn.NewCoinsResponse(res.Params.MinDeposit)
+	o.MaxDepositPeriod = res.Params.MaxDepositPeriod.Nanoseconds()
+	o.Quorum = res.Params.Quorum
+	o.Threshold = res.Params.Threshold
+	o.VetoThreshold = res.Params.VetoThreshold
+	o.MinInitialDepositRatio = res.Params.MinInitialDepositRatio
+	o.ProposalCancelRatio = res.Params.ProposalCancelRatio
+	o.ProposalCancelDest = res.Params.ProposalCancelDest
+	o.ExpeditedVotingPeriod = res.Params.ExpeditedVotingPeriod.Nanoseconds()
+	o.ExpeditedThreshold = res.Params.ExpeditedThreshold
+	o.ExpeditedMinDeposit = cmn.NewCoinsResponse(res.Params.ExpeditedMinDeposit)
+	o.BurnVoteQuorum = res.Params.BurnVoteQuorum
+	o.BurnProposalDepositPrevote = res.Params.BurnProposalDepositPrevote
+	o.BurnVoteVeto = res.Params.BurnVoteVeto
+	o.MinDepositRatio = res.Params.MinDepositRatio
+	return o
+}
+
+// BuildQueryParamsRequest returns the structure for the governance parameters query.
+func BuildQueryParamsRequest(args []interface{}) (*govv1.QueryParamsRequest, error) {
+	if len(args) != 0 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 0, len(args))
+	}
+
+	return &govv1.QueryParamsRequest{
+		ParamsType: "",
+	}, nil
+}
