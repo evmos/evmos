@@ -50,7 +50,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-- (precompiles) [#2997](https://github.com/evmos/evmos/pull/2997) Add `evidence` precompile with `submitEvidence` and `evidence` queries.
+- (gov) [#3002](https://github.com/evmos/evmos/pull/3002) Add `Params` query for governance precompile.
+- (evidence) [#2997](https://github.com/evmos/evmos/pull/2997) Add `evidence` precompile with `submitEvidence` and `evidence` queries.
 - (precompiles) [#2991](https://github.com/evmos/evmos/pull/2991) Add `slashing` precompile with `unjail` and `signingInfo`.
 - (gov) [#2976](https://github.com/evmos/evmos/pull/2976) Add `Proposals` and `Proposal` queries to gov precompile.
 - (testnet) [#2826](https://github.com/evmos/evmos/pull/2826) Fix command `evmosd testnet init-files` for validator_address is error.
