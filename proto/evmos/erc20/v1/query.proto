@@ -28,6 +28,11 @@ service Query {
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/evmos/erc20/v1/params";
   }
+
+  // OwnerAddress retrieves the owner address for a given ERC20 contract address
+  rpc OwnerAddress(QueryOwnerAddressRequest) returns (QueryOwnerAddressResponse) {
+    option (google.api.http).get = "/evmos/erc20/v1/owner_address/{contract_address}";
+  }
 }
 
 // QueryTokenPairsRequest is the request type for the Query/TokenPairs RPC
@@ -68,4 +73,12 @@ message QueryParamsRequest {}
 message QueryParamsResponse {
   // params are the erc20 module parameters
   Params params = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+}
+
+message QueryOwnerAddressRequest {
+  string contract_address = 1;
+}
+
+message QueryOwnerAddressResponse {
+  string owner_address = 1;
 }

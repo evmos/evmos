@@ -47,6 +47,9 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgConvertCoin{}, // keep it for backwards compatibility when querying txs
 		&MsgConvertERC20{},
 		&MsgUpdateParams{},
+		&MsgMint{},
+		&MsgBurn{},
+		&MsgTransferOwnership{},
 		&MsgRegisterERC20{},
 		&MsgToggleConversion{},
 	)

@@ -14,6 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v20/precompiles/common"
+	"github.com/evmos/evmos/v20/x/erc20/types"
 	"github.com/evmos/evmos/v20/x/evm/core/vm"
 	evmtypes "github.com/evmos/evmos/v20/x/evm/types"
 )
@@ -25,10 +26,21 @@ const (
 	// TransferFromMethod defines the ABI method name for the ERC-20 transferFrom
 	// transaction.
 	TransferFromMethod = "transferFrom"
+	// MintMethod defines the ABI method name for the ERC-20 mint transaction.
+	MintMethod = "mint"
+	// BurnMethod defines the ABI method name for the ERC-20 burn transaction.
+	BurnMethod = "burn"
+	// TransferOwnershipMethod defines the ABI method name for the ERC-20 transferOwnership transaction.
+	TransferOwnershipMethod = "transferOwnership"
 )
 
-// SendMsgURL defines the authorization type for MsgSend
-var SendMsgURL = sdk.MsgTypeURL(&banktypes.MsgSend{})
+var (
+	// SendMsgURL defines the authorization type for MsgSend
+	SendMsgURL = sdk.MsgTypeURL(&banktypes.MsgSend{})
+
+	// ZeroAddress represents the zero address
+	ZeroAddress = common.Address{}
+)
 
 // Transfer executes a direct transfer from the caller address to the
 // destination address.
@@ -102,7 +114,6 @@ func (p *Precompile) transfer(
 
 		_, err = p.AuthzKeeper.DispatchActions(ctx, spender, []sdk.Msg{msg})
 	}
-
 	if err != nil {
 		err = ConvertErrToERC20Error(err)
 		// This should return an error to avoid the contract from being executed and an event being emitted
@@ -140,4 +151,108 @@ func (p *Precompile) transfer(
 	}
 
 	return method.Outputs.Pack(true)
+}
+
+// Mint executes a mint of the caller's tokens.
+func (p *Precompile) Mint(
+	ctx sdk.Context,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	to, amount, err := ParseMintArgs(args)
+	if err != nil {
+		return nil, err
+	}
+
+	minterAddr := contract.CallerAddress
+	minter := sdk.AccAddress(minterAddr.Bytes())
+	toAddr := sdk.AccAddress(to.Bytes())
+
+	coins := sdk.Coins{{Denom: p.tokenPair.Denom, Amount: math.NewIntFromBigInt(amount)}}
+
+	err = p.erc20Keeper.MintCoins(ctx, minter, toAddr, math.NewIntFromBigInt(amount), p.tokenPair.GetERC20Contract().Hex())
+	if err != nil {
+		return nil, ConvertErrToERC20Error(err)
+	}
+
+	if p.tokenPair.Denom == evmtypes.GetEVMCoinDenom() {
+		p.SetBalanceChangeEntries(
+			cmn.NewBalanceChangeEntry(to, coins.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt(), cmn.Add))
+	}
+
+	if err = p.EmitTransferEvent(ctx, stateDB, ZeroAddress, to, amount); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(true)
+}
+
+// Burn executes a burn of the caller's tokens.
+func (p *Precompile) Burn(
+	ctx sdk.Context,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	amount, err := ParseBurnArgs(args)
+	if err != nil {
+		return nil, err
+	}
+
+	burnerAddr := contract.CallerAddress
+	burner := sdk.AccAddress(burnerAddr.Bytes())
+
+	coins := sdk.Coins{{Denom: p.tokenPair.Denom, Amount: math.NewIntFromBigInt(amount)}}
+
+	err = p.erc20Keeper.BurnCoins(ctx, burner, math.NewIntFromBigInt(amount), p.tokenPair.GetERC20Contract().Hex())
+	if err != nil {
+		return nil, ConvertErrToERC20Error(err)
+	}
+
+	if p.tokenPair.Denom == evmtypes.GetEVMCoinDenom() {
+		p.SetBalanceChangeEntries(
+			cmn.NewBalanceChangeEntry(burnerAddr, coins.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt(), cmn.Sub))
+	}
+
+	if err = p.EmitTransferEvent(ctx, stateDB, burnerAddr, ZeroAddress, amount); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack()
+}
+
+// TransferOwnership executes a transfer of ownership of the token.
+func (p *Precompile) TransferOwnership(
+	ctx sdk.Context,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	newOwner, err := ParseTransferOwnershipArgs(args)
+	if err != nil {
+		return nil, err
+	}
+
+	sender := sdk.AccAddress(contract.CallerAddress.Bytes())
+
+	if p.tokenPair.OwnerAddress != sender.String() {
+		return nil, ConvertErrToERC20Error(types.ErrSenderIsNotOwner)
+	}
+
+	err = p.erc20Keeper.TransferOwnership(ctx, sender, sdk.AccAddress(newOwner.Bytes()), p.tokenPair.GetERC20Contract().Hex())
+	if err != nil {
+		return nil, ConvertErrToERC20Error(err)
+	}
+
+	p.tokenPair.OwnerAddress = newOwner.String()
+
+	if err = p.EmitTransferOwnershipEvent(ctx, stateDB, contract.CallerAddress, newOwner); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack()
 }

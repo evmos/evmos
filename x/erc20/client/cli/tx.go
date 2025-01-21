@@ -21,6 +21,10 @@ import (
 	"github.com/evmos/evmos/v20/x/erc20/types"
 )
 
+const (
+	FlagAddress = "address"
+)
+
 // NewTxCmd returns a root CLI command handler for erc20 transaction commands
 func NewTxCmd() *cobra.Command {
 	txCmd := &cobra.Command{
@@ -33,7 +37,10 @@ func NewTxCmd() *cobra.Command {
 
 	txCmd.AddCommand(
 		NewConvertERC20Cmd(),
+		NewMintCmd(),
+		NewBurnCmd(),
 	)
+
 	return txCmd
 }
 
@@ -77,6 +84,88 @@ func NewConvertERC20Cmd() *cobra.Command {
 			}
 
 			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+// NewMintCmd implements the command to mint an ERC20 token
+func NewMintCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "mint CONTRACT_ADDRESS TO AMOUNT",
+		Args:  cobra.ExactArgs(3),
+		Short: "Mint an ERC20 token",
+		Long:  "Mint an ERC20 token",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			contract := args[0]
+			if err := evmostypes.ValidateAddress(contract); err != nil {
+				return fmt.Errorf("invalid ERC20 contract address %w", err)
+			}
+
+			to, err := sdk.AccAddressFromBech32(args[1])
+			if err != nil {
+				return err
+			}
+
+			amount, ok := math.NewIntFromString(args[2])
+			if !ok {
+				return fmt.Errorf("invalid amount %s", args[2])
+			}
+
+			from := clientCtx.GetFromAddress()
+
+			msg := &types.MsgMint{
+				ContractAddress: contract,
+				Amount:          amount,
+				Sender:          from.String(),
+				To:              to.String(),
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+// NewBurnCmd implements the command to burn an ERC20 token
+func NewBurnCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "burn CONTRACT_ADDRESS AMOUNT",
+		Args:  cobra.ExactArgs(2),
+		Short: "Burn an ERC20 token",
+		Long:  "Burn an ERC20 token",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			contract := args[0]
+			if err := evmostypes.ValidateAddress(contract); err != nil {
+				return fmt.Errorf("invalid ERC20 contract address %w", err)
+			}
+
+			amount, ok := math.NewIntFromString(args[1])
+			if !ok {
+				return fmt.Errorf("invalid amount %s", args[1])
+			}
+
+			msg := &types.MsgBurn{
+				ContractAddress: contract,
+				Amount:          amount,
+				Sender:          clientCtx.GetFromAddress().String(),
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 

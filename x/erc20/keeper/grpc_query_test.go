@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"context"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -177,4 +178,58 @@ func (suite *KeeperTestSuite) TestQueryParams() {
 	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})
 	suite.Require().NoError(err)
 	suite.Require().Equal(expParams, res.Params)
+}
+
+func (suite *KeeperTestSuite) TestOwnerAddress() {
+	var ctx context.Context
+	var sdkCtx sdk.Context
+	contractAddr := utiltx.GenerateAddress()
+	ownerAddr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+
+	expPair := types.NewTokenPair(contractAddr, "coin", types.OWNER_MODULE)
+	expPair.SetOwnerAddress(ownerAddr.String())
+	id := expPair.GetID()
+
+	testcases := []struct {
+		name     string
+		malleate func()
+		expOwner string
+	}{
+		{
+			"returns empty string if contract does not exists",
+			func() {
+				expPair = types.NewTokenPair(utiltx.GenerateAddress(), "coin", types.OWNER_MODULE)
+				expPair.SetOwnerAddress(ownerAddr.String())
+				suite.network.App.Erc20Keeper.SetTokenPair(sdkCtx, expPair)
+				suite.network.App.Erc20Keeper.SetDenomMap(sdkCtx, expPair.Denom, id)
+				suite.network.App.Erc20Keeper.SetERC20Map(sdkCtx, expPair.GetERC20Contract(), id)
+			},
+			"",
+		}, {
+			"returns contract owner address",
+			func() {
+				expPair = types.NewTokenPair(contractAddr, "coin", types.OWNER_MODULE)
+				expPair.SetOwnerAddress(ownerAddr.String())
+				suite.network.App.Erc20Keeper.SetTokenPair(sdkCtx, expPair)
+				suite.network.App.Erc20Keeper.SetDenomMap(sdkCtx, expPair.Denom, id)
+				suite.network.App.Erc20Keeper.SetERC20Map(sdkCtx, expPair.GetERC20Contract(), id)
+			},
+			ownerAddr.String(),
+		},
+	}
+
+	for _, tc := range testcases {
+		suite.Run(tc.name, func() {
+			suite.SetupTest() // reset
+
+			sdkCtx = suite.network.GetContext()
+			tc.malleate()
+
+			res, err := suite.queryClient.OwnerAddress(ctx, &types.QueryOwnerAddressRequest{
+				ContractAddress: contractAddr.Hex(),
+			})
+			suite.Require().NoError(err)
+			suite.Require().Equal(tc.expOwner, res.OwnerAddress)
+		})
+	}
 }

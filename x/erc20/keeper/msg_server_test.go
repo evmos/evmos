@@ -10,6 +10,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
 	testutils "github.com/evmos/evmos/v20/testutil/integration/evmos/utils"
+	utiltx "github.com/evmos/evmos/v20/testutil/tx"
 	"github.com/evmos/evmos/v20/x/erc20/keeper"
 	"github.com/evmos/evmos/v20/x/erc20/types"
 	erc20mocks "github.com/evmos/evmos/v20/x/erc20/types/mocks"
@@ -242,7 +243,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				mockBankKeeper.EXPECT().MintCoins(gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("failed to mint")).AnyTimes()
 				mockBankKeeper.EXPECT().SendCoinsFromModuleToAccount(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("failed to unescrow")).AnyTimes()
 				mockBankKeeper.EXPECT().BlockedAddr(gomock.Any()).Return(false).AnyTimes()
-				mockBankKeeper.EXPECT().GetBalance(gomock.Any(), gomock.Any(), gomock.Any()).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()}).AnyTimes()
+				mockBankKeeper.EXPECT().GetBalance(gomock.Any(), gomock.Any(), gomock.Any()).Return(sdk.Coin{Denom: cosmosTokenDisplay, Amount: math.OneInt()}).AnyTimes()
 			},
 			contractMinterBurner,
 			false,
@@ -267,7 +268,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				mockBankKeeper.EXPECT().MintCoins(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 				mockBankKeeper.EXPECT().SendCoinsFromModuleToAccount(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("failed to unescrow"))
 				mockBankKeeper.EXPECT().BlockedAddr(gomock.Any()).Return(false)
-				mockBankKeeper.EXPECT().GetBalance(gomock.Any(), gomock.Any(), gomock.Any()).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()})
+				mockBankKeeper.EXPECT().GetBalance(gomock.Any(), gomock.Any(), gomock.Any()).Return(sdk.Coin{Denom: cosmosTokenDisplay, Amount: math.OneInt()})
 			},
 			contractMinterBurner,
 			false,
@@ -389,6 +390,205 @@ func (suite *KeeperTestSuite) TestUpdateParams() {
 				suite.Require().Error(err)
 			} else {
 				suite.Require().NoError(err)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestMint() {
+	var ctx sdk.Context
+	contractAddr := utiltx.GenerateAddress()
+	denom := cosmosTokenDisplay
+	sender := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+
+	testcases := []struct {
+		name     string
+		msgMint  *types.MsgMint
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"fail - invalid sender address",
+			&types.MsgMint{
+				ContractAddress: utiltx.GenerateAddress().String(),
+				Amount:          math.NewInt(100),
+				Sender:          "invalid",
+			},
+			func() {},
+			false,
+		},
+		{
+			"fail - invalid receiver address",
+			&types.MsgMint{
+				ContractAddress: contractAddr.String(),
+				Amount:          math.NewInt(100),
+				Sender:          sender.String(),
+				To:              "invalid",
+			},
+			func() {},
+			false,
+		},
+		{
+			"pass - valid msg",
+			&types.MsgMint{
+				ContractAddress: contractAddr.String(),
+				Amount:          math.NewInt(100),
+				Sender:          sender.String(),
+				To:              sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+			},
+			func() {
+				expPair := types.NewTokenPair(
+					contractAddr,
+					denom,
+					types.OWNER_MODULE,
+				)
+				expPair.SetOwnerAddress(sender.String())
+				suite.network.App.Erc20Keeper.SetTokenPair(ctx, expPair)
+				suite.network.App.Erc20Keeper.SetDenomMap(ctx, expPair.Denom, expPair.GetID())
+				suite.network.App.Erc20Keeper.SetERC20Map(ctx, expPair.GetERC20Contract(), expPair.GetID())
+			},
+			true,
+		},
+	}
+
+	for _, tc := range testcases {
+		suite.Run(tc.name, func() {
+			ctx = suite.network.GetContext()
+			tc.malleate()
+			res, err := suite.network.App.Erc20Keeper.Mint(ctx, tc.msgMint)
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().NotNil(res)
+			} else {
+				suite.Require().Error(err)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestBurn() {
+	var ctx sdk.Context
+	contractAddr := utiltx.GenerateAddress()
+	sender := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+
+	testcases := []struct {
+		name     string
+		msgBurn  *types.MsgBurn
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"fail - invalid sender address",
+			&types.MsgBurn{
+				ContractAddress: contractAddr.String(),
+				Amount:          math.NewInt(100),
+				Sender:          "invalid",
+			},
+			func() {},
+			false,
+		},
+		{
+			"pass - valid msg",
+			&types.MsgBurn{
+				ContractAddress: contractAddr.String(),
+				Amount:          math.NewInt(100),
+				Sender:          sender.String(),
+			},
+			func() {
+				expPair := types.NewTokenPair(
+					contractAddr,
+					cosmosTokenDisplay,
+					types.OWNER_MODULE,
+				)
+				suite.network.App.Erc20Keeper.SetTokenPair(ctx, expPair)
+				suite.network.App.Erc20Keeper.SetDenomMap(ctx, expPair.Denom, expPair.GetID())
+				suite.network.App.Erc20Keeper.SetERC20Map(ctx, expPair.GetERC20Contract(), expPair.GetID())
+			},
+			true,
+		},
+	}
+
+	for _, tc := range testcases {
+		suite.Run(tc.name, func() {
+			ctx = suite.network.GetContext()
+
+			err := suite.network.App.BankKeeper.MintCoins(ctx, types.ModuleName, sdk.Coins{sdk.NewCoin(cosmosTokenDisplay, math.NewInt(100))})
+			suite.Require().NoError(err)
+
+			err = suite.network.App.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, sender, sdk.Coins{sdk.NewCoin(cosmosTokenDisplay, math.NewInt(100))})
+			suite.Require().NoError(err)
+
+			tc.malleate()
+			res, err := suite.network.App.Erc20Keeper.Burn(ctx, tc.msgBurn)
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().NotNil(res)
+			} else {
+				suite.Require().Error(err)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestTransferContractOwnership() {
+	var ctx sdk.Context
+
+	tokenAddr := utiltx.GenerateAddress()
+
+	testcases := []struct {
+		name     string
+		msg      *types.MsgTransferOwnership
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"fail - invalid authority address",
+			&types.MsgTransferOwnership{
+				Authority: "invalid",
+			},
+			func() {},
+			false,
+		},
+		{
+			"fail - invalid new owner address",
+			&types.MsgTransferOwnership{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				NewOwner:  "invalid",
+			},
+			func() {},
+			false,
+		},
+		{
+			"pass - valid msg",
+			&types.MsgTransferOwnership{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				NewOwner:  sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+				Token:     tokenAddr.String(),
+			},
+			func() {
+				expPair := types.NewTokenPair(
+					tokenAddr,
+					cosmosTokenDisplay,
+					types.OWNER_MODULE,
+				)
+				suite.network.App.Erc20Keeper.SetTokenPair(ctx, expPair)
+				suite.network.App.Erc20Keeper.SetDenomMap(ctx, expPair.Denom, expPair.GetID())
+				suite.network.App.Erc20Keeper.SetERC20Map(ctx, expPair.GetERC20Contract(), expPair.GetID())
+			},
+			true,
+		},
+	}
+
+	for _, tc := range testcases {
+		suite.Run(tc.name, func() {
+			ctx = sdk.UnwrapSDKContext(suite.network.GetContext())
+			tc.malleate()
+			res, err := suite.network.App.Erc20Keeper.TransferContractOwnership(ctx, tc.msg)
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().NotNil(res)
+			} else {
+				suite.Require().Error(err)
 			}
 		})
 	}
