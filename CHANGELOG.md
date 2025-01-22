@@ -50,8 +50,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (precompiles) [#3004](https://github.com/evmos/evmos/pull/3004) Add `Deposit` and `CancelProposal` tx to gov precompile.
+- (precompiles) [#2997](https://github.com/evmos/evmos/pull/2997) Add `evidence` precompile with `submitEvidence` and `evidence` queries.
 - (gov) [#3002](https://github.com/evmos/evmos/pull/3002) Add `Params` query for governance precompile.
-- (evidence) [#2997](https://github.com/evmos/evmos/pull/2997) Add `evidence` precompile with `submitEvidence` and `evidence` queries.
 - (precompiles) [#2991](https://github.com/evmos/evmos/pull/2991) Add `slashing` precompile with `unjail` and `signingInfo`.
 - (gov) [#2976](https://github.com/evmos/evmos/pull/2976) Add `Proposals` and `Proposal` queries to gov precompile.
 - (testnet) [#2826](https://github.com/evmos/evmos/pull/2826) Fix command `evmosd testnet init-files` for validator_address is error.
@@ -1048,9 +1049,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 - (erc20) [#169](https://github.com/evmos/evmos/pull/169) Fixes several testnet bugs:.
-  - Check if supply exists for a token before when submitting a `RegisterCoinProposal`, allowing users to create an ERC20 representation of an invalid Cosmos Coin.
-  - Sanitize the ERC20 token name when creating coin metadata on ER `RegisterERC20Proposal`.
-  - Fix coin metadata validation error when registering an ERC20 with 0 denom units.
+    - Check if supply exists for a token before when submitting a `RegisterCoinProposal`, allowing users to create an ERC20 representation of an invalid Cosmos Coin.
+    - Sanitize the ERC20 token name when creating coin metadata on ER `RegisterERC20Proposal`.
+    - Fix coin metadata validation error when registering an ERC20 with 0 denom units.
 - (erc20) [#191](https://github.com/evmos/evmos/pull/191) Add direct balance protection (IF-ETHERMINT-06).
 - (erc20) [#192](https://github.com/evmos/evmos/pull/192) Add delayed malicious effect protection (IF-ETHERMINT-06).
 - (erc20) [#200](https://github.com/evmos/evmos/pull/200) Match coin and token decimals for ERC-20 deployment during registerCoin.
