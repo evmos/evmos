@@ -668,7 +668,7 @@ type ParamsOutput struct {
 }
 
 // FromResponse populates the ParamsOutput from a query response
-func (o *ParamsOutput) FromResponse(res *govv1.QueryParamsResponse) *ParamsOutput {
+func (o *ParamsOutput) FromResponse(res *v1.QueryParamsResponse) *ParamsOutput {
 	o.VotingPeriod = res.Params.VotingPeriod.Nanoseconds()
 	o.MinDeposit = cmn.NewCoinsResponse(res.Params.MinDeposit)
 	o.MaxDepositPeriod = res.Params.MaxDepositPeriod.Nanoseconds()
@@ -689,12 +689,12 @@ func (o *ParamsOutput) FromResponse(res *govv1.QueryParamsResponse) *ParamsOutpu
 }
 
 // BuildQueryParamsRequest returns the structure for the governance parameters query.
-func BuildQueryParamsRequest(args []interface{}) (*govv1.QueryParamsRequest, error) {
+func BuildQueryParamsRequest(args []interface{}) (*v1.QueryParamsRequest, error) {
 	if len(args) != 0 {
 		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 0, len(args))
 	}
 
-	return &govv1.QueryParamsRequest{
+	return &v1.QueryParamsRequest{
 		ParamsType: "",
 	}, nil
 }
