@@ -15,7 +15,7 @@ const (
 	ReductionFactor = 3
 )
 
-// CalculateEpochProvisions returns mint provision per epoch. The function used to compute the
+// CalculateEpochMintProvision returns mint provision per epoch. The function used to compute the
 // emission is the half life times a reduction factor:
 //
 // f(x) = { a * (1 -r ) ^ x * [1 + maxVariance * (1 - bondedRatio / bTarget)] + c} / reductionFactor
