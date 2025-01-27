@@ -23,7 +23,7 @@ type InputPeriod struct {
 	Length int64  `json:"length_seconds"`
 }
 
-// readScheduleFile reads the file at path and unmarshals it to get the schedule.
+// ReadScheduleFile reads the file at path and unmarshals it to get the schedule.
 // Returns start time, periods, and error.
 func ReadScheduleFile(path string) (int64, sdkvesting.Periods, error) {
 	contents, err := os.ReadFile(filepath.Clean(path))

@@ -19,7 +19,7 @@ func (k Keeper) GetEpochIdentifier(ctx sdk.Context) string {
 	return string(bz)
 }
 
-// SetEpochsPerPeriod stores the epoch identifier
+// SetEpochIdentifier stores the epoch identifier
 func (k Keeper) SetEpochIdentifier(ctx sdk.Context, epochIdentifier string) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.KeyPrefixEpochIdentifier, []byte(epochIdentifier))
