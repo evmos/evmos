@@ -137,7 +137,7 @@ enable-fee-suggestion = {{ .Rosetta.Config.EnableFeeSuggestion }}
 # GasToSuggest defines gas limit when calculating the fee
 gas-to-suggest = {{ .Rosetta.Config.GasToSuggest }}
 
-# DenomToSuggest defines the defult denom for fee suggestion.
+# DenomToSuggest defines the default denom for fee suggestion.
 # Price must be in minimum-gas-prices.
 denom-to-suggest = "{{ .Rosetta.Config.DenomToSuggest }}"
 

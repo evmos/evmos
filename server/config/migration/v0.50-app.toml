@@ -366,7 +366,7 @@ enable-fee-suggestion = false
 # GasToSuggest defines gas limit when calculating the fee
 gas-to-suggest = 300000
 
-# DenomToSuggest defines the defult denom for fee suggestion.
+# DenomToSuggest defines the default denom for fee suggestion.
 # Price must be in minimum-gas-prices.
 denom-to-suggest = "aevmos"
 
