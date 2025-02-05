@@ -26,7 +26,7 @@ var (
 	ParamStoreKeyNativePrecompiles  = []byte("NativePrecompiles")
 	// DefaultNativePrecompiles defines the default precompiles for the wrapped native coin
 	// NOTE: If you modify this, make sure you modify it on the local_node genesis script as well
-	DefaultNativePrecompiles = []string{WEVMOSContractMainnet}
+	DefaultNativePrecompiles []string
 	// DefaultDynamicPrecompiles defines the default active dynamic precompiles
 	DefaultDynamicPrecompiles []string
 )

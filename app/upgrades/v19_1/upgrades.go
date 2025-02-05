@@ -61,15 +61,15 @@ func CreateUpgradeHandler(
 			logger.Error("error removing outposts", "error", err)
 		}
 
-		bondDenom := sk.BondDenom(ctx)
-		wevmosContract := common.HexToAddress(erc20types.WEVMOSContractMainnet)
+		// bondDenom := sk.BondDenom(ctx)
+		// wevmosContract := common.HexToAddress(erc20types.WEVMOSContractMainnet)
 
-		ctxCache, writeFn = ctx.CacheContext()
-		if err = RunSTRv2Migration(ctxCache, logger, ak, bk, erc20k, ek, wevmosContract, bondDenom); err == nil {
-			writeFn()
-		} else {
-			logger.Error("error running strv2 migration", "error", err)
-		}
+		// ctxCache, writeFn = ctx.CacheContext()
+		// if err = RunSTRv2Migration(ctxCache, logger, ak, bk, erc20k, ek, wevmosContract, bondDenom); err == nil {
+		// 	writeFn()
+		// } else {
+		// 	logger.Error("error running strv2 migration", "error", err)
+		// }
 
 		ctxCache, writeFn = ctx.CacheContext()
 		if err := EnableCustomEIPs(ctxCache, logger, ek); err == nil {
@@ -78,14 +78,14 @@ func CreateUpgradeHandler(
 			logger.Error("error setting new extra EIPs", "error", err)
 		}
 
-		if utils.IsTestnet(ctx.ChainID()) {
-			ctxCache, writeFn = ctx.CacheContext()
-			if err := ReplaceTestnetWevmosContract(ctxCache, erc20k); err == nil {
-				writeFn()
-			} else {
-				logger.Error("error setting wevmos testnet contract", "error", err)
-			}
-		}
+		// if utils.IsTestnet(ctx.ChainID()) {
+		// 	ctxCache, writeFn = ctx.CacheContext()
+		// 	if err := ReplaceTestnetWevmosContract(ctxCache, erc20k); err == nil {
+		// 		writeFn()
+		// 	} else {
+		// 		logger.Error("error setting wevmos testnet contract", "error", err)
+		// 	}
+		// }
 
 		return migrationRes, err
 	}

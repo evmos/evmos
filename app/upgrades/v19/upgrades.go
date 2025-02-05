@@ -15,7 +15,6 @@ import (
 
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/utils"
 	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
@@ -55,24 +54,24 @@ func CreateUpgradeHandler(
 			logger.Error("error removing outposts", "error", err)
 		}
 
-		bondDenom := sk.BondDenom(ctx)
+		// bondDenom := sk.BondDenom(ctx)
 
-		var wevmosContract common.Address
-		switch {
-		case utils.IsMainnet(ctx.ChainID()):
-			wevmosContract = common.HexToAddress(erc20types.WEVMOSContractMainnet)
-		case utils.IsTestnet(ctx.ChainID()):
-			wevmosContract = common.HexToAddress(erc20types.WEVMOSContractTestnet)
-		default:
-			panic("unknown chain id")
-		}
+		// var wevmosContract common.Address
+		// switch {
+		// case utils.IsMainnet(ctx.ChainID()):
+		// 	wevmosContract = common.HexToAddress(erc20types.WEVMOSContractMainnet)
+		// case utils.IsTestnet(ctx.ChainID()):
+		// 	wevmosContract = common.HexToAddress(erc20types.WEVMOSContractTestnet)
+		// default:
+		// 	panic("unknown chain id")
+		// }
 
-		ctxCache, writeFn = ctx.CacheContext()
-		if err = RunSTRv2Migration(ctxCache, logger, ak, bk, erc20k, ek, wevmosContract, bondDenom); err == nil {
-			writeFn()
-		} else {
-			logger.Error("error running strv2 migration", "error", err)
-		}
+		// ctxCache, writeFn = ctx.CacheContext()
+		// if err = RunSTRv2Migration(ctxCache, logger, ak, bk, erc20k, ek, wevmosContract, bondDenom); err == nil {
+		// 	writeFn()
+		// } else {
+		// 	logger.Error("error running strv2 migration", "error", err)
+		// }
 
 		ctxCache, writeFn = ctx.CacheContext()
 		if err := EnableCustomEIPs(ctxCache, logger, ek); err == nil {
@@ -81,14 +80,14 @@ func CreateUpgradeHandler(
 			logger.Error("error setting new extra EIPs", "error", err)
 		}
 
-		if utils.IsTestnet(ctx.ChainID()) {
-			ctxCache, writeFn = ctx.CacheContext()
-			if err := ReplaceTestnetWevmosContract(ctxCache, erc20k); err == nil {
-				writeFn()
-			} else {
-				logger.Error("error setting wevmos testnet contract", "error", err)
-			}
-		}
+		// if utils.IsTestnet(ctx.ChainID()) {
+		// 	ctxCache, writeFn = ctx.CacheContext()
+		// 	if err := ReplaceTestnetWevmosContract(ctxCache, erc20k); err == nil {
+		// 		writeFn()
+		// 	} else {
+		// 		logger.Error("error setting wevmos testnet contract", "error", err)
+		// 	}
+		// }
 
 		return migrationRes, err
 	}
