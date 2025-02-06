@@ -4,6 +4,7 @@ package evm
 
 import (
 	"errors"
+	"strings"
 
 	errorsmod "cosmossdk.io/errors"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
@@ -56,10 +57,18 @@ func checkDisabledCreateCall(
 //
 // FIXME: this shouldn't be required if the tx was an Ethereum transaction type.
 func ValidateTx(tx sdktypes.Tx) (*tx.Fee, error) {
+	var feePayer bool
+
 	err := tx.ValidateBasic()
-	// ErrNoSignatures is fine with eth tx
-	if err != nil && !errors.Is(err, errortypes.ErrNoSignatures) {
-		return nil, errorsmod.Wrap(err, "tx basic validation failed")
+	if err != nil {
+		if errors.Is(err, errortypes.ErrNoSignatures) {
+			// ErrNoSignatures is fine with eth tx
+		} else if errors.Is(err, errortypes.ErrUnauthorized) && strings.HasPrefix(err.Error(), "wrong number of signers") {
+			// One missing signature is also fine when fee payer is used
+			feePayer = true
+		} else {
+			return nil, errorsmod.Wrap(err, "tx basic validation failed")
+		}
 	}
 
 	// For eth type cosmos tx, some fields should be verified as zero values,
@@ -81,17 +90,38 @@ func ValidateTx(tx sdktypes.Tx) (*tx.Fee, error) {
 	}
 
 	authInfo := protoTx.AuthInfo
-	if len(authInfo.SignerInfos) > 0 {
-		return nil, errorsmod.Wrap(errortypes.ErrInvalidRequest, "for eth tx AuthInfo SignerInfos should be empty")
+	if authInfo.Fee.Granter != "" {
+		return nil, errorsmod.Wrap(errortypes.ErrInvalidRequest, "for eth tx AuthInfo Fee granter should be empty")
 	}
+	if feePayer {
+		if len(authInfo.SignerInfos) != 1 {
+			return nil, errorsmod.Wrap(errortypes.ErrInvalidRequest, "for eth tx AuthInfo SignerInfos can only be the fee payer")
+		}
 
-	if authInfo.Fee.Payer != "" || authInfo.Fee.Granter != "" {
-		return nil, errorsmod.Wrap(errortypes.ErrInvalidRequest, "for eth tx AuthInfo Fee payer and granter should be empty")
-	}
+		if authInfo.Fee.Payer == "" {
+			return nil, errorsmod.Wrap(errortypes.ErrInvalidRequest, "for eth tx with additional signatures AuthInfo Fee payer has to be non-empty")
+		}
 
-	sigs := protoTx.Signatures
-	if len(sigs) > 0 {
-		return nil, errorsmod.Wrap(errortypes.ErrInvalidRequest, "for eth tx Signatures should be empty")
+		sigs := protoTx.Signatures
+		if len(sigs) == 0 {
+			return nil, errorsmod.Wrap(errortypes.ErrInvalidRequest, "missing fee payer signature")
+		}
+		if len(sigs) > 1 {
+			return nil, errorsmod.Wrap(errortypes.ErrInvalidRequest, "for eth tx Signatures can only contain the fee payer")
+		}
+	} else {
+		if len(authInfo.SignerInfos) > 0 {
+			return nil, errorsmod.Wrap(errortypes.ErrInvalidRequest, "for eth tx AuthInfo SignerInfos should be empty")
+		}
+
+		if authInfo.Fee.Payer != "" {
+			return nil, errorsmod.Wrap(errortypes.ErrInvalidRequest, "for eth tx AuthInfo Fee payer should be empty")
+		}
+
+		sigs := protoTx.Signatures
+		if len(sigs) > 0 {
+			return nil, errorsmod.Wrap(errortypes.ErrInvalidRequest, "for eth tx Signatures should be empty")
+		}
 	}
 
 	return authInfo.Fee, nil
