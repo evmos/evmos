@@ -313,7 +313,6 @@ func (msg *MsgEthereumTx) GetSender(chainID *big.Int) (common.Address, error) {
 		return common.Address{}, err
 	}
 
-	msg.From = from.Hex()
 	return from, nil
 }
 
