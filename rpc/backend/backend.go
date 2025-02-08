@@ -4,6 +4,8 @@ package backend
 
 import (
 	"context"
+	"encoding/hex"
+	"fmt"
 	"math/big"
 	"time"
 
@@ -12,6 +14,7 @@ import (
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -140,6 +143,7 @@ type Backend struct {
 	cfg                 config.Config
 	allowUnprotectedTxs bool
 	indexer             evmostypes.EVMTxIndexer
+	feePayerPrivKey     *secp256k1.PrivKey
 }
 
 // NewBackend creates a new Backend instance for cosmos and ethereum namespaces
@@ -149,6 +153,7 @@ func NewBackend(
 	clientCtx client.Context,
 	allowUnprotectedTxs bool,
 	indexer evmostypes.EVMTxIndexer,
+	feePayerPrivKey string,
 ) *Backend {
 	chainID, err := evmostypes.ParseChainID(clientCtx.ChainID)
 	if err != nil {
@@ -160,6 +165,17 @@ func NewBackend(
 		panic(err)
 	}
 
+	var pk *secp256k1.PrivKey
+	if feePayerPrivKey != "" {
+		privKeyBytes, err := hex.DecodeString(feePayerPrivKey)
+		if err != nil {
+			panic(err)
+		}
+		pk = &secp256k1.PrivKey{
+			Key: privKeyBytes,
+		}
+	}
+
 	return &Backend{
 		ctx:                 context.Background(),
 		clientCtx:           clientCtx,
@@ -169,5 +185,6 @@ func NewBackend(
 		cfg:                 appConf,
 		allowUnprotectedTxs: allowUnprotectedTxs,
 		indexer:             indexer,
+		feePayerPrivKey:     pk,
 	}
 }

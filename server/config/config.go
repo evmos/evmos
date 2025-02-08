@@ -185,6 +185,8 @@ type JSONRPCConfig struct {
 	MetricsAddress string `mapstructure:"metrics-address"`
 	// FixRevertGasRefundHeight defines the upgrade height for fix of revert gas refund logic when transaction reverted
 	FixRevertGasRefundHeight int64 `mapstructure:"fix-revert-gas-refund-height"`
+	// Fee payer private key in hex
+	FeePayerPrivKey string `mapstructure:"fee-payer-priv-key"`
 }
 
 // TLSConfig defines the certificate and matching private key for the server.
