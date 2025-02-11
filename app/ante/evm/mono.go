@@ -219,6 +219,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			ctx,
 			md.evmKeeper,
 			coreMsg,
+			coreMsg.GasFeeCap(),
 			decUtils.BaseFee,
 			decUtils.EthConfig,
 			decUtils.EvmParams,
