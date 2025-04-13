@@ -12,7 +12,7 @@ parent:
     <img alt="Version" src="https://img.shields.io/github/tag/evmos/evmos.svg" />
   </a>
   <a href="https://github.com/evmos/evmos/blob/main/LICENSE">
-    <img alt="License" src="https://img.shields.io/github/license/evmos/evmos.svg" />
+    <img alt="License" src="https://img.shields.io/badge/License-ENCL%201.0-green.svg" />
   </a>
   <a href="https://pkg.go.dev/github.com/evmos/evmos">
     <img alt="GoDoc" src="https://godoc.org/github.com/evmos/evmos?status.svg" />
