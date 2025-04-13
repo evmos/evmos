@@ -12,7 +12,7 @@ parent:
     <img alt="Version" src="https://img.shields.io/github/tag/evmos/evmos.svg" />
   </a>
   <a href="https://github.com/evmos/evmos/blob/main/LICENSE">
-    <img alt="License" src="https://img.shields.io/github/license/evmos/evmos.svg" />
+    <img alt="License" src="https://img.shields.io/badge/License-ENCL%201.0-green.svg" />
   </a>
   <a href="https://pkg.go.dev/github.com/evmos/evmos">
     <img alt="GoDoc" src="https://godoc.org/github.com/evmos/evmos?status.svg" />
@@ -26,7 +26,7 @@ parent:
     <img alt="Discord" src="https://img.shields.io/discord/809048090249134080.svg" />
   </a>
   <a href="https://github.com/evmos/evmos/actions?query=branch%3Amain+workflow%3ALint">
-    <img alt="Lint Status" src="https://github.com/evmos/evmos/actions/workflows/lint.yml/badge.svg?branch=main" />
+    <img alt="Lint Status" src="https://github.com/evmos/evmos/actions/workflows/lint.yml/badge.svg" />
   </a>
   <a href="https://codecov.io/gh/evmos/evmos">
     <img alt="Code Coverage" src="https://codecov.io/gh/evmos/evmos/branch/main/graph/badge.svg" />
