@@ -26,7 +26,7 @@ parent:
     <img alt="Discord" src="https://img.shields.io/discord/809048090249134080.svg" />
   </a>
   <a href="https://github.com/evmos/evmos/actions?query=branch%3Amain+workflow%3ALint">
-    <img alt="Lint Status" src="https://github.com/evmos/evmos/actions/workflows/lint.yml/badge.svg?branch=main" />
+    <img alt="Lint Status" src="https://github.com/evmos/evmos/actions/workflows/lint.yml/badge.svg" />
   </a>
   <a href="https://codecov.io/gh/evmos/evmos">
     <img alt="Code Coverage" src="https://codecov.io/gh/evmos/evmos/branch/main/graph/badge.svg" />
