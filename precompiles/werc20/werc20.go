@@ -118,34 +118,37 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// This handles any out of gas errors that may occur during the execution of
 	// a precompile tx or query. It avoids panics and returns the out of gas error so
 	// the EVM can continue gracefully.
-	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
+	defer cmn.HandleGasError(ctx, contract, initialGas, &err, stateDB, snapshot)()
 
-	switch {
-	case method.Type == abi.Fallback,
-		method.Type == abi.Receive,
-		method.Name == DepositMethod:
-		bz, err = p.Deposit(ctx, contract, stateDB)
-	case method.Name == WithdrawMethod:
-		bz, err = p.Withdraw(ctx, contract, stateDB, args)
-	default:
-		// ERC20 transactions and queries
-		bz, err = p.Precompile.HandleMethod(ctx, contract, stateDB, method, args)
-	}
+	return p.RunAtomic(snapshot, stateDB, func() ([]byte, error) {
 
-	if err != nil {
-		return nil, err
-	}
+		switch {
+		case method.Type == abi.Fallback,
+			method.Type == abi.Receive,
+			method.Name == DepositMethod:
+			bz, err = p.Deposit(ctx, contract, stateDB)
+		case method.Name == WithdrawMethod:
+			bz, err = p.Withdraw(ctx, contract, stateDB, args)
+		default:
+			// ERC20 transactions and queries
+			bz, err = p.Precompile.HandleMethod(ctx, contract, stateDB, method, args)
+		}
 
-	cost := ctx.GasMeter().GasConsumed() - initialGas
+		if err != nil {
+			return nil, err
+		}
 
-	if !contract.UseGas(cost) {
-		return nil, vm.ErrOutOfGas
-	}
+		cost := ctx.GasMeter().GasConsumed() - initialGas
 
-	if err := p.AddJournalEntries(stateDB, snapshot); err != nil {
-		return nil, err
-	}
-	return bz, nil
+		if !contract.UseGas(cost) {
+			return nil, vm.ErrOutOfGas
+		}
+
+		if err := p.AddJournalEntries(stateDB, snapshot); err != nil {
+			return nil, err
+		}
+		return bz, nil
+	})
 }
 
 // IsTransaction returns true if the given method name correspond to a

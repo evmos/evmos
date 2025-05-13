@@ -90,43 +90,46 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 	// This handles any out of gas errors that may occur during the execution of a precompile tx or query.
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
-	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
+	defer cmn.HandleGasError(ctx, contract, initialGas, &err, stateDB, snapshot)()
 
-	switch method.Name {
-	// Approval transaction
-	case authorization.ApproveMethod:
-		bz, err = p.Approve(ctx, evm.Origin, stateDB, method, args)
-	// Vesting transactions
-	case CreateClawbackVestingAccountMethod:
-		bz, err = p.CreateClawbackVestingAccount(ctx, evm.Origin, stateDB, method, args)
-	case FundVestingAccountMethod:
-		bz, err = p.FundVestingAccount(ctx, contract, evm.Origin, stateDB, method, args)
-	case ClawbackMethod:
-		bz, err = p.Clawback(ctx, contract, evm.Origin, stateDB, method, args)
-	case UpdateVestingFunderMethod:
-		bz, err = p.UpdateVestingFunder(ctx, contract, evm.Origin, stateDB, method, args)
-	case ConvertVestingAccountMethod:
-		bz, err = p.ConvertVestingAccount(ctx, stateDB, method, args)
-	// Vesting queries
-	case BalancesMethod:
-		bz, err = p.Balances(ctx, method, args)
-	}
+	return p.RunAtomic(snapshot, stateDB, func() ([]byte, error) {
 
-	if err != nil {
-		return nil, err
-	}
+		switch method.Name {
+		// Approval transaction
+		case authorization.ApproveMethod:
+			bz, err = p.Approve(ctx, evm.Origin, stateDB, method, args)
+		// Vesting transactions
+		case CreateClawbackVestingAccountMethod:
+			bz, err = p.CreateClawbackVestingAccount(ctx, evm.Origin, stateDB, method, args)
+		case FundVestingAccountMethod:
+			bz, err = p.FundVestingAccount(ctx, contract, evm.Origin, stateDB, method, args)
+		case ClawbackMethod:
+			bz, err = p.Clawback(ctx, contract, evm.Origin, stateDB, method, args)
+		case UpdateVestingFunderMethod:
+			bz, err = p.UpdateVestingFunder(ctx, contract, evm.Origin, stateDB, method, args)
+		case ConvertVestingAccountMethod:
+			bz, err = p.ConvertVestingAccount(ctx, stateDB, method, args)
+		// Vesting queries
+		case BalancesMethod:
+			bz, err = p.Balances(ctx, method, args)
+		}
 
-	cost := ctx.GasMeter().GasConsumed() - initialGas
+		if err != nil {
+			return nil, err
+		}
 
-	if !contract.UseGas(cost) {
-		return nil, vm.ErrOutOfGas
-	}
+		cost := ctx.GasMeter().GasConsumed() - initialGas
 
-	if err := p.AddJournalEntries(stateDB, snapshot); err != nil {
-		return nil, err
-	}
+		if !contract.UseGas(cost) {
+			return nil, vm.ErrOutOfGas
+		}
 
-	return bz, nil
+		if err := p.AddJournalEntries(stateDB, snapshot); err != nil {
+			return nil, err
+		}
+
+		return bz, nil
+	})
 }
 
 // IsTransaction checks if the given method name corresponds to a transaction or query.

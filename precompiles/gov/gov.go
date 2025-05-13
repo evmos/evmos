@@ -94,51 +94,54 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 	// This handles any out of gas errors that may occur during the execution of a precompile tx or query.
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
-	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
+	defer cmn.HandleGasError(ctx, contract, initialGas, &err, stateDB, snapshot)()
 
-	switch method.Name {
-	// gov transactions
-	case VoteMethod:
-		bz, err = p.Vote(ctx, evm.Origin, contract, stateDB, method, args)
-	case VoteWeightedMethod:
-		bz, err = p.VoteWeighted(ctx, evm.Origin, contract, stateDB, method, args)
+	return p.RunAtomic(snapshot, stateDB, func() ([]byte, error) {
 
-	// gov queries
-	case GetVoteMethod:
-		bz, err = p.GetVote(ctx, method, contract, args)
-	case GetVotesMethod:
-		bz, err = p.GetVotes(ctx, method, contract, args)
-	case GetDepositMethod:
-		bz, err = p.GetDeposit(ctx, method, contract, args)
-	case GetDepositsMethod:
-		bz, err = p.GetDeposits(ctx, method, contract, args)
-	case GetTallyResultMethod:
-		bz, err = p.GetTallyResult(ctx, method, contract, args)
-	case GetProposalMethod:
-		bz, err = p.GetProposal(ctx, method, contract, args)
-	case GetProposalsMethod:
-		bz, err = p.GetProposals(ctx, method, contract, args)
-	case GetParamsMethod:
-		bz, err = p.GetParams(ctx, method, contract, args)
-	default:
-		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
-	}
+		switch method.Name {
+		// gov transactions
+		case VoteMethod:
+			bz, err = p.Vote(ctx, evm.Origin, contract, stateDB, method, args)
+		case VoteWeightedMethod:
+			bz, err = p.VoteWeighted(ctx, evm.Origin, contract, stateDB, method, args)
 
-	if err != nil {
-		return nil, err
-	}
+		// gov queries
+		case GetVoteMethod:
+			bz, err = p.GetVote(ctx, method, contract, args)
+		case GetVotesMethod:
+			bz, err = p.GetVotes(ctx, method, contract, args)
+		case GetDepositMethod:
+			bz, err = p.GetDeposit(ctx, method, contract, args)
+		case GetDepositsMethod:
+			bz, err = p.GetDeposits(ctx, method, contract, args)
+		case GetTallyResultMethod:
+			bz, err = p.GetTallyResult(ctx, method, contract, args)
+		case GetProposalMethod:
+			bz, err = p.GetProposal(ctx, method, contract, args)
+		case GetProposalsMethod:
+			bz, err = p.GetProposals(ctx, method, contract, args)
+		case GetParamsMethod:
+			bz, err = p.GetParams(ctx, method, contract, args)
+		default:
+			return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
+		}
 
-	cost := ctx.GasMeter().GasConsumed() - initialGas
+		if err != nil {
+			return nil, err
+		}
 
-	if !contract.UseGas(cost) {
-		return nil, vm.ErrOutOfGas
-	}
+		cost := ctx.GasMeter().GasConsumed() - initialGas
 
-	if err := p.AddJournalEntries(stateDB, snapshot); err != nil {
-		return nil, err
-	}
+		if !contract.UseGas(cost) {
+			return nil, vm.ErrOutOfGas
+		}
 
-	return bz, nil
+		if err := p.AddJournalEntries(stateDB, snapshot); err != nil {
+			return nil, err
+		}
+
+		return bz, nil
+	})
 }
 
 // IsTransaction checks if the given method name corresponds to a transaction or query.

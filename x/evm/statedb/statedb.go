@@ -479,6 +479,16 @@ func (s *StateDB) SlotInAccessList(addr common.Address, slot common.Hash) (addre
 	return s.accessList.Contains(addr, slot)
 }
 
+func (s *StateDB) RevertMultiStore(cms storetypes.CacheMultiStore, events sdk.Events) {
+	s.cacheCtx = s.cacheCtx.WithMultiStore(cms)
+	s.writeCache = func() {
+		// rollback the events to the ones
+		// on the snapshot
+		s.ctx.EventManager().EmitEvents(events)
+		cms.Write()
+	}
+}
+
 // Snapshot returns an identifier for the current revision of the state.
 func (s *StateDB) Snapshot() int {
 	id := s.nextRevisionID

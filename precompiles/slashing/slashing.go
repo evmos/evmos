@@ -94,36 +94,39 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 	// This handles any out of gas errors that may occur during the execution of a precompile tx or query.
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
-	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
+	defer cmn.HandleGasError(ctx, contract, initialGas, &err, stateDB, snapshot)()
 
-	switch method.Name {
-	// slashing transactions
-	case UnjailMethod:
-		bz, err = p.Unjail(ctx, method, stateDB, contract, args)
-	// slashing queries
-	case GetSigningInfoMethod:
-		bz, err = p.GetSigningInfo(ctx, method, contract, args)
-	case GetSigningInfosMethod:
-		bz, err = p.GetSigningInfos(ctx, method, contract, args)
-	default:
-		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
-	}
+	return p.RunAtomic(snapshot, stateDB, func() ([]byte, error) {
 
-	if err != nil {
-		return nil, err
-	}
+		switch method.Name {
+		// slashing transactions
+		case UnjailMethod:
+			bz, err = p.Unjail(ctx, method, stateDB, contract, args)
+		// slashing queries
+		case GetSigningInfoMethod:
+			bz, err = p.GetSigningInfo(ctx, method, contract, args)
+		case GetSigningInfosMethod:
+			bz, err = p.GetSigningInfos(ctx, method, contract, args)
+		default:
+			return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
+		}
 
-	cost := ctx.GasMeter().GasConsumed() - initialGas
+		if err != nil {
+			return nil, err
+		}
 
-	if !contract.UseGas(cost) {
-		return nil, vm.ErrOutOfGas
-	}
+		cost := ctx.GasMeter().GasConsumed() - initialGas
 
-	if err := p.AddJournalEntries(stateDB, snapshot); err != nil {
-		return nil, err
-	}
+		if !contract.UseGas(cost) {
+			return nil, vm.ErrOutOfGas
+		}
 
-	return bz, nil
+		if err := p.AddJournalEntries(stateDB, snapshot); err != nil {
+			return nil, err
+		}
+
+		return bz, nil
+	})
 }
 
 // IsTransaction checks if the given method name corresponds to a transaction or query.

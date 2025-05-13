@@ -68,6 +68,18 @@ func (p Precompile) RequiredGas(input []byte, isTransaction bool) uint64 {
 	return p.KvGasConfig.ReadCostFlat + (p.KvGasConfig.ReadCostPerByte * uint64(len(argsBz)))
 }
 
+// RunAtomic is used within the Run function of each Precompile implementation.
+// It handles rolling back to the provided snapshot if an error is returned from the core precompile logic.
+// Note: This is only required for stateful precompiles.
+func (p Precompile) RunAtomic(s snapshot, stateDB *statedb.StateDB, fn func() ([]byte, error)) ([]byte, error) {
+	bz, err := fn()
+	if err != nil {
+		// revert to snapshot on error
+		stateDB.RevertMultiStore(s.MultiStore, s.Events)
+	}
+	return bz, err
+}
+
 // RunSetup runs the initial setup required to run a transaction or a query.
 // It returns the sdk Context, EVM stateDB, ABI method, initial gas and calling arguments.
 func (p Precompile) RunSetup(
@@ -140,7 +152,7 @@ func (p Precompile) RunSetup(
 
 	initialGas := ctx.GasMeter().GasConsumed()
 
-	defer HandleGasError(ctx, contract, initialGas, &err)()
+	defer HandleGasError(ctx, contract, initialGas, &err, stateDB, s)()
 
 	// set the default SDK gas configuration to track gas usage
 	// we are changing the gas meter type, so it panics gracefully when out of gas
@@ -155,11 +167,14 @@ func (p Precompile) RunSetup(
 
 // HandleGasError handles the out of gas panic by resetting the gas meter and returning an error.
 // This is used in order to avoid panics and to allow for the EVM to continue cleanup if the tx or query run out of gas.
-func HandleGasError(ctx sdk.Context, contract *vm.Contract, initialGas storetypes.Gas, err *error) func() {
+func HandleGasError(ctx sdk.Context, contract *vm.Contract, initialGas storetypes.Gas, err *error, stateDB *statedb.StateDB, snapshot snapshot) func() {
 	return func() {
 		if r := recover(); r != nil {
 			switch r.(type) {
 			case storetypes.ErrorOutOfGas:
+				// revert to snapshot on error
+				stateDB.RevertMultiStore(snapshot.MultiStore, snapshot.Events)
+
 				// update contract gas
 				usedGas := ctx.GasMeter().GasConsumed() - initialGas
 				_ = contract.UseGas(usedGas)

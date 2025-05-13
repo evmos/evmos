@@ -96,50 +96,53 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 	// This handles any out of gas errors that may occur during the execution of a precompile tx or query.
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
-	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
+	defer cmn.HandleGasError(ctx, contract, initialGas, &err, stateDB, snapshot)()
 
-	switch method.Name {
-	// TODO Approval transactions => need cosmos-sdk v0.46 & ibc-go v6.2.0
-	// Authorization Methods:
-	case authorization.ApproveMethod:
-		bz, err = p.Approve(ctx, evm.Origin, stateDB, method, args)
-	case authorization.RevokeMethod:
-		bz, err = p.Revoke(ctx, evm.Origin, stateDB, method, args)
-	case authorization.IncreaseAllowanceMethod:
-		bz, err = p.IncreaseAllowance(ctx, evm.Origin, stateDB, method, args)
-	case authorization.DecreaseAllowanceMethod:
-		bz, err = p.DecreaseAllowance(ctx, evm.Origin, stateDB, method, args)
-	// ICS20 transactions
-	case TransferMethod:
-		bz, err = p.Transfer(ctx, evm.Origin, contract, stateDB, method, args)
-	// ICS20 queries
-	case DenomTraceMethod:
-		bz, err = p.DenomTrace(ctx, contract, method, args)
-	case DenomTracesMethod:
-		bz, err = p.DenomTraces(ctx, contract, method, args)
-	case DenomHashMethod:
-		bz, err = p.DenomHash(ctx, contract, method, args)
-	case authorization.AllowanceMethod:
-		bz, err = p.Allowance(ctx, method, args)
-	default:
-		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
-	}
+	return p.RunAtomic(snapshot, stateDB, func() ([]byte, error) {
 
-	if err != nil {
-		return nil, err
-	}
+		switch method.Name {
+		// TODO Approval transactions => need cosmos-sdk v0.46 & ibc-go v6.2.0
+		// Authorization Methods:
+		case authorization.ApproveMethod:
+			bz, err = p.Approve(ctx, evm.Origin, stateDB, method, args)
+		case authorization.RevokeMethod:
+			bz, err = p.Revoke(ctx, evm.Origin, stateDB, method, args)
+		case authorization.IncreaseAllowanceMethod:
+			bz, err = p.IncreaseAllowance(ctx, evm.Origin, stateDB, method, args)
+		case authorization.DecreaseAllowanceMethod:
+			bz, err = p.DecreaseAllowance(ctx, evm.Origin, stateDB, method, args)
+		// ICS20 transactions
+		case TransferMethod:
+			bz, err = p.Transfer(ctx, evm.Origin, contract, stateDB, method, args)
+		// ICS20 queries
+		case DenomTraceMethod:
+			bz, err = p.DenomTrace(ctx, contract, method, args)
+		case DenomTracesMethod:
+			bz, err = p.DenomTraces(ctx, contract, method, args)
+		case DenomHashMethod:
+			bz, err = p.DenomHash(ctx, contract, method, args)
+		case authorization.AllowanceMethod:
+			bz, err = p.Allowance(ctx, method, args)
+		default:
+			return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
+		}
 
-	cost := ctx.GasMeter().GasConsumed() - initialGas
+		if err != nil {
+			return nil, err
+		}
 
-	if !contract.UseGas(cost) {
-		return nil, vm.ErrOutOfGas
-	}
+		cost := ctx.GasMeter().GasConsumed() - initialGas
 
-	if err := p.AddJournalEntries(stateDB, snapshot); err != nil {
-		return nil, err
-	}
+		if !contract.UseGas(cost) {
+			return nil, vm.ErrOutOfGas
+		}
 
-	return bz, nil
+		if err := p.AddJournalEntries(stateDB, snapshot); err != nil {
+			return nil, err
+		}
+
+		return bz, nil
+	})
 }
 
 // IsTransaction checks if the given method name corresponds to a transaction or query.

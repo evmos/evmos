@@ -19,6 +19,21 @@ contract DistributionCaller {
             );
     }
 
+    function testTryClaimRewards(
+        address delegatorAddress,
+        uint32 maxRetrieve
+    ) external returns (bool) {
+        bool success;
+
+        try distribution.DISTRIBUTION_CONTRACT.claimRewards(delegatorAddress, maxRetrieve) returns (bool result) {
+            success = result;
+        } catch {
+            success = false;
+        }
+
+        return success;
+    }
+
     function testWithdrawDelegatorRewardsFromContract(
         string memory _valAddr
     ) public returns (types.Coin[] memory) {
