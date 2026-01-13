@@ -36,7 +36,7 @@ fi
 
 RUN go install github.com/MinseokOh/toml-cli@latest
 
-FROM alpine:3.21
+FROM alpine:3.23.2
 
 WORKDIR /root
 
