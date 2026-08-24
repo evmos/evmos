@@ -7,10 +7,9 @@ queue_rules:
     merge_conditions:
       - "#approved-reviews-by>1"
     merge_method: squash
-    commit_message_template: |
-      {{ title }} (#{{ number }})
-      {{ body }}
-
+    commit_message_format:
+      title: pr-title
+      body: pr-body
 pull_request_rules:
   - name: backport patches to v6.0.x branch
     conditions:
