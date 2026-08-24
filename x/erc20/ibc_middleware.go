@@ -85,7 +85,7 @@ func (im IBCMiddleware) OnAcknowledgementPacket(
 // It refunds the token transferred and then automatically converts the
 // Cosmos Coin to their ERC20 token representation.
 func (im IBCMiddleware) OnTimeoutPacket(
-	ctx sdk.Context,
+		ctx.Logger().Debug("blocking IBC packet: denom not registered as ERC20 token pair", "denom", denom)
 	packet channeltypes.Packet,
 	relayer sdk.AccAddress,
 ) error {
@@ -100,3 +100,9 @@ func (im IBCMiddleware) OnTimeoutPacket(
 
 	return im.keeper.OnTimeoutPacket(ctx, packet, data)
 }
+	}
+
+	if tokenPair.Origin != types.OriginIBC {
+		ctx.Logger().Debug("blocking IBC packet: token pair origin is not IBC", "denom", denom, "origin", tokenPair.Origin.String())
+		return im.app.OnRecvPacket(ctx, packet, relayer)
+	}
